@@ -616,14 +616,17 @@ const VenuePage = () => {
                             <input
                                 type="file"
                                 accept="application/pdf"
+                                multiple
                                 onChange={(e) => {
-                                    const file = e.target.files?.[0]
-                                    if (file && venueId) {
-                                        handlePdfUpload(file, venueId, (url) => {
-                                            setNewVenue((prev) => ({
-                                                ...prev,
-                                                file_url: [...(prev.file_url || []), url]
-                                            }))
+                                    const files = e.target.files
+                                    if (files && venueId) {
+                                        Array.from(files).forEach(file => {
+                                            handlePdfUpload(file, venueId, (url) => {
+                                                setNewVenue((prev) => ({
+                                                    ...prev,
+                                                    file_url: [...(prev.file_url || []), url]
+                                                }))
+                                            })
                                         })
                                     }
                                 }}
