@@ -740,42 +740,52 @@ const VenuePage = () => {
                             </div>
 
                             {/* Image Upload */}
-                            <input
-                                type="file"
-                                accept="image/*"
-                                multiple
-                                onChange={(e) => {
-                                    const files = e.target.files
-                                    if (files && venueId) {
-                                        Array.from(files).forEach(file => {
-                                            handleImageUpload(file, venueId, (url) => {
-                                                setForm((prev) => ({
-                                                    ...prev,
-                                                    images: [...(prev.images || []), url]
-                                                }))
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Subir Imágenes (JPG, PNG, etc.)
+                                </label>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    onChange={(e) => {
+                                        const files = e.target.files
+                                        if (files && venueId) {
+                                            Array.from(files).forEach(file => {
+                                                handleImageUpload(file, venueId, (url) => {
+                                                    setForm((prev) => ({
+                                                        ...prev,
+                                                        images: [...(prev.images || []), url]
+                                                    }))
+                                                })
                                             })
-                                        })
-                                    }
-                                }}
-                            />
+                                        }
+                                    }}
+                                />
+                            </div>
 
 
                             {/* PDF Upload */}
-                            <input
-                                type="file"
-                                accept="application/pdf"
-                                onChange={(e) => {
-                                    const file = e.target.files?.[0]
-                                    if (file && venueId) {
-                                        handlePdfUpload(file, venueId, (url) => {
-                                            setForm((prev) => ({
-                                                ...prev,
-                                                file_url: [...(prev.file_url || []), url]
-                                            }))
-                                        })
-                                    }
-                                }}
-                            />
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Subir Imágenes (JPG, PNG, etc.)
+                                </label>
+                                <input
+                                    type="file"
+                                    accept="application/pdf"
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0]
+                                        if (file && venueId) {
+                                            handlePdfUpload(file, venueId, (url) => {
+                                                setForm((prev) => ({
+                                                    ...prev,
+                                                    file_url: [...(prev.file_url || []), url]
+                                                }))
+                                            })
+                                        }
+                                    }}
+                                />
+                            </div>
                         </div>
                         <button
                             className="bg-blue-700 text-white px-4 py-2 rounded"
