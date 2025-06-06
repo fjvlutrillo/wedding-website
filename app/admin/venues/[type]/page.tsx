@@ -128,11 +128,32 @@ const VenuePage = () => {
 
     {/* update venue function */ }
     const handleUpdate = async () => {
-        if (!selectedVenue) return
-        await supabase.from('venues').update(form).eq('id', selectedVenue.id)
-        setSelectedVenue(null)
-        fetchVenues()
-    }
+        if (!selectedVenue) return;
+
+        const { error } = await supabase
+            .from('venues')
+            .update({
+                name: selectedVenue.name,
+                location: selectedVenue.location,
+                quote_price: selectedVenue.quote_price,
+                quote_price_per_person: selectedVenue.quote_price_per_person,
+                notes: selectedVenue.notes,
+                available_date: selectedVenue.available_date,
+                available_date2: selectedVenue.available_date2,
+                images: selectedVenue.images,
+                file_url: selectedVenue.file_url,
+                // add any other fields here if you later expand your form
+            })
+            .eq('id', selectedVenue.id);
+
+        if (error) {
+            console.error('Error updating venue:', error.message);
+            alert('Error al actualizar el lugar');
+        } else {
+            setSelectedVenue(null);
+            fetchVenues();
+        }
+    };
 
     {/* upload images function */ }
     const handleImageUpload = async (file: File, venueId: string, callback: (url: string) => void) => {
@@ -678,6 +699,19 @@ const VenuePage = () => {
                                 value={form.quote_price_per_person ?? ''}
                                 onChange={(e) => setForm({ ...form, quote_price_per_person: +e.target.value })}
                             />
+
+                            <div className="mb-4">
+                                <label htmlFor="edit_notes" className="block text-sm font-medium text-gray-700">
+                                    Notas
+                                </label>
+                                <textarea
+                                    id="edit_notes"
+                                    className="border p-2 w-full"
+                                    value={selectedVenue.notes || ''}
+                                    onChange={(e) => setSelectedVenue({ ...selectedVenue, notes: e.target.value })}
+                                    rows={4}
+                                />
+                            </div>
 
                             <div className="mb-4">
                                 <label htmlFor="edit_available_date" className="block text-sm font-medium text-gray-700">
