@@ -371,7 +371,7 @@ const VenuePage = () => {
                                     </td>
                                     
                                     <td className="border p-2 text-black">
-                                        {v.location ? (
+                                        {v.location && v.location.trim() !== '' ? (
                                             <a
                                                 href={v.location}
                                                 target="_blank"
