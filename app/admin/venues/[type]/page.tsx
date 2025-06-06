@@ -261,7 +261,7 @@ const VenuePage = () => {
                     <option value="byob">BYOB</option>
                     <option value="flores">Incluye Flores</option>
                     <option value="open_bar">Barra Libre</option>
-                    <option value="rating">Calificación > 3</option>
+                    <option value="rating">Calificación {'>'} 3</option>
                 </select>
 
                 <select
