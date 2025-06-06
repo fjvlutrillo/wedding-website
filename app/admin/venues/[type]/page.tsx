@@ -768,7 +768,7 @@ const VenuePage = () => {
                             {/* PDF Upload */}
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Subir Imágenes (JPG, PNG, etc.)
+                                    Subir PDFs 
                                 </label>
                                 <input
                                     type="file"
