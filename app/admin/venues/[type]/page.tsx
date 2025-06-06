@@ -636,10 +636,14 @@ const VenuePage = () => {
                             className="bg-green-700 text-white px-4 py-2 rounded"
                             onClick={async () => {
                                 if (!session?.user) {
-                                    alert('No autenticado')
-                                    return
+                                    alert('No autenticado');
+                                    return;
                                 }
-                                const newId = venueId || uuidv4()
+                                const newId = venueId || uuidv4();
+
+                                // 🟢 NEW: Get latest file URLs from local variable
+                                const finalFileUrls = newVenue.file_url || [];
+
                                 const { error } = await supabase.from('venues').insert([{
                                     ...newVenue,
                                     id: newId,
@@ -647,14 +651,15 @@ const VenuePage = () => {
                                     created_by: session.user.id,
                                     rating_user1: 0,
                                     rating_user2: 0,
-                                }])
+                                    file_url: finalFileUrls,  // 🟢 NEW: use local variable
+                                }]);
                                 if (error) {
-                                    console.error('Insert error:', error.message)
-                                    alert('Error al crear el lugar')
+                                    console.error('Insert error:', error.message);
+                                    alert('Error al crear el lugar');
                                 } else {
-                                    setShowCreateModal(false)
-                                    setNewVenue({})
-                                    fetchVenues()
+                                    setShowCreateModal(false);
+                                    setNewVenue({});
+                                    fetchVenues();
                                 }
                             }}
                         >
