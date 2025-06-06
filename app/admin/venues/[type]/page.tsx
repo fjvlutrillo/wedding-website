@@ -133,13 +133,13 @@ const VenuePage = () => {
         const { error } = await supabase
             .from('venues')
             .update({
-                name: selectedVenue.name,
-                location: selectedVenue.location,
-                quote_price: selectedVenue.quote_price,
-                quote_price_per_person: selectedVenue.quote_price_per_person,
-                notes: selectedVenue.notes,
-                available_date: selectedVenue.available_date,
-                available_date2: selectedVenue.available_date2,
+                name: form.name,
+                location: form.location,
+                quote_price: form.quote_price,
+                quote_price_per_person: form.quote_price_per_person,
+                notes: form.notes,
+                available_date: form.available_date,
+                available_date2: form.available_date2,
                 images: form.images,
                 file_url: form.file_url,
                 // add any other fields here if you later expand your form
