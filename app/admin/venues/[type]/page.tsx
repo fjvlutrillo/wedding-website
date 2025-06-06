@@ -140,8 +140,8 @@ const VenuePage = () => {
                 notes: selectedVenue.notes,
                 available_date: selectedVenue.available_date,
                 available_date2: selectedVenue.available_date2,
-                images: selectedVenue.images,
-                file_url: selectedVenue.file_url,
+                images: form.images,
+                file_url: form.file_url,
                 // add any other fields here if you later expand your form
             })
             .eq('id', selectedVenue.id);
