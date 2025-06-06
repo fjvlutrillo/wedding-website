@@ -543,21 +543,30 @@ const VenuePage = () => {
                                 value={newVenue.notes || ''}
                                 onChange={(e) => setNewVenue({ ...newVenue, notes: e.target.value })}
                             />
-                            <input
-                                className="border p-2"
-                                type="date"
-                                placeholder="Fecha disponible"
-                                value={newVenue.available_date || ''}
-                                onChange={(e) => setNewVenue({ ...newVenue, available_date: e.target.value })}
-                            />
-                            <input
-                                className="border p-2"
-                                type="date"
-                                placeholder="Fecha 2 disponible"
-                                value={newVenue.available_date2 || ''}
-                                onChange={(e) => setNewVenue({ ...newVenue, available_date2: e.target.value })}
-                            />
-
+                            <div className='mb-4'>
+                                <label htmlFor='available_date' className='block text-sm font-medium text-gray-700'>
+                                    Fecha disponible
+                                </label>
+                                <input
+                                    className="border p-2"
+                                    type="date"
+                                    placeholder="Fecha disponible"
+                                    value={newVenue.available_date || ''}
+                                    onChange={(e) => setNewVenue({ ...newVenue, available_date: e.target.value })}
+                                />
+                            </div>
+                            <div className='mb-4'>
+                                <label htmlFor='available_date2' className='block text-sm font-medium text-gray-700'>
+                                    Segunda fecha disponible
+                                </label>
+                                <input
+                                    className="border p-2"
+                                    type="date"
+                                    placeholder="Fecha 2 disponible"
+                                    value={newVenue.available_date2 || ''}
+                                    onChange={(e) => setNewVenue({ ...newVenue, available_date2: e.target.value })}
+                                />
+                            </div>
 
                             {/* Image Upload */}
                             <p className="font-semibold">Subir imágenes (JPG, PNG, etc.)</p>
@@ -669,6 +678,32 @@ const VenuePage = () => {
                                 value={form.quote_price_per_person ?? ''}
                                 onChange={(e) => setForm({ ...form, quote_price_per_person: +e.target.value })}
                             />
+
+                            <div className="mb-4">
+                                <label htmlFor="edit_available_date" className="block text-sm font-medium text-gray-700">
+                                    Fecha Disponible
+                                </label>
+                                <input
+                                    id="edit_available_date"
+                                    className="border p-2 w-full"
+                                    type="date"
+                                    value={selectedVenue.available_date || ''}
+                                    onChange={(e) => setSelectedVenue({ ...selectedVenue, available_date: e.target.value })}
+                                />
+                            </div>
+
+                            <div className="mb-4">
+                                <label htmlFor="edit_available_date2" className="block text-sm font-medium text-gray-700">
+                                    Fecha 2 Disponible
+                                </label>
+                                <input
+                                    id="edit_available_date2"
+                                    className="border p-2 w-full"
+                                    type="date"
+                                    value={selectedVenue.available_date2 || ''}
+                                    onChange={(e) => setSelectedVenue({ ...selectedVenue, available_date2: e.target.value })}
+                                />
+                            </div>
 
                             {/* Image Upload */}
                             <input
