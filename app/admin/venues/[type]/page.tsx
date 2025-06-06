@@ -136,6 +136,13 @@ const VenuePage = () => {
 
     {/* upload images function */ }
     const handleImageUpload = async (file: File, venueId: string, callback: (url: string) => void) => {
+        const maxSizeMB = 10; // for example, 10MB
+
+        if (file.size > maxSizeMB * 1024 * 1024) {
+            alert(`El archivo es demasiado grande. Tamaño máximo permitido: ${maxSizeMB}MB.`);
+            return;
+        }
+
         const safeFileName = sanitizeFileName(file.name)
         const filePath = `${venueId}/${safeFileName}`
 
@@ -164,6 +171,13 @@ const VenuePage = () => {
 
     {/* Upload pdfs */ }
     const handlePdfUpload = async (file: File, venueId: string, callback: (url: string) => void) => {
+        const maxSizeMB = 10; // for example, 10MB
+
+        if (file.size > maxSizeMB * 1024 * 1024) {
+            alert(`El archivo es demasiado grande. Tamaño máximo permitido: ${maxSizeMB}MB.`);
+            return;
+        }
+
         const safeFileName = sanitizeFileName(file.name)
         const filePath = `${venueId}/${safeFileName}`
 
@@ -280,7 +294,7 @@ const VenuePage = () => {
                 <table className="w-full border text-sm">
                     <thead className="bg-blue-950 text-white">
                         <tr>
-                            <th className="p-2 border">Imagen</th>
+                            {/*<th className="p-2 border">Imagen</th> // had to comment images out. */} 
                             <th className="p-2 border">Nombre</th>
                             <th className="p-2 border">Ubicación</th>
                             <th className="p-2 border">Precio Total</th>
@@ -311,6 +325,8 @@ const VenuePage = () => {
                             })
                             .map((v) => (
                                 <tr key={v.id} className="hover:bg-gray-100 align-top">
+
+                                    {/*
                                     <td className="border p-2 text-black">
                                         {v.images?.[0] ? (
                                             <img
@@ -325,13 +341,28 @@ const VenuePage = () => {
                                             'Sin imagen'
                                         )}
                                     </td>
+                                    */}
                                     <td
                                         className="border p-2 text-blue-700 cursor-pointer underline"
                                         onClick={() => setShowDetails(v)}
                                     >
                                         {v.name}
                                     </td>
-                                    <td className="border p-2 text-black">{v.location}</td>
+                                    
+                                    <td className="border p-2 text-black">
+                                        {v.location ? (
+                                            <a
+                                                href={v.location}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-blue-700 underline"
+                                            >
+                                                {v.location}
+                                            </a>
+                                        ) : (
+                                            'Sin ubicación'
+                                        )}
+                                    </td>
                                     <td className="border p-2 text-black">{formatCurrency(v.quote_price)}</td>
                                     <td className="border p-2 text-black">{formatCurrency(v.quote_price_per_person)}</td>
                                     <td className="border p-2 text-black">{renderTag(v.catering)}</td>
@@ -386,7 +417,19 @@ const VenuePage = () => {
                         >
                             ✕
                         </button>
-                        <h2 className="text-xl font-bold">{showDetails.name}</h2>
+                        <h2 className="text-xl font-bold text-black">{showDetails.name}</h2>
+                        {showDetails.images?.[0] ? (
+                            <img
+                                src={showDetails.images[0]}
+                                className="w-32 h-20 object-cover rounded cursor-pointer"
+                                onClick={() => {
+                                    setSelectedImages(showDetails.images)
+                                    setSelectedImageIndex(0)
+                                }}
+                            />
+                        ) : (
+                            <p className="text-gray-500">Sin imagen</p>
+                        )}
                         <p><strong>Ubicación:</strong> {showDetails.location}</p>
                         <p><strong>Precio Total:</strong> {formatCurrency(showDetails.quote_price)}</p>
                         <p><strong>Precio por Persona:</strong> {formatCurrency(showDetails.quote_price_per_person)}</p>
@@ -492,13 +535,27 @@ const VenuePage = () => {
                                     checked={newVenue.flowers || false}
                                     onChange={(e) => setNewVenue({ ...newVenue, flowers: e.target.checked })}
                                 />
-                                ¿Incluye flores?
+                                ¿Incluye decoración?
                             </label>
                             <textarea
                                 className="border p-2 md:col-span-2"
                                 placeholder="Notas"
                                 value={newVenue.notes || ''}
                                 onChange={(e) => setNewVenue({ ...newVenue, notes: e.target.value })}
+                            />
+                            <input
+                                className="border p-2"
+                                type="date"
+                                placeholder="Fecha disponible"
+                                value={newVenue.available_date || ''}
+                                onChange={(e) => setNewVenue({ ...newVenue, available_date: e.target.value })}
+                            />
+                            <input
+                                className="border p-2"
+                                type="date"
+                                placeholder="Fecha 2 disponible"
+                                value={newVenue.available_date2 || ''}
+                                onChange={(e) => setNewVenue({ ...newVenue, available_date2: e.target.value })}
                             />
 
 
