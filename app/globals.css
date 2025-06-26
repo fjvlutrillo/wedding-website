@@ -62,3 +62,12 @@ body {
 .animate-fade-in-up {
   animation: fade-in-up 0.8s ease-out;
 }
+
+.notebook-paper {
+  box-shadow: 0 6px 24px 0 rgba(60, 40, 20, 0.07), 0 1.5px 6px 0 rgba(0, 0, 0, 0.07);
+  background: repeating-linear-gradient(to bottom,
+      #fff 0px,
+      #fff 34px,
+      #ece7e3 35px);
+  position: relative;
+}

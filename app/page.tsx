@@ -86,15 +86,16 @@ export default function Home() {
           className="absolute inset-0 bg-cover bg-center opacity-0 animate-fade-in"
           style={{ backgroundImage: "url('/hero.jpg')" }}
         />
-        <div className="absolute inset-0 bg-black bg-opacity-40" />
+        {/* Soft overlay */}
+        <div className="absolute inset-0 bg-black bg-opacity-60" />
 
         <div className="relative z-10 flex flex-col items-center h-[85%] w-full max-w-2xl px-4 text-center">
           <div className="flex-1 flex flex-col justify-center space-y-4">
-            <h1 className="text-5xl sm:text-6xl font-light font-[var(--font-great-vibes)]">
+            <h1 className="text-6xl sm:text-6xl font-light font-[var(--font-great-vibes)]">
               Susana & Javier
             </h1>
-            <p className="text-xl sm:text-2xl font-light italic">¡Nos casamos!</p>
-            <p className="text-lg sm:text-xl">26 de julio de 2025 · Ciudad de México</p>
+            <p className="text-xl sm:text-3xl font-light italic">¡Nos casamos!</p>
+            <p className="text-lg sm:text-2xl">16 de agosto, 2025 · Ciudad de México</p>
           </div>
 
           <button
@@ -109,7 +110,7 @@ export default function Home() {
               const header = document.querySelector('.main-header') as HTMLElement
               if (header) header.style.display = 'flex'
             }}
-            className="animate-fade-pulse mt-10 sm:mt-16"
+            className="mt-10 sm:mt-16 animate-fade-pulse  hover:bg-mist text-cocoa px-6 py-2 rounded-full shadow-lg transition"
             aria-label="Ir a historia"
           >
             <svg
@@ -129,35 +130,54 @@ export default function Home() {
       <Header />
 
       {/* Nuestra Historia */}
-      <section id="historia" className="max-w-6xl mx-auto py-24 px-4 sm:px-8">
-        <h2 className="text-4xl sm:text-5xl mb-8 text-rosewood text-center font-[var(--font-great-vibes)]">
-          Nuestra historia
-        </h2>
+      <section
+        id="historia"
+        className="relative flex justify-center items-center py-32 px-4 min-h-[95vh] bg-gradient-to-br from-[#F8F8F8] via-[#E4E0D9] to-[#E1BFB7] overflow-hidden"
+      >
+        {/* Centered bottom floral accent */}
+        <img
+          src="/flowers/bottom_flower.png"
+          alt="Flor inferior"
+          className="absolute left-1/2 bottom-0 -translate-x-1/2 w-[420px] sm:w-[520px] opacity-50 pointer-events-none select-none"
+          style={{ zIndex: 3 }}
+        />
 
-        <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-12">
-          <img
-            src="/historia-left1.jpg"
-            alt="Recuerdo"
-            className="w-full sm:w-1/3 rounded-md border-4 border-rosewood shadow-md"
-          />
-
-          <div className="text-grayish text-justify text-lg leading-relaxed font-serif bg-white/70 p-6 rounded shadow-md">
-            <p>
-              Nos conocimos hace más de 10 años, compartimos aventuras inolvidables, tomamos caminos distintos,
-              y nos reencontramos en octubre de 2022. Desde entonces, nuestra historia ha estado llena de momentos
-              mágicos, risas, y complicidad.
-            </p>
-            <p className="mt-4">
-              Ahora, comenzamos este nuevo capítulo rodeados del amor de quienes más queremos. Gracias por ser
-              parte de este viaje con nosotros.
-            </p>
+        {/* Left polaroid photo */}
+        <div className="absolute left-8 bottom-20 sm:left-24 sm:bottom-32 z-10">
+          <div className="bg-white rounded-xl border-4 border-[#E4C3A1] shadow-lg p-1 transform -rotate-6">
+            <img
+              src="/historia-left1.jpg"
+              alt="Recuerdo"
+              className="w-44 h-56 sm:w-56 sm:h-72 object-cover rounded-md"
+            />
           </div>
+        </div>
 
-          <img
-            src="/historia-right.jpg"
-            alt="Viaje juntos"
-            className="w-full sm:w-1/3 rounded-md border-4 border-rosewood shadow-md"
-          />
+        {/* Right polaroid photo */}
+        <div className="absolute right-8 top-20 sm:right-24 sm:top-32 z-10">
+          <div className="bg-white rounded-xl border-4 border-[#E4C3A1] shadow-lg p-1 transform rotate-6">
+            <img
+              src="/historia-right.jpg"
+              alt="Viaje juntos"
+              className="w-44 h-56 sm:w-56 sm:h-72 object-cover rounded-md"
+            />
+          </div>
+        </div>
+
+        {/* Main "notebook" card */}
+        <div className="relative z-20 bg-white/95 rounded-3xl shadow-2xl px-8 sm:px-14 py-20 min-h-[390px] max-w-2xl mx-auto border-[3px] border-[#E4C3A1] notebook-paper flex flex-col items-center">
+          <div className="flex justify-center mb-3 space-x-2">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="w-4 h-1.5 bg-[#E1BFB7] rounded-full" />
+            ))}
+          </div>
+          <h2 className="text-4xl sm:text-5xl mb-10 text-[#7B4F32] text-center font-[var(--font-great-vibes)] tracking-wide drop-shadow">
+            Nuestra historia
+          </h2>
+          <p className="text-lg text-[#563a27] text-center font-serif leading-relaxed">
+            Nos conocimos hace más de 10 años, compartimos aventuras inolvidables, tomamos caminos distintos, y nos reencontramos en octubre de 2022. Desde entonces, nuestra historia ha estado llena de momentos mágicos, risas y complicidad.<br /><br />
+            Ahora, comenzamos este nuevo capítulo rodeados del amor de quienes más queremos. Gracias por ser parte de este viaje con nosotros.
+          </p>
         </div>
       </section>
 
@@ -167,12 +187,12 @@ export default function Home() {
           Detalles del evento
         </h2>
         <p className="text-lg">Ceremonia y recepción</p>
-        <p>26 de julio de 2025 · 12:00 PM</p>
-        <p>Torre Impulso · Santa Fe, CDMX</p>
+        <p>16 de agosto de 2025 · 13:30 PM</p>
+        <p>Terraza Camino Real · Santa Fe, CDMX</p>
 
         <div className="mt-6 flex justify-center">
           <a
-            href="https://www.google.com/maps/dir/?api=1&destination=Torre+Impulso+Santa+Fe+CDMX"
+            href="https://maps.app.goo.gl/RUdDZqUXfRBK8j4y7"
             target="_blank"
             rel="noopener noreferrer"
           >
