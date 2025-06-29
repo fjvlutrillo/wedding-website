@@ -294,19 +294,27 @@ export default function Home() {
       </section>
 
       {/* Galería */}
-      <section id="galeria" className="py-16 px-4 text-center bg-linen text-wine">
-        <h2 className="text-4xl sm:text-5xl mb-8 font-[var(--font-great-vibes)] text-rosewood">
+      <section
+        id="galeria"
+        className="relative py-20 px-4 text-center min-h-[70vh] 
+    bg-gradient-to-br from-[#FDFCF8] via-[#E4E0D9] to-[#E1BFB7] text-[#7B4B38]"
+      >
+        <h2 className="text-5xl sm:text-6xl mb-10 tracking-wide text-cocoa drop-shadow">
           Galería
         </h2>
 
-        <div className="relative max-w-[90%] sm:max-w-3xl mx-auto">
-          <div ref={sliderRef} className="keen-slider rounded-lg overflow-hidden shadow-lg">
+        <div className="relative max-w-[97vw] sm:max-w-3xl mx-auto">
+          <div
+            ref={sliderRef}
+            className="keen-slider rounded-xl overflow-hidden shadow-2xl border-[3px] border-champagne bg-[#fffaf5]/90"
+          >
             {[1, 2, 3, 4, 5, 6].map((num) => (
-              <div key={num} className="keen-slider__slide">
+              <div key={num} className="keen-slider__slide flex items-center justify-center">
                 <img
                   src={`/gallery/${num}.jpg`}
                   alt={`Galería ${num}`}
-                  className="w-full h-[300px] sm:h-[400px] object-cover"
+                  className="w-full h-[300px] sm:h-[400px] object-cover rounded-xl"
+                  style={{ border: '2px solid #E4C3A1', background: '#fffaf5' }}
                 />
               </div>
             ))}
@@ -315,25 +323,30 @@ export default function Home() {
           {/* Arrows */}
           <button
             onClick={() => instanceRef.current?.prev()}
-            className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-60 hover:bg-opacity-100 p-2 rounded-full shadow-md"
+            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-champagne text-cocoa bg-opacity-80 hover:bg-opacity-100 p-2 rounded-full shadow-xl border-[2px] border-cocoa"
+            aria-label="Anterior"
           >
             ‹
           </button>
           <button
             onClick={() => instanceRef.current?.next()}
-            className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-60 hover:bg-opacity-100 p-2 rounded-full shadow-md"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-champagne text-cocoa bg-opacity-80 hover:bg-opacity-100 p-2 rounded-full shadow-xl border-[2px] border-cocoa"
+            aria-label="Siguiente"
           >
             ›
           </button>
 
           {/* Dots */}
-          <div className="flex justify-center mt-4 space-x-2">
+          <div className="flex justify-center mt-6 space-x-2">
             {[0, 1, 2, 3, 4, 5].map((idx) => (
               <button
                 key={idx}
                 onClick={() => instanceRef.current?.moveToIdx(idx)}
-                className={`w-3 h-3 rounded-full ${currentSlide === idx ? 'bg-rosewood' : 'bg-silver'
-                  }`}
+                className={`
+            w-3 h-3 border-[2px] border-champagne rounded-full transition
+            ${currentSlide === idx ? 'bg-cocoa' : 'bg-champagne'}
+          `}
+                aria-label={`Slide ${idx + 1}`}
               />
             ))}
           </div>
@@ -341,18 +354,28 @@ export default function Home() {
       </section>
 
       {/* Confirmar Asistencia Section */}
-      <section className="bg-rosewood text-white py-20 px-6 text-center">
-        <h2 className="text-4xl sm:text-5xl mb-6 font-[var(--font-great-vibes)]">
+      <section
+        className="relative py-20 px-4 text-center min-h-[50vh] bg-gradient-to-br from-[#FDFCF8] via-[#E4E0D9] to-[#E1BFB7] text-[#7B4B38] flex flex-col justify-center items-center"
+      >
+        <h2 className="text-5xl sm:text-6xl mb-8 text-[#7B4B38] font-bold tracking-wide">
           ¿Nos acompañas?
         </h2>
-        <p className="text-lg mb-8">
-          Haznos saber si podrás asistir a nuestra boda. ¡Tu presencia es muy importante para nosotros!
+        <p className="text-xl sm:text-2xl mb-10 font-bodoni">
+          Haznos saber si podrás asistir a nuestra boda.<br />
+          ¡Tu presencia es muy importante para nosotros!
         </p>
         <Link href="/rsvp">
-          <button className="bg-white text-rosewood font-semibold text-lg px-8 py-3 rounded shadow-lg hover:bg-pinkish transition">
+          <button className="bg-[#E1BFB7] hover:bg-[#E4C3A1] text-[#7B4B38] font-semibold text-lg px-10 py-4 rounded-xl shadow-lg border-[2px] border-[#E4C3A1] transition-all">
             Confirmar asistencia
           </button>
         </Link>
+        {/* Optional subtle accent/decoration */}
+        <img
+          src="/flowers/bottom_flower.png"
+          alt=""
+          className="absolute bottom-2 left-1/2 -translate-x-1/2 w-48 sm:w-64 opacity-60 pointer-events-none select-none"
+          aria-hidden="true"
+        />
       </section>
     </main>
   )
