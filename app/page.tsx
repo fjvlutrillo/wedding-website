@@ -89,13 +89,15 @@ export default function Home() {
         {/* Soft overlay */}
         <div className="absolute inset-0 bg-black bg-opacity-60" />
 
-        <div className="relative z-10 flex flex-col items-center h-[85%] w-full max-w-2xl px-4 text-center">
+        <div className="relative z-10 flex flex-col items-center h-[85%] w-full max-w-2xl px-4 text-center pt-56 sm:pt-72">
           <div className="flex-1 flex flex-col justify-center space-y-4">
-            <h1 className="text-6xl sm:text-6xl font-light font-[var(--font-great-vibes)]">
-              Susana & Javier
+            <p className="text-3xl sm:text-3xl font-bodoni ">¡Nos casamos!</p>
+            <h1 className="text-7xl sm:text-6xl font-luxury font-light">
+              Susana y Javier
             </h1>
-            <p className="text-xl sm:text-3xl font-light italic">¡Nos casamos!</p>
-            <p className="text-lg sm:text-2xl">16 de agosto, 2025 · Ciudad de México</p>
+            <p> </p>
+            <p className="text-1xl font-bodoni sm:text-2xl ">16 de agosto de 2025</p>
+            <p className="text-1xl font-bodoni sm:text-2xl ">Ciudad de México</p>
           </div>
 
           <button
@@ -132,10 +134,9 @@ export default function Home() {
       {/* Nuestra Historia */}
       <section
         id="historia"
-        className="relative flex flex-col items-center justify-center py-24 px-2 min-h-[90vh] 
-             bg-gradient-to-br from-[#F8F8F8] via-[#E4E0D9] to-[#E1BFB7] overflow-hidden"
+        className="relative flex flex-col items-center justify-center py-20 px-2 min-h-[90vh] bg-gradient-to-br from-[#FDFCF8] via-[#E4E0D9] to-[#E1BFB7] overflow-hidden"
       >
-        {/* Top Left Floral Accent (optional) */}
+        {/* Top Left Floral Accent */}
         <img
           src="/side_rose.png"
           alt=""
@@ -143,42 +144,44 @@ export default function Home() {
           aria-hidden="true"
         />
 
-        {/* Bottom Center Floral Accent (optional) */}
+        {/* Bottom Center Floral Accent */}
         <img
-          src="flowers/bottom_flower.png"
+          src="/flowers/bottom_flower.png"
           alt=""
-          className="absolute bottom-2 left-1/2 -translate-x-1/2 w-64 sm:w-80 opacity-70 pointer-events-none select-none"
+          className="absolute bottom-2 left-1/2 -translate-x-1/2 w-80 sm:w-[32rem] opacity-80 pointer-events-none select-none"
           aria-hidden="true"
         />
 
-        {/* Desktop polaroid photos */}
-        <div className="hidden sm:block absolute left-12 top-1/2 -translate-y-1/2 z-10">
-          <img
-            src="/historia-left1.jpg"
-            alt="Recuerdo"
-            className="w-40 h-44 object-cover rounded-xl shadow-xl border-4 border-white rotate-[-8deg]"
-          />
+        {/* Desktop Polaroids */}
+        <div className="hidden sm:block absolute left-16 top-1/2 -translate-y-1/2 z-10">
+          <div className="bg-white rounded-xl shadow-xl rotate-[-8deg] w-44 h-56 flex flex-col items-center pb-6">
+            <img
+              src="/historia-left1.jpg"
+              alt="Recuerdo"
+              className="w-full h-40 object-cover rounded-t-xl"
+            />
+            <span className="text-xs text-gray-500 mt-2">Recuerdo</span>
+          </div>
         </div>
-        <div className="hidden sm:block absolute right-12 top-1/2 -translate-y-1/2 z-10">
-          <img
-            src="/historia-right.jpg"
-            alt="Viaje juntos"
-            className="w-40 h-44 object-cover rounded-xl shadow-xl border-4 border-white rotate-[8deg]"
-          />
+        <div className="hidden sm:block absolute right-16 top-1/2 -translate-y-1/2 z-10">
+          <div className="bg-white rounded-xl shadow-xl rotate-[8deg] w-44 h-56 flex flex-col items-center pb-6">
+            <img
+              src="/historia-right.jpg"
+              alt="Viaje juntos"
+              className="w-full h-40 object-cover rounded-t-xl"
+            />
+            <span className="text-xs text-gray-500 mt-2">Viaje juntos</span>
+          </div>
         </div>
 
-        {/* Notebook Card */}
-        <div className="relative z-30 bg-white/95 rounded-3xl shadow-2xl px-3 sm:px-12 py-8 sm:py-16 min-h-[390px] max-w-lg sm:max-w-2xl mx-auto border-[3px] border-[#E4C3A1] notebook-paper flex flex-col items-center">
-          {/* Decorative dashed line */}
-          <div className="mb-2 flex justify-center w-full">
-            <span className="block w-24 border-t-4 border-dashed border-[#E4C3A1]"></span>
-          </div>
+        {/* Notebook/Paper Card */}
+        <div className="relative z-30 bg-[#FDFCF8] rounded-3xl shadow-xl px-4 sm:px-16 py-12 sm:py-20 min-h-[420px] w-full max-w-xl mx-auto flex flex-col items-center">
           {/* Title */}
-          <h2 className="text-4xl sm:text-5xl mb-6 text-[#7B4B38] text-center font-[var(--font-great-vibes)] font-bold tracking-wide">
-            Nuestra historia
+          <h2 className="text-6xl sm:text-5xl mb-8 text-[#7B4B38] text-center font-luxury font-bold tracking-wide">
+            Nuestra Historia
           </h2>
           {/* Main Text */}
-          <div className="text-[#7B4B38] text-lg sm:text-xl font-serif text-center leading-relaxed">
+          <div className="text-[#7B4B38] text-lg sm:text-xl font-serif text-center leading-relaxed italic">
             <p>
               Nos conocimos hace más de 10 años, compartimos aventuras inolvidables, tomamos caminos distintos,
               y nos reencontramos en octubre de 2022. Desde entonces, nuestra historia ha estado llena de momentos
@@ -191,54 +194,100 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Mobile polaroids (stacked below card) */}
-        <div className="flex flex-col gap-4 items-center sm:hidden mt-8 w-full z-20">
-          <img
-            src="/historia-left1.jpg"
-            alt="Recuerdo"
-            className="w-64 max-w-xs h-44 object-cover rounded-xl shadow-xl border-4 border-white"
-          />
-          <img
-            src="/historia-right.jpg"
-            alt="Viaje juntos"
-            className="w-64 max-w-xs h-44 object-cover rounded-xl shadow-xl border-4 border-white"
-          />
+        {/* Mobile Polaroids */}
+        <div className="flex flex-row justify-center gap-4 items-end sm:hidden mt-8 w-full z-20">
+          <div className="bg-white rounded-xl shadow-xl rotate-[-6deg] w-36 h-44 flex flex-col items-center pb-4">
+            <img
+              src="/historia-left1.jpg"
+              alt="Recuerdo"
+              className="w-full h-32 object-cover rounded-t-xl"
+            />
+            <span className="text-xs text-gray-500 mt-1">Recuerdo</span>
+          </div>
+          <div className="bg-white rounded-xl shadow-xl rotate-[6deg] w-36 h-44 flex flex-col items-center pb-4">
+            <img
+              src="/historia-right.jpg"
+              alt="Viaje juntos"
+              className="w-full h-32 object-cover rounded-t-xl"
+            />
+            <span className="text-xs text-gray-500 mt-1">Viaje juntos</span>
+          </div>
         </div>
       </section>
 
       {/* Detalles del Evento */}
-      <section id="evento" className="bg-linen py-20 px-4 text-center text-wine">
-        <h2 className="text-4xl sm:text-5xl mb-6 font-[var(--font-great-vibes)] text-rosewood">
-          Detalles del evento
+      <section
+        id="evento"
+        className="bg-gradient-to-br from-[#FDFCF8] via-[#E4E0D9] to-[#E1BFB7] py-20 px-4 text-center"
+      >
+        <h2 className="text-4xl sm:text-5xl mb-8 font-bodoni font-bold text-[#7B4B38] tracking-wide">
+          Detalles del Evento
         </h2>
-        <p className="text-lg">Ceremonia y recepción</p>
-        <p>16 de agosto de 2025 · 13:30 PM</p>
-        <p>Terraza Camino Real · Santa Fe, CDMX</p>
-
-        <div className="mt-6 flex justify-center">
+        <div className="text-lg sm:text-xl text-[#7B4B38] font-bodoni mb-4">
+          <p className="">Ceremonia y recepción</p>
+          <p>16 de agosto de 2025 · 13:30 PM</p>
+          <p>Terraza Camino Real · Santa Fe, CDMX</p>
+        </div>
+        <div className="mt-6 flex flex-col items-center gap-2">
           <a
             href="https://maps.app.goo.gl/RUdDZqUXfRBK8j4y7"
             target="_blank"
             rel="noopener noreferrer"
           >
-            <button className="px-6 py-2 bg-rosewood hover:bg-cherry text-white font-medium rounded transition text-sm sm:text-base">
+            <button className="flex items-center gap-2 px-8 py-3 bg-champagne hover:bg-[#e1bfb7] text-[#7B4B38] font-semibold rounded-xl transition text-base shadow-lg">
               Cómo llegar
             </button>
           </a>
+          <div className="flex items-center gap-2 mt-3 text-[#7B4B38]">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="#7B4B38"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 21c-4.97-5.2-7-8.39-7-11A7 7 0 1 1 19 10c0 2.61-2.03 5.8-7 11z"
+              />
+              <circle cx="12" cy="10" r="3" fill="#7B4B38" />
+            </svg>
+            <span className="font-bodoni text-base sm:text-lg">
+              Terraza Camino Real · Santa Fe, CDMX
+            </span>
+          </div>
+
+          {/* Embedded Google Map */}
+          <div className="w-full max-w-xl mx-auto mt-8 rounded-2xl overflow-hidden shadow-lg">
+            <iframe
+              src="https://www.google.com/maps?q=Terraza+Camino+Real+Santa+Fe+CDMX&output=embed"
+              width="100%"
+              height="300"
+              style={{ border: 0, borderRadius: '1rem' }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Mapa de la boda"
+            ></iframe>
+          </div>
         </div>
       </section>
 
       {/* Countdown */}
-      <section className="bg-rosewood py-24 px-6 text-center text-white">
-        <h2 className="text-4xl sm:text-5xl font-semibold mb-8 font-[var(--font-great-vibes)]">
-          La cuenta regresiva
+      <section
+        className="relative py-20 px-4 text-center min-h-[50vh] bg-gradient-to-br from-[#FDFCF8] via-[#E4E0D9] to-[#E1BFB7] text-[#7B4B38]"
+      >
+        <h2 className="text-5xl sm:text-6xl mb-10 font-bold tracking-wide">
+          La Cuenta Regresiva
         </h2>
 
-        <div className="max-w-lg mx-auto bg-white/20 backdrop-blur-sm border border-white/30 text-white px-8 py-10 rounded-xl shadow-lg">
-          <p className="text-lg sm:text-xl mb-4 font-light">
+        <div className="max-w-lg mx-auto bg-[#fffaf5]/90 shadow-xl border-[3px] border-[#E4C3A1] px-8 py-12">
+          <p className="text-xl sm:text-2xl mb-6 font-bodoni italic text-[#7B4B38]">
             ¡Falta muy poco para celebrar juntos!
           </p>
-          <div className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-wide animate-pulse">
+          <div className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-wide animate-pulse text-[#7B4B38] font-bodoni">
             {countdown}
           </div>
         </div>

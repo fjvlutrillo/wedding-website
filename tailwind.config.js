@@ -7,6 +7,11 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        bodoni: ['var(--font-bodoni)'],
+        italianno: ['var(--font-italianno)'],
+        luxury: ['var(--font-luxury)'],
+      },
       colors: {
         mist: '#BFC3C6',  // soft gray
         almond: '#E4E0D9',  // main creamy bg
@@ -18,8 +23,6 @@ module.exports = {
         black: '#111111',
         // Optionally add soft paper backgrounds:
         paper: '#F6F5F2',        // ultra-light off-white
-        sand: '#E4E0D9',
-        blush: '#E1BFB7',
       },
     },
   },

@@ -7,6 +7,7 @@ html {
   scroll-behavior: smooth;
 }
 body {
+  font-family: var(--font-bodoni), serif;
   overflow-x: hidden;
 }
 
@@ -70,4 +71,12 @@ body {
       #fff 34px,
       #ece7e3 35px);
   position: relative;
+}
+
+@font-face {
+  font-family: 'Brittany';
+  src: url('/fonts/Brittany.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
