@@ -76,7 +76,7 @@ export default function Home() {
   }, [])
 
   return (
-    <main className="min-h-screen bg-paper text-wine">
+    <main className="min-h-screen text-wine">
       {/* Hero Section */}
       <section
         id="inicio"
@@ -277,13 +277,13 @@ export default function Home() {
 
       {/* Countdown */}
       <section
-        className="relative py-20 px-4 text-center min-h-[50vh] bg-gradient-to-br from-[#FDFCF8] via-[#E4E0D9] to-[#E1BFB7] text-[#7B4B38]"
+        className="relative py-20 px-4 text-center min-h-[50vh] text-[#7B4B38]"
       >
         <h2 className="text-5xl sm:text-6xl mb-10 font-bold tracking-wide">
           La Cuenta Regresiva
         </h2>
 
-        <div className="max-w-lg mx-auto bg-[#fffaf5]/90 shadow-xl border-[3px] border-[#E4C3A1] px-8 py-12">
+        <div className="max-w-lg mx-auto bg-white/60 backdrop-blur-md shadow-xl border-[3px] border-[#E4C3A1] px-8 py-12">
           <p className="text-xl sm:text-2xl mb-6 font-bodoni italic text-[#7B4B38]">
             ¡Falta muy poco para celebrar juntos!
           </p>
@@ -354,6 +354,7 @@ export default function Home() {
       </section>
 
       {/* Confirmar Asistencia Section */}
+      {/* 
       <section
         className="relative py-20 px-4 text-center min-h-[50vh] bg-gradient-to-br from-[#FDFCF8] via-[#E4E0D9] to-[#E1BFB7] text-[#7B4B38] flex flex-col justify-center items-center"
       >
@@ -369,7 +370,7 @@ export default function Home() {
             Confirmar asistencia
           </button>
         </Link>
-        {/* Optional subtle accent/decoration */}
+        
         <img
           src="/flowers/bottom_flower.png"
           alt=""
@@ -377,6 +378,7 @@ export default function Home() {
           aria-hidden="true"
         />
       </section>
+        */}
     </main>
   )
 }

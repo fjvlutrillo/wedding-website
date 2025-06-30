@@ -176,7 +176,7 @@ export default function GuestUploadPage() {
             {/* Guest Table */}
             <div className="overflow-x-auto border rounded-md bg-white/90 shadow">
                 <table className="min-w-full table-auto text-sm">
-                    <thead className="bg-rosewood text-white">
+                    <thead className="bg-rosewood text-black">
                         <tr>
                             <th className="px-4 py-2">Invitado</th>
                             <th className="px-4 py-2">Invitados</th>
@@ -184,6 +184,7 @@ export default function GuestUploadPage() {
                             <th className="px-4 py-2">Email</th>
                             <th className="px-4 py-2">Confirmados</th>
                             <th className="px-4 py-2">Mesa</th>
+                            <th className="px-4 py-2">Token</th>
                             <th className="px-4 py-2">Acciones</th>
                         </tr>
                     </thead>
@@ -206,6 +207,7 @@ export default function GuestUploadPage() {
                                         </td>
                                         <td className="px-4 py-2">{editForm.confirmations}</td>
                                         <td className="px-4 py-2">{editForm.table_number}</td>
+                                        <td className="px-4 py-2">{editForm.invite_token}</td>
                                         <td className="px-4 py-2">
                                             <button onClick={() => saveEdit(guest.id)} className="text-green-600 mr-2">Guardar</button>
                                             <button onClick={cancelEdit} className="text-gray-500">Cancelar</button>
@@ -219,6 +221,7 @@ export default function GuestUploadPage() {
                                         <td className="px-4 py-2">{guest.email}</td>
                                         <td className="px-4 py-2">{guest.confirmations}</td>
                                         <td className="px-4 py-2">{guest.table_number}</td>
+                                        <td className="px-4 py-2 font-mono text-xs break-all">{guest.invite_token}</td>
                                         <td className="px-4 py-2">
                                             <button onClick={() => startEdit(idx, guest)} className="text-blue-600 mr-2">Editar</button>
                                             <button onClick={() => deleteGuest(guest.id)} className="text-red-600">Eliminar</button>

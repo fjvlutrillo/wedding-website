@@ -25,7 +25,7 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
-      <body className={`${bodoni.variable} ${italianno.variable}, ${luxury.variable}  } bg-paper text-cocoa font-bodoni`}>
+      <body className={`${bodoni.variable} ${italianno.variable}, ${luxury.variable}  } bg-[url('/wedding-wallpaper.jpg')] bg-cover bg-fixed bg-center text-cocoa font-bodoni`}>
         {children}
 
         <footer className="bg-cocoa border-t-[3px] border-champagne text-white text-center py-6 text-sm mt-12 w-full">
