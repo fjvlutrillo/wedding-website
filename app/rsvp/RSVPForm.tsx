@@ -48,10 +48,10 @@ export default function RSVPForm() {
             <Header />
             <div className="relative min-h-screen">
                 {/* Remove the RSVP background for invite palette look, or use a very subtle overlay */}
-                {/* <div
+                <div
           className="absolute inset-0 bg-cover bg-center opacity-0 animate-fade-in"
           style={{ backgroundImage: "url('/rsvp-bg.jpg')" }}
-        /> */}
+        /> 
                 {/* Optionally add a soft overlay for contrast */}
                 <div className="absolute inset-0 bg-[#E4E0D9] bg-opacity-80 pointer-events-none select-none" />
 
