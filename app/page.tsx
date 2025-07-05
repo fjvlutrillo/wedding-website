@@ -8,6 +8,10 @@ import 'keen-slider/keen-slider.min.css'
 import { count } from 'console'
 
 export default function Home() {
+
+  const [showRSVP, setShowRSVP] = useState(false)
+  const [token, setToken] = useState('')
+
   const [countdown, setCountdown] = useState('')
   const [currentSlide, setCurrentSlide] = useState(0)
 
@@ -71,11 +75,22 @@ export default function Home() {
       setCountdown(`${days} \t ${hours} \t ${minutes}`)
     }
 
-    
-
     updateCountdown()
     const interval = setInterval(updateCountdown, 1000)
     return () => clearInterval(interval)
+
+  }, [])
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search)
+      const t = urlParams.get('token')
+      if (t) {
+        // Here you can fetch/validate with Supabase if needed
+        setShowRSVP(true)
+        setToken(t)
+      }
+    }
   }, [])
 
   const isEventDay = countdown.startsWith('Hoy es');
@@ -252,7 +267,7 @@ export default function Home() {
             rel="noopener noreferrer"
           >
             <button className="flex items-center gap-2 px-8 py-3 bg-[#f0dfcc] hover:bg-[#e1bfb7] text-[#173039] font-semibold rounded-xl transition text-base shadow-lg">
-              Cómo llegar
+              ¿Cómo llegar?
             </button>
           </a>
 
@@ -363,31 +378,24 @@ export default function Home() {
       </section>
 
       {/* Confirmar Asistencia Section */}
-      {/* 
-      <section
-        className="relative py-20 px-4 text-center min-h-[50vh] bg-gradient-to-br from-[#FDFCF8] via-[#E4E0D9] to-[#E1BFB7] text-[#7B4B38] flex flex-col justify-center items-center"
-      >
-        <h2 className="text-5xl sm:text-6xl mb-8 text-[#7B4B38] font-bold tracking-wide">
-          ¿Nos acompañas?
-        </h2>
-        <p className="text-xl sm:text-2xl mb-10 font-bodoni">
-          Haznos saber si podrás asistir a nuestra boda.<br />
-          ¡Tu presencia es muy importante para nosotros!
-        </p>
-        <Link href="/rsvp">
-          <button className="bg-[#E1BFB7] hover:bg-[#E4C3A1] text-[#7B4B38] font-semibold text-lg px-10 py-4 rounded-xl shadow-lg border-[2px] border-[#E4C3A1] transition-all">
-            Confirmar asistencia
-          </button>
-        </Link>
-        
-        <img
-          src="/flowers/bottom_flower.png"
-          alt=""
-          className="absolute bottom-2 left-1/2 -translate-x-1/2 w-48 sm:w-64 opacity-60 pointer-events-none select-none"
-          aria-hidden="true"
-        />
-      </section>
-        */}
+      {showRSVP && (
+        <section
+          className="relative py-20 px-4 text-center min-h-[50vh] text-[#173039] flex flex-col justify-center items-center"
+        >
+          <h2 className="text-5xl sm:text-6xl mb-8 text-[#173039] font-bold tracking-wide">
+            ¿Nos acompañas?
+          </h2>
+          <p className="text-xl sm:text-2xl mb-10 font-bodoni">
+            Haznos saber si podrás asistir a nuestra boda.<br />
+            ¡Tu presencia es muy importante para nosotros!
+          </p>
+          <Link href={`/rsvp?token=${token}`}>
+            <button className="bg-[#f0dfcc] hover:bg-[#E4C3A1] text-[#173039] font-semibold text-lg px-10 py-4 rounded-xl shadow-lg transition-all">
+              Confirmar asistencia
+            </button>
+          </Link>
+        </section>
+      )}
     </main>
   )
 }
