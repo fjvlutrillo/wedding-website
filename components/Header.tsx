@@ -1,10 +1,23 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
 export default function Header() {
     const [menuOpen, setMenuOpen] = useState(false)
+    const [showRSVP, setShowRSVP] = useState(false)
+    const [token, setToken] = useState('')
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const urlParams = new URLSearchParams(window.location.search)
+            const t = urlParams.get('token')
+            if (t) {
+                setShowRSVP(true)
+                setToken(t)
+            }
+        }
+    }, [])
 
     return (
         <>
@@ -54,9 +67,11 @@ export default function Header() {
                     <Link href="/#galeria" onClick={() => setMenuOpen(false)} className="block">
                         Galería
                     </Link>
-                    <Link href="/rsvp" onClick={() => setMenuOpen(false)} className="block">
-                        Confirmar asistencia
-                    </Link>
+                    {showRSVP && (
+                        <Link href={`/rsvp?token=${token}`} onClick={() => setMenuOpen(false)} className="block">
+                            Confirmar asistencia
+                        </Link>
+                    )}
                 </div>
             </div>
 
