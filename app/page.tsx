@@ -5,6 +5,7 @@ import Header from '@/components/Header'
 import Link from 'next/link'
 import { useKeenSlider } from 'keen-slider/react'
 import 'keen-slider/keen-slider.min.css'
+import { count } from 'console'
 
 export default function Home() {
   const [countdown, setCountdown] = useState('')
@@ -67,13 +68,18 @@ export default function Home() {
       const minutes = Math.floor((diff / (1000 * 60)) % 60)
       const seconds = Math.floor((diff / 1000) % 60)
 
-      setCountdown(`${days} días, ${hours} hrs, ${minutes} min, ${seconds} seg`)
+      setCountdown(`${days} \t ${hours} \t ${minutes}`)
     }
+
+    
 
     updateCountdown()
     const interval = setInterval(updateCountdown, 1000)
     return () => clearInterval(interval)
   }, [])
+
+  const isEventDay = countdown.startsWith('Hoy es');
+  const [days, hours, minutes] = !isEventDay ? countdown.split(/\s+/) : [];
 
   return (
     <main className="min-h-screen text-wine">
@@ -112,7 +118,7 @@ export default function Home() {
               const header = document.querySelector('.main-header') as HTMLElement
               if (header) header.style.display = 'flex'
             }}
-            className="mt-10 sm:mt-16 animate-fade-pulse  hover:bg-mist text-cocoa px-6 py-2 rounded-full shadow-lg transition"
+            className="mt-10 sm:mt-16 animate-fade-pulse  hover:bg-mist text-[#173039] px-6 py-2 rounded-full shadow-lg transition"
             aria-label="Ir a historia"
           >
             <svg
@@ -134,54 +140,46 @@ export default function Home() {
       {/* Nuestra Historia */}
       <section
         id="historia"
-        className="relative flex flex-col items-center justify-center py-20 px-2 min-h-[90vh] bg-gradient-to-br from-[#FDFCF8] via-[#E4E0D9] to-[#E1BFB7] overflow-hidden"
+        className="relative flex flex-col items-center justify-center py-20 px-2 min-h-[90vh] overflow-hidden"
       >
-        {/* Top Left Floral Accent */}
-        <img
-          src="/side_rose.png"
-          alt=""
-          className="hidden sm:block absolute top-0 left-0 w-44 opacity-70 pointer-events-none select-none"
-          aria-hidden="true"
-        />
-
-        {/* Bottom Center Floral Accent */}
+        {/* Bottom Center Floral Accent
         <img
           src="/flowers/bottom_flower.png"
           alt=""
           className="absolute bottom-2 left-1/2 -translate-x-1/2 w-80 sm:w-[32rem] opacity-80 pointer-events-none select-none"
           aria-hidden="true"
         />
-
-        {/* Desktop Polaroids */}
+        */}
+        
+        {/* Desktop Polaroids (should be hidden on mobile) */}
         <div className="hidden sm:block absolute left-16 top-1/2 -translate-y-1/2 z-10">
-          <div className="bg-white rounded-xl shadow-xl rotate-[-8deg] w-44 h-56 flex flex-col items-center pb-6">
+          <div className="bg-white shadow-xl rotate-[-8deg] w-44 h-56 flex flex-col items-center pt-3 px-3 pb-8 border-[6px] border-white rounded-none">
             <img
               src="/historia-left1.jpg"
-              alt="Recuerdo"
-              className="w-full h-40 object-cover rounded-t-xl"
+              alt="Australia - 2018"
+              className="w-full h-40 object-cover rounded-none border-b-4 border-white"
             />
-            <span className="text-xs text-gray-500 mt-2">Recuerdo</span>
+            <span className="text-xs text-gray-500 mt-2">Australia - 2018</span>
           </div>
         </div>
         <div className="hidden sm:block absolute right-16 top-1/2 -translate-y-1/2 z-10">
-          <div className="bg-white rounded-xl shadow-xl rotate-[8deg] w-44 h-56 flex flex-col items-center pb-6">
+          <div className="bg-white shadow-xl rotate-[8deg] w-44 h-56 flex flex-col items-center pt-3 px-3 pb-8 border-[6px] border-white rounded-none">
             <img
               src="/historia-right.jpg"
-              alt="Viaje juntos"
-              className="w-full h-40 object-cover rounded-t-xl"
+              alt="Tequila - 2023"
+              className="w-full h-40 object-cover rounded-none border-b-4 border-white"
             />
-            <span className="text-xs text-gray-500 mt-2">Viaje juntos</span>
+            <span className="text-xs text-gray-500 mt-2">Tequila - 2023</span>
           </div>
         </div>
-
         {/* Notebook/Paper Card */}
-        <div className="relative z-30 bg-[#FDFCF8] rounded-3xl shadow-xl px-4 sm:px-16 py-12 sm:py-20 min-h-[420px] w-full max-w-xl mx-auto flex flex-col items-center">
+        <div className="relative z-30 bg-[#f0dfcc] rounded-3xl shadow-xl px-4 sm:px-16 py-12 sm:py-20 min-h-[420px] w-full max-w-xl mx-auto flex flex-col items-center">
           {/* Title */}
-          <h2 className="text-6xl sm:text-5xl mb-8 text-[#7B4B38] text-center font-luxury font-bold tracking-wide">
+          <h2 className="text-6xl sm:text-5xl mb-8 text-[#173039] text-center font-luxury font-bold tracking-wide">
             Nuestra Historia
           </h2>
           {/* Main Text */}
-          <div className="text-[#7B4B38] text-lg sm:text-xl font-serif text-center leading-relaxed italic">
+          <div className="text-[#173039] text-lg sm:text-xl font-serif text-center leading-relaxed italic">
             <p>
               Nos conocimos hace más de 10 años, compartimos aventuras inolvidables, tomamos caminos distintos,
               y nos reencontramos en octubre de 2022. Desde entonces, nuestra historia ha estado llena de momentos
@@ -202,7 +200,7 @@ export default function Home() {
               alt="Recuerdo"
               className="w-full h-32 object-cover rounded-t-xl"
             />
-            <span className="text-xs text-gray-500 mt-1">Recuerdo</span>
+            <span className="text-xs text-gray-500 mt-1">Australia - 2018</span>
           </div>
           <div className="bg-white rounded-xl shadow-xl rotate-[6deg] w-36 h-44 flex flex-col items-center pb-4">
             <img
@@ -210,7 +208,7 @@ export default function Home() {
               alt="Viaje juntos"
               className="w-full h-32 object-cover rounded-t-xl"
             />
-            <span className="text-xs text-gray-500 mt-1">Viaje juntos</span>
+            <span className="text-xs text-gray-500 mt-1">Tequila - 2023</span>
           </div>
         </div>
       </section>
@@ -218,15 +216,34 @@ export default function Home() {
       {/* Detalles del Evento */}
       <section
         id="evento"
-        className="bg-gradient-to-br from-[#FDFCF8] via-[#E4E0D9] to-[#E1BFB7] py-20 px-4 text-center"
+        className="py-20 px-4 text-center"
       >
-        <h2 className="text-4xl sm:text-5xl mb-8 font-bodoni font-bold text-[#7B4B38] tracking-wide">
+        <h2 className="text-6xl sm:text-7xl mb-8 font-luxury font-bold text-[#173039] tracking-wide">
           Detalles del Evento
         </h2>
-        <div className="text-lg sm:text-xl text-[#7B4B38] font-bodoni mb-4">
+        <div className="text-lg sm:text-xl text-[#173039] font-bodoni mb-4">
           <p className="">Ceremonia y recepción</p>
           <p>16 de agosto de 2025 · 13:30 PM</p>
-          <p>Terraza Camino Real · Santa Fe, CDMX</p>
+        </div>
+        <div className="flex items-center gap-2 mt-3 text-[#173039] justify-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="#7B4B38"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 21c-4.97-5.2-7-8.39-7-11A7 7 0 1 1 19 10c0 2.61-2.03 5.8-7 11z"
+            />
+            <circle cx="12" cy="10" r="3" fill="#7B4B38" />
+          </svg>
+          <span className="font-bodoni text-base sm:text-lg">
+            Terraza Camino Real · Santa Fe, CDMX
+          </span>
         </div>
         <div className="mt-6 flex flex-col items-center gap-2">
           <a
@@ -234,30 +251,10 @@ export default function Home() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <button className="flex items-center gap-2 px-8 py-3 bg-champagne hover:bg-[#e1bfb7] text-[#7B4B38] font-semibold rounded-xl transition text-base shadow-lg">
+            <button className="flex items-center gap-2 px-8 py-3 bg-[#f0dfcc] hover:bg-[#e1bfb7] text-[#173039] font-semibold rounded-xl transition text-base shadow-lg">
               Cómo llegar
             </button>
           </a>
-          <div className="flex items-center gap-2 mt-3 text-[#7B4B38]">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-5 h-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="#7B4B38"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 21c-4.97-5.2-7-8.39-7-11A7 7 0 1 1 19 10c0 2.61-2.03 5.8-7 11z"
-              />
-              <circle cx="12" cy="10" r="3" fill="#7B4B38" />
-            </svg>
-            <span className="font-bodoni text-base sm:text-lg">
-              Terraza Camino Real · Santa Fe, CDMX
-            </span>
-          </div>
 
           {/* Embedded Google Map */}
           <div className="w-full max-w-xl mx-auto mt-8 rounded-2xl overflow-hidden shadow-lg">
@@ -276,37 +273,49 @@ export default function Home() {
       </section>
 
       {/* Countdown */}
-      <section
-        className="relative py-20 px-4 text-center min-h-[50vh] text-[#7B4B38]"
-      >
-        <h2 className="text-5xl sm:text-6xl mb-10 font-bold tracking-wide">
-          La Cuenta Regresiva
+      <section className="relative py-20 px-4 text-center min-h-[50vh] text-[#173039]">
+        <h2 className="text-6xl sm:text-7xl mb-10 font-luxury font-bold tracking-wide">
+          Cuenta Regresiva
         </h2>
-
         <div className="max-w-lg mx-auto bg-white/60 backdrop-blur-md shadow-xl border-[3px] border-[#E4C3A1] px-8 py-12">
-          <p className="text-xl sm:text-2xl mb-6 font-bodoni italic text-[#7B4B38]">
+          <p className="text-xl sm:text-2xl mb-6 font-bodoni italic text-[#173039]">
             ¡Falta muy poco para celebrar juntos!
           </p>
-          <div className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-wide animate-pulse text-[#7B4B38] font-bodoni">
-            {countdown}
-          </div>
+          {/* Countdown Grid */}
+          {typeof days === 'undefined' ? (
+            <p className="text-3xl font-bold text-[#173039]">¡Hoy es el gran día!</p>
+          ) : (
+            <div className="flex justify-center gap-8 sm:gap-14">
+              <div className="flex flex-col items-center">
+                <span className="text-4xl sm:text-5xl md:text-6xl font-bold font-bodoni animate-pulse text-[#173039]">{days}</span>
+                <span className="text-lg sm:text-xl mt-2 font-bodoni italic text-[#173039]">Días</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-4xl sm:text-5xl md:text-6xl font-bold font-bodoni animate-pulse text-[#173039]">{hours}</span>
+                <span className="text-lg sm:text-xl mt-2 font-bodoni italic text-[#173039]">Horas</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-4xl sm:text-5xl md:text-6xl font-bold font-bodoni animate-pulse text-[#173039]">{minutes}</span>
+                <span className="text-lg sm:text-xl mt-2 font-bodoni italic text-[#173039]">Minutos</span>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
       {/* Galería */}
       <section
         id="galeria"
-        className="relative py-20 px-4 text-center min-h-[70vh] 
-    bg-gradient-to-br from-[#FDFCF8] via-[#E4E0D9] to-[#E1BFB7] text-[#7B4B38]"
+        className="relative py-20 px-4 text-center min-h-[70vh] text-[#173039]"
       >
-        <h2 className="text-5xl sm:text-6xl mb-10 tracking-wide text-cocoa drop-shadow">
+        <h2 className="text-6xl sm:text-7xl font-luxury font-bold mb-10 tracking-wide text-[#173039] drop-shadow">
           Galería
         </h2>
 
         <div className="relative max-w-[97vw] sm:max-w-3xl mx-auto">
           <div
             ref={sliderRef}
-            className="keen-slider rounded-xl overflow-hidden shadow-2xl border-[3px] border-champagne bg-[#fffaf5]/90"
+            className="keen-slider rounded-xl overflow-hidden shadow-2xl border-[3px] border-[#DAC5AC] bg-[#DAC5AC]/90"
           >
             {[1, 2, 3, 4, 5, 6].map((num) => (
               <div key={num} className="keen-slider__slide flex items-center justify-center">
@@ -314,7 +323,7 @@ export default function Home() {
                   src={`/gallery/${num}.jpg`}
                   alt={`Galería ${num}`}
                   className="w-full h-[300px] sm:h-[400px] object-cover rounded-xl"
-                  style={{ border: '2px solid #E4C3A1', background: '#fffaf5' }}
+                  style={{ background: '#DAC5AC' }}
                 />
               </div>
             ))}
@@ -323,14 +332,14 @@ export default function Home() {
           {/* Arrows */}
           <button
             onClick={() => instanceRef.current?.prev()}
-            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-champagne text-cocoa bg-opacity-80 hover:bg-opacity-100 p-2 rounded-full shadow-xl border-[2px] border-cocoa"
+            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-[#DAC5AC] text-[#173039] bg-opacity-80 hover:bg-opacity-100 p-2 rounded-full shadow-xl border-[2px] border-[#173039]"
             aria-label="Anterior"
           >
             ‹
           </button>
           <button
             onClick={() => instanceRef.current?.next()}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-champagne text-cocoa bg-opacity-80 hover:bg-opacity-100 p-2 rounded-full shadow-xl border-[2px] border-cocoa"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-[#DAC5AC] text-[#173039] bg-opacity-80 hover:bg-opacity-100 p-2 rounded-full shadow-xl border-[2px] border-[#173039]"
             aria-label="Siguiente"
           >
             ›
@@ -343,8 +352,8 @@ export default function Home() {
                 key={idx}
                 onClick={() => instanceRef.current?.moveToIdx(idx)}
                 className={`
-            w-3 h-3 border-[2px] border-champagne rounded-full transition
-            ${currentSlide === idx ? 'bg-cocoa' : 'bg-champagne'}
+            w-3 h-3 border-[2px] border-[#DAC5AC] rounded-full transition
+            ${currentSlide === idx ? 'bg-[#173039]' : 'bg-[#DAC5AC]'}
           `}
                 aria-label={`Slide ${idx + 1}`}
               />
