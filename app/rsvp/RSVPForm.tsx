@@ -24,17 +24,17 @@ export default function RSVPForm() {
                 setStatus('error')
                 return
             }
-            // Adjust columns to match your Supabase schema
+            // Use invite_token and correct column names
             const { data, error } = await supabase
                 .from('guests')
-                .select('nombre, apellido, guest_count, confirmed, confirmed_guests')
-                .eq('token', token)
+                .select('name, guest_count, confirmed, confirmed_guests, email, phone_number')
+                .eq('invite_token', token)
                 .single()
             if (error || !data) {
                 setStatus('error')
                 return
             }
-            setGuestName(`${data.nombre} ${data.apellido}`)
+            setGuestName(`${data.name}`)
             setMaxGuests(data.guest_count || 1)
             // If already responded, lock them out
             if (data.confirmed !== null) {
@@ -54,7 +54,7 @@ export default function RSVPForm() {
         await supabase
             .from('guests')
             .update({ confirmed: false, confirmed_guests: 0 })
-            .eq('token', token)
+            .eq('invite_token', token)
         setStatus('submitted')
         setConfirming(false)
     }
@@ -71,7 +71,7 @@ export default function RSVPForm() {
                 confirmed_guests: guestCount,
                 alergias,
             })
-            .eq('token', token)
+            .eq('invite_token', token)
         setStatus('submitted')
         setConfirming(true)
     }
