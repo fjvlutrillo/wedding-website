@@ -287,6 +287,20 @@ export default function GuestUploadPage() {
                             </tr>
                         ))}
                     </tbody>
+                    <tfoot>
+                        <tr className="font-bold bg-[#F7E7D6]">
+                            <td className="px-4 py-2 text-right">Totales</td>
+                            <td className="px-4 py-2">
+                                {guests.reduce((sum, g) => sum + (parseInt(g.guest_count) || 0), 0)}
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td className="px-4 py-2">
+                                {guests.reduce((sum, g) => sum + (parseInt(g.number_confirmations) || 0), 0)}
+                            </td>
+                            <td colSpan={5}></td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
         </main>
