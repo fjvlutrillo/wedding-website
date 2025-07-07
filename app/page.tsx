@@ -299,13 +299,13 @@ export default function Home() {
           </p>
           <ul className="text-base sm:text-lg text-[#173039] text-left mx-auto font-bodoni space-y-2 max-w-md">
             <li>
-              <span className="font-semibold">Colores sugeridos:</span> neutros, pasteles, tonos tierra (evita blanco y beige total).
+              <span className="font-semibold">Colores sugeridos:</span> neutros, pasteles, tonos tierra.
             </li>
             <li>
               <span className="font-semibold">Mujeres:</span> vestido midi/largo o conjunto elegante.
             </li>
             <li>
-              <span className="font-semibold">Hombres:</span> pantalón de vestir y saco claro, corbata opcional.
+              <span className="font-semibold">Hombres:</span> pantalón de vestir y saco, corbata opcional.
             </li>
             <li>
               <span className="font-semibold">Evita:</span> jeans, tenis, ropa deportiva o looks muy informales.
