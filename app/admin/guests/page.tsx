@@ -265,7 +265,7 @@ export default function GuestUploadPage() {
                                                 {guest.phone_number && guest.invite_token ? (
                                                     <a
                                                         href={`https://wa.me/${guest.phone_number.replace(/[^\d]/g, '')}?text=${encodeURIComponent(
-                                                            `Hola ${guest.name}, confirma tu asistencia a la boda aquí: https://bodasusanayjavier.com/?token=${guest.invite_token}`
+                                                            `Hola ${guest.name}, confirma tu asistencia a nuestra boda civil aquí: https://bodasusanayjavier.com/?token=${guest.invite_token}`
                                                         )}`}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
