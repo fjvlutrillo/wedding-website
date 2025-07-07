@@ -265,11 +265,11 @@ export default function GuestUploadPage() {
                                                 {guest.phone_number && guest.invite_token ? (
                                                     <a
                                                         href={`https://wa.me/${guest.phone_number.replace(/[^\d]/g, '')}?text=${encodeURIComponent(
-                                                            `Hola ${guest.name}, te comparto los detalles de nuestra boda civil. Por favor confirma tu asistencia aquí: https://bodasusanayjavier.com/?token=${guest.invite_token}\n\nCon cariño,\nSusana & Javier 💍🥳🍾`
-                                                      )}`}
+                                                            `Hola ${guest.name}, \n\nTe compartimos los detalles de nuestra boda civil. Por favor confirma tu asistencia aquí: https://bodasusanayjavier.com/rsvp?token=${guest.invite_token}\n\nCon cariño,\nSusana & Javier 💍🥳🍾`
+                                                        )}`}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
-                                                        className="underline text-blue-700 hover:text-blue-900 transition"
+                                                        className="underline text-[#173039] hover:text-[#7B4B38] transition"
                                                         title={`Enviar WhatsApp a ${guest.name}`}
                                                     >
                                                         WhatsApp
