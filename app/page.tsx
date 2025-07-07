@@ -198,7 +198,7 @@ export default function Home() {
           <div className="text-[#173039] text-lg sm:text-xl font-serif text-center leading-relaxed italic">
             <p>
               Nos conocimos hace más de 10 años, compartimos aventuras inolvidables, tomamos caminos distintos,
-              y nos reencontramos en octubre de 2022. Desde entonces, nuestra historia ha estado llena de momentos
+              y nos reencontramos a finales del 2022. Desde entonces, nuestra historia ha estado llena de momentos
               mágicos, risas y complicidad.
             </p>
             <p className="mt-6">
