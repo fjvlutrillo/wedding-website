@@ -146,7 +146,7 @@ export default function GuestUploadPage() {
             <h1 className="text-3xl font-bold mb-6">Gestión de invitados</h1>
 
             {/* Manual Add Form */}
-            <div className="mb-8 space-y-2 bg-white p-4 rounded shadow max-w-xl">
+            <div className="mb-8 space-y-2 bg-rosewood p-4 rounded shadow max-w-xl">
                 <h2 className="text-xl font-semibold mb-2">Agregar invitado manualmente</h2>
                 <input
                     type="text"
