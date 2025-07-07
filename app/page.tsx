@@ -240,6 +240,10 @@ export default function Home() {
         <div className="text-lg sm:text-xl text-[#173039] font-bodoni mb-4">
           <p className="">Ceremonia y recepción</p>
           <p>16 de agosto de 2025 · 13:30 Horas</p>
+          <p>Código de Vestimenta</p>
+          <p className="text-xl sm:text-2xl mb-6 font-bodoni italic text-[#173039]">
+            El evento es <span className="font-bold text-[#173039]">cocktail</span>.
+          </p>
         </div>
         <div className="flex items-center gap-2 mt-3 text-[#173039] justify-center">
           <svg
@@ -288,7 +292,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Dress Code Section (NEW) */}
+      {/* Dress Code Section (NEW) 
       <section className="relative py-20 px-4 text-center min-h-[30vh] text-[#173039]">
         <h2 className="text-6xl sm:text-7xl mb-10 font-luxury font-bold tracking-wide">
           Código de Vestimenta
@@ -312,7 +316,7 @@ export default function Home() {
             </li>
           </ul>
         </div>
-      </section>
+      </section> */}
 
       {/* Countdown */}
       <section className="relative py-20 px-4 text-center min-h-[50vh] text-[#173039]">
