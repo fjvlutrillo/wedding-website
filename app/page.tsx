@@ -288,6 +288,32 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Dress Code Section (NEW) */}
+      <section className="relative py-20 px-4 text-center min-h-[30vh] text-[#173039]">
+        <h2 className="text-6xl sm:text-7xl mb-10 font-luxury font-bold tracking-wide">
+          Código de Vestimenta
+        </h2>
+        <div className="max-w-lg mx-auto bg-white/60 backdrop-blur-md shadow-xl border-[3px] border-[#E4C3A1] px-8 py-12">
+          <p className="text-xl sm:text-2xl mb-6 font-bodoni italic text-[#173039]">
+            El evento es <span className="font-bold text-[#173039]">semi formal</span>.
+          </p>
+          <ul className="text-base sm:text-lg text-[#173039] text-left mx-auto font-bodoni space-y-2 max-w-md">
+            <li>
+              <span className="font-semibold">Colores sugeridos:</span> neutros, pasteles, tonos tierra (evita blanco y beige total).
+            </li>
+            <li>
+              <span className="font-semibold">Mujeres:</span> vestido midi/largo o conjunto elegante.
+            </li>
+            <li>
+              <span className="font-semibold">Hombres:</span> pantalón de vestir y saco claro, corbata opcional.
+            </li>
+            <li>
+              <span className="font-semibold">Evita:</span> jeans, tenis, ropa deportiva o looks muy informales.
+            </li>
+          </ul>
+        </div>
+      </section>
+
       {/* Countdown */}
       <section className="relative py-20 px-4 text-center min-h-[50vh] text-[#173039]">
         <h2 className="text-6xl sm:text-7xl mb-10 font-luxury font-bold tracking-wide">
