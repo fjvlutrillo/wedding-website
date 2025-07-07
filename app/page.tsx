@@ -240,10 +240,10 @@ export default function Home() {
         <div className="text-lg sm:text-xl text-[#173039] font-bodoni mb-4">
           {/*<p className="">Ceremonia y recepción</p>*/}
           <p>16 de agosto de 2025 · 13:30 Horas</p>
-          <p></p>
+          <p> </p>
           <p>Código de vestimenta</p>
           <p className="text-lg sm:text-xl mb-6 font-bodoni italic text-[#173039]">
-            <span className="font-bold text-[#173039]">Cocktail</span>.
+            <span className="font-bold text-[#173039]">Cocktail</span>
           </p>
         </div>
         <div className="flex items-center gap-2 mt-3 text-[#173039] justify-center">
