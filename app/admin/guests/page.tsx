@@ -265,7 +265,7 @@ export default function GuestUploadPage() {
                                                 {guest.phone_number && guest.invite_token ? (
                                                     <a
                                                         href={`https://wa.me/${guest.phone_number.replace(/[^\d]/g, '')}?text=${encodeURIComponent(
-                                                            `Hola ${guest.name}, \n\nTe compartimos los detalles de nuestra boda civil. Por favor confirma tu asistencia aquí: https://bodasusanayjavier.com/rsvp?token=${guest.invite_token}\n\nCon cariño,\nSusana & Javier 💍🥳🍾`
+                                                            `Hola ${guest.name}, \n\nTe compartimos los detalles de nuestra boda civil. Por favor confirma tu asistencia aquí: https://bodasusanayjavier.com/?token=${guest.invite_token}\n\nCon cariño,\nSusana & Javier 💍🥳🍾`
                                                         )}`}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
