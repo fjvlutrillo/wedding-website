@@ -24,8 +24,9 @@ export default function Header() {
             <header className="main-header bg-[#173039] text-[#DAC5AC] shadow-md sticky top-0 z-50 h-16 sm:h-16 flex items-center transition-all duration-300">
                 <div className="relative flex justify-center items-center px-4 w-full max-w-6xl mx-auto">
                     {/* Centered title */}
-                    <Link href="/" className="absolute left-1/2 transform -translate-x-1/2 font-bold text-base sm:text-lg">
-                        Boda Civil Susana & Javier
+                    <Link href="/" className="absolute left-1/2 transform -translate-x-1/2 font-bold text-base sm:text-lg text-center">
+                        Boda Civil <br />
+                        Susana & Javier
                     </Link>
 
                     {/* Hamburger icon */}

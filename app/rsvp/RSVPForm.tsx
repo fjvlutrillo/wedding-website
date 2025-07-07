@@ -3,7 +3,7 @@
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Header from '@/components/Header'
-import { supabase } from '@/lib/supabaseClient' // Update path as needed
+import { supabase } from '@/lib/supabaseClient'
 
 export default function RSVPForm() {
     const searchParams = useSearchParams()
@@ -15,29 +15,26 @@ export default function RSVPForm() {
     const [maxGuests, setMaxGuests] = useState(1)
     const [confirming, setConfirming] = useState<boolean | null>(null)
     const [guestCount, setGuestCount] = useState(1)
-    const [alergias, setAlergias] = useState('')
 
-    // Fetch guest info and response status
     useEffect(() => {
         const fetchGuest = async () => {
             if (!token) {
                 setStatus('error')
                 return
             }
-            // Use invite_token and correct column names
             const { data, error } = await supabase
                 .from('guests')
-                .select('name, guest_count, confirmed, confirmed_guests, email, phone_number')
+                .select('name, guest_count, number_confirmations, did_confirm, email, phone_number')
                 .eq('invite_token', token)
                 .single()
+
             if (error || !data) {
                 setStatus('error')
                 return
             }
-            setGuestName(`${data.name}`)
+            setGuestName(data.name || '')
             setMaxGuests(data.guest_count || 1)
-            // If already responded, lock them out
-            if (data.confirmed !== null) {
+            if (data.did_confirm !== null) {
                 setStatus('already')
             } else {
                 setStatus('ready')
@@ -53,7 +50,7 @@ export default function RSVPForm() {
         setStatus('loading')
         await supabase
             .from('guests')
-            .update({ confirmed: false, confirmed_guests: 0 })
+            .update({ did_confirm: false, number_confirmations: 0 })
             .eq('invite_token', token)
         setStatus('submitted')
         setConfirming(false)
@@ -67,9 +64,8 @@ export default function RSVPForm() {
         await supabase
             .from('guests')
             .update({
-                confirmed: true,
-                confirmed_guests: guestCount,
-                alergias,
+                did_confirm: true,
+                number_confirmations: guestCount,
             })
             .eq('invite_token', token)
         setStatus('submitted')
@@ -79,22 +75,12 @@ export default function RSVPForm() {
     return (
         <>
             <Header />
-            <div className="relative min-h-screen">
-                {/* RSVP background image */}
-                <div
-                    className="absolute inset-0 bg-cover bg-center"
-                    style={{
-                        backgroundImage: "url('/rsvp-bg.jpg')",
-                        opacity: 0.15,
-                        zIndex: 0,
-                    }}
-                    aria-hidden="true"
-                />
-                {/* Soft overlay */}
-                <div className="absolute inset-0 bg-[#f0dfcc] bg-opacity-80 z-10 pointer-events-none select-none" />
-                <main className="relative z-20 min-h-screen flex items-center justify-center px-4 sm:px-6 py-20">
+            <div className="relative min-h-screen flex flex-col">
+                {/* Soft overlay (you can add a background image if you want here) */}
+                <div className="absolute inset-0 bg-[#f0dfcc] bg-opacity-40 z-10 pointer-events-none select-none" />
+                <main className="relative z-20 flex-1 flex items-center justify-center px-4 sm:px-6 py-0">
                     <section className="w-full max-w-md bg-white/90 text-[#173039] p-8 border-[3px] border-[#E4C3A1] shadow-xl rounded-xl">
-                        <h1 className="text-3xl font-bold mb-6 text-center font-luxury text-[#173039]">
+                        <h1 className="text-5xl font-bold mb-6 text-center font-luxury text-[#173039]">
                             Confirmar asistencia
                         </h1>
 
@@ -163,21 +149,6 @@ export default function RSVPForm() {
                                         ))}
                                     </select>
                                 </div>
-
-                                <div className="flex flex-col">
-                                    <label htmlFor="alergias" className="font-medium text-[#173039]">
-                                        ¿Tienes alguna alergia o requerimiento especial?
-                                    </label>
-                                    <textarea
-                                        id="alergias"
-                                        name="alergias"
-                                        value={alergias}
-                                        onChange={e => setAlergias(e.target.value)}
-                                        className="mt-1 p-2 border border-[#E4C3A1] rounded bg-white text-[#173039]"
-                                        placeholder="Escríbelo aquí (opcional)"
-                                    />
-                                </div>
-
                                 <button
                                     type="submit"
                                     className="w-full bg-[#173039] hover:bg-[#7B4B38] text-[#f0dfcc] font-bold py-3 px-4 rounded-xl shadow-lg transition"

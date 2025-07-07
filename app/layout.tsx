@@ -1,5 +1,6 @@
 import './globals.css'
 import { Italianno, Bodoni_Moda, Luxurious_Script } from 'next/font/google'
+import BodyWrapper from '@/components/BodyWrapper'
 
 const italianno = Italianno({
   weight: '400',
@@ -20,12 +21,15 @@ const bodoni = Bodoni_Moda({
 export const metadata = {
   title: 'Boda Susana & Javier',
   description: 'Nuestra invitación de boda',
+  icons: {
+    icon: '/favicon.ico',
+  }
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
-      <body className={`${bodoni.variable} ${italianno.variable}, ${luxury.variable}  } bg-[url('/background-wedding3.jpg')] bg-cover bg-fixed bg-center text-cocoa font-bodoni`}>
+      <BodyWrapper fontClasses={`${bodoni.variable} ${italianno.variable} ${luxury.variable}`}>
         {children}
 
         <footer className="bg-[#173039] border-t-[3px] border-[#DAC5AC] text-white text-center py-6 text-sm mt-12 w-full">
@@ -36,7 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             &copy; {new Date().getFullYear()} Susana & Javier
           </p>
         </footer>
-      </body>
+      </BodyWrapper>
     </html>
   )
 }

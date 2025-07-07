@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabaseClient'
 import * as XLSX from 'xlsx'
 import { Session } from '@supabase/auth-helpers-nextjs'
+import { v4 as uuidv4 } from 'uuid'
 
 export default function GuestUploadPage() {
     const router = useRouter()
@@ -44,9 +45,11 @@ export default function GuestUploadPage() {
         const { error } = await supabase.from('guests').insert([{
             ...manualGuest,
             guest_count: parseInt(String(manualGuest.guest_count)),
-            confirmations: 0,
+            number_confirmations: 0,
             table_number: null,
             created_by: session.user.id,
+            did_confirm: null,
+            invite_token: uuidv4(),
         }])
 
         if (!error) {
@@ -67,13 +70,15 @@ export default function GuestUploadPage() {
         const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet)
 
         const mapped = jsonData.map((g: any) => ({
-            name: g.invitado || '',
-            guest_count: parseInt(g['número de invitados']) || 0,
-            phone_number: g.WhatsApp || '',
-            email: g.email || '',
-            confirmations: 0,
+            name: g.Invitado || '',
+            guest_count: parseInt(g.Invitados) || 0,
+            phone_number: g.Teléfono || '',
+            invite_token: uuidv4(),
+            number_confirmations: 0,
             table_number: null,
             created_by: session.user.id,
+            did_confirm: null,
+            email: '', // Leave empty or add later
         }))
 
         const { error } = await supabase.from('guests').insert(mapped)
@@ -96,7 +101,20 @@ export default function GuestUploadPage() {
     }
 
     const saveEdit = async (id: string) => {
-        const { error } = await supabase.from('guests').update(editForm).eq('id', id)
+        const updatableFields = [
+            'name',
+            'guest_count',
+            'phone_number',
+            'email',
+            'table_number',
+            'number_confirmations',
+            'did_confirm'
+        ]
+        const updateData: any = {}
+        updatableFields.forEach((key) => {
+            if (editForm[key] !== undefined) updateData[key] = editForm[key]
+        })
+        const { error } = await supabase.from('guests').update(updateData).eq('id', id)
         if (!error) {
             const updated = [...guests]
             updated[editingIndex!] = { ...editForm }
@@ -117,6 +135,9 @@ export default function GuestUploadPage() {
             alert('Error al eliminar: ' + error.message)
         }
     }
+
+    // ----- CHANGE THIS to your real production domain -----
+    const rsvpBaseUrl = "https://bodasusanayjavier.com/rsvp?token="
 
     if (!session) return <p className="p-8">Verificando acceso...</p>
 
@@ -175,6 +196,7 @@ export default function GuestUploadPage() {
 
             {/* Guest Table */}
             <div className="overflow-x-auto border rounded-md bg-white/90 shadow">
+                
                 <table className="min-w-full table-auto text-sm">
                     <thead className="bg-rosewood text-black">
                         <tr>
@@ -183,8 +205,10 @@ export default function GuestUploadPage() {
                             <th className="px-4 py-2">Teléfono</th>
                             <th className="px-4 py-2">Email</th>
                             <th className="px-4 py-2">Confirmados</th>
+                            <th className="px-4 py-2">¿Confirmó?</th>
                             <th className="px-4 py-2">Mesa</th>
                             <th className="px-4 py-2">Token</th>
+                            <th className="px-4 py-2">WhatsApp</th>
                             <th className="px-4 py-2">Acciones</th>
                         </tr>
                     </thead>
@@ -197,7 +221,7 @@ export default function GuestUploadPage() {
                                             <input value={editForm.name} onChange={(e) => updateEditField('name', e.target.value)} />
                                         </td>
                                         <td className="px-4 py-2">
-                                            <input type="number" value={editForm.guest_count} onChange={(e) => updateEditField('guest_count', e.target.value)} />
+                                            <input type="number" value={editForm.guest_count} onChange={(e) => updateEditField('guest_count', parseInt(e.target.value))} />
                                         </td>
                                         <td className="px-4 py-2">
                                             <input value={editForm.phone_number} onChange={(e) => updateEditField('phone_number', e.target.value)} />
@@ -205,9 +229,23 @@ export default function GuestUploadPage() {
                                         <td className="px-4 py-2">
                                             <input value={editForm.email} onChange={(e) => updateEditField('email', e.target.value)} />
                                         </td>
-                                        <td className="px-4 py-2">{editForm.confirmations}</td>
-                                        <td className="px-4 py-2">{editForm.table_number}</td>
-                                        <td className="px-4 py-2">{editForm.invite_token}</td>
+                                        <td className="px-4 py-2">
+                                            <input type="number" value={editForm.number_confirmations} onChange={(e) => updateEditField('number_confirmations', parseInt(e.target.value))} />
+                                        </td>
+                                        <td className="px-4 py-2">
+                                            <select value={editForm.did_confirm ?? ''} onChange={e => updateEditField('did_confirm', e.target.value === '' ? null : e.target.value === 'true')}>
+                                                <option value="">-</option>
+                                                <option value="true">Sí</option>
+                                                <option value="false">No</option>
+                                            </select>
+                                        </td>
+                                        <td className="px-4 py-2">
+                                            <input type="number" value={editForm.table_number ?? ''} onChange={(e) => updateEditField('table_number', e.target.value === '' ? null : parseInt(e.target.value))} />
+                                        </td>
+                                        <td className="px-4 py-2 font-mono text-xs break-all">{editForm.invite_token}</td>
+                                        <td className="px-4 py-2">
+                                            {/* WhatsApp Button (edit mode not needed) */}
+                                        </td>
                                         <td className="px-4 py-2">
                                             <button onClick={() => saveEdit(guest.id)} className="text-green-600 mr-2">Guardar</button>
                                             <button onClick={cancelEdit} className="text-gray-500">Cancelar</button>
@@ -219,9 +257,27 @@ export default function GuestUploadPage() {
                                         <td className="px-4 py-2">{guest.guest_count}</td>
                                         <td className="px-4 py-2">{guest.phone_number}</td>
                                         <td className="px-4 py-2">{guest.email}</td>
-                                        <td className="px-4 py-2">{guest.confirmations}</td>
+                                        <td className="px-4 py-2">{guest.number_confirmations}</td>
+                                        <td className="px-4 py-2">{guest.did_confirm === null ? '-' : guest.did_confirm ? 'Sí' : 'No'}</td>
                                         <td className="px-4 py-2">{guest.table_number}</td>
                                         <td className="px-4 py-2 font-mono text-xs break-all">{guest.invite_token}</td>
+                                            <td className="px-4 py-2">
+                                                {guest.phone_number && guest.invite_token ? (
+                                                    <a
+                                                        href={`https://wa.me/${guest.phone_number.replace(/[^\d]/g, '')}?text=${encodeURIComponent(
+                                                            `Hola ${guest.name}, confirma tu asistencia a la boda aquí: https://bodasusanayjavier.com/?token=${guest.invite_token}`
+                                                        )}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="underline text-blue-700 hover:text-blue-900 transition"
+                                                        title={`Enviar WhatsApp a ${guest.name}`}
+                                                    >
+                                                        WhatsApp
+                                                    </a>
+                                                ) : (
+                                                    <span className="text-gray-400">No phone</span>
+                                                )}
+                                            </td>
                                         <td className="px-4 py-2">
                                             <button onClick={() => startEdit(idx, guest)} className="text-blue-600 mr-2">Editar</button>
                                             <button onClick={() => deleteGuest(guest.id)} className="text-red-600">Eliminar</button>

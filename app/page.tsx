@@ -332,7 +332,7 @@ export default function Home() {
             ref={sliderRef}
             className="keen-slider rounded-xl overflow-hidden shadow-2xl border-[3px] border-[#DAC5AC] bg-[#DAC5AC]/90"
           >
-            {[1, 2, 3, 4, 5, 6].map((num) => (
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
               <div key={num} className="keen-slider__slide flex items-center justify-center">
                 <img
                   src={`/gallery/${num}.jpg`}
@@ -382,7 +382,7 @@ export default function Home() {
         <section
           className="relative py-20 px-4 text-center min-h-[50vh] text-[#173039] flex flex-col justify-center items-center"
         >
-          <h2 className="text-5xl sm:text-6xl mb-8 text-[#173039] font-bold tracking-wide">
+          <h2 className="text-5xl sm:text-6xl mb-8 text-[#173039] font-luxury font-bold tracking-wide">
             ¿Nos acompañas?
           </h2>
           <p className="text-xl sm:text-2xl mb-10 font-bodoni">
