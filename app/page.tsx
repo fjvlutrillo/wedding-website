@@ -238,7 +238,7 @@ export default function Home() {
         </h2>
         <div className="text-lg sm:text-xl text-[#173039] font-bodoni mb-4">
           <p className="">Ceremonia y recepción</p>
-          <p>16 de agosto de 2025 · 13:30 PM</p>
+          <p>16 de agosto de 2025 · 13:30 Horas</p>
         </div>
         <div className="flex items-center gap-2 mt-3 text-[#173039] justify-center">
           <svg
