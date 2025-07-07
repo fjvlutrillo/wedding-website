@@ -75,9 +75,9 @@ export default function RSVPForm() {
     return (
         <>
             <Header />
-            <div className="relative min-h-screen flex flex-col">
-                {/* Soft overlay (you can add a background image if you want here) */}
-                <main className="relative z-20 flex-1 flex items-center justify-center px-4 sm:px-6 py-0">
+            {/* Key fix: use min-h-[100svh] and flex-col */}
+            <div className="flex flex-col min-h-[100svh]">
+                <main className="flex-1 flex items-center justify-center px-4 sm:px-6 py-0">
                     <section className="w-full max-w-md bg-white/90 text-[#173039] p-8 border-[3px] border-[#E4C3A1] shadow-xl rounded-xl">
                         <h1 className="text-5xl font-bold mb-6 text-center font-luxury text-[#173039]">
                             Confirmar asistencia
