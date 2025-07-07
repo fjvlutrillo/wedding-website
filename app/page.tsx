@@ -117,6 +117,7 @@ export default function Home() {
               Susana y Javier
             </h1>
             <p> </p>
+            <p className="text-3xl sm:text-3xl font-bodoni ">Boda civil</p>
             <p className="text-1xl font-bodoni sm:text-2xl ">16 de agosto de 2025</p>
             <p className="text-1xl font-bodoni sm:text-2xl ">Ciudad de México</p>
           </div>
