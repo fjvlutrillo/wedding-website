@@ -69,6 +69,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <Link href="/admin/budget" className="hover:underline inline-block min-w-fit">💰 Presupuesto</Link>
                     <Link href="/admin/payments" className="hover:underline inline-block min-w-fit">💳 Pagos</Link>
                     <Link href="/admin/checklist" className="hover:underline inline-block min-w-fit">📅 Checklist</Link>
+                    <Link href="/admin/inventario" className="hover:underline inline-block min-w-fit">🍷 Inventario</Link>
                     <button
                         onClick={handleLogout}
                         className="ml-8 bg-red-600 px-3 py-1 rounded text-white hover:bg-red-700 transition-colors"
