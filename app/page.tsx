@@ -299,7 +299,7 @@ export default function Home() {
           Hospedaje
         </h3>
         <p className="text-lg mb-4 font-bodoni text-[#173039] text-center">
-          Para su comodidad tenemos una tarifa especial en<b> Camino Real · Santa Fe</b>, quí los detalles:
+          Para su comodidad tenemos una tarifa especial en<b> Camino Real · Santa Fe</b>, aquí los detalles:
         </p>
         <div className="mb-4 text-[#173039] text-base sm:text-lg font-bodoni">
           <b>Fechas:</b> 14 al 19 de agosto, 2025<br />
