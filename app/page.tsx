@@ -293,6 +293,80 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Reservaciones de Hotel */}
+      <div className="mt-10 max-w-xl mx-auto bg-[#f9f6f3] border border-[#DAC5AC] rounded-2xl shadow-lg px-6 py-8 text-left">
+        <h3 className="text-5xl sm:text-4xl font-luxury font-bold text-[#173039] mb-2 text-center">
+          Hospedaje
+        </h3>
+        <p className="text-lg mb-4 font-bodoni text-[#173039] text-center">
+          Para su comodidad tenemos una tarifa especial en<b> Camino Real · Santa Fe</b>, quí los detalles:
+        </p>
+        <div className="mb-4 text-[#173039] text-base sm:text-lg font-bodoni">
+          <b>Fechas:</b> 14 al 19 de agosto, 2025<br />
+          <b>Código abierto:</b> <b>Boda Boc Producciones</b><br />
+          <b>Reservación:</b> Llama al <a className="underline hover:text-[#651D28]" href="tel:+525550041616">55 5004 1616</a> ext. 2812 y menciona el código.
+        </div>
+        {/* Reservaciones de Hotel 
+        <div className="overflow-x-auto mb-4">
+          <table className="w-full text-[#173039] border-collapse mb-2 font-bodoni">
+            <thead>
+              <tr>
+                <th className="border-b p-2 font-semibold">Categoría</th>
+                <th className="border-b p-2 font-semibold">Plan</th>
+                <th className="border-b p-2 font-semibold">Tarifa</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="p-2 border-b">Hab. de Lujo Sencilla</td>
+                <td className="p-2 border-b">Solo Internet</td>
+                <td className="p-2 border-b">$1,250 MXN</td>
+              </tr>
+              <tr>
+                <td className="p-2 border-b">Hab. de Lujo Doble</td>
+                <td className="p-2 border-b">Solo Internet</td>
+                <td className="p-2 border-b">$1,250 MXN</td>
+              </tr>
+              <tr>
+                <td className="p-2 border-b">Hab. de Lujo Sencilla</td>
+                <td className="p-2 border-b">Desayuno buffet + Internet</td>
+                <td className="p-2 border-b">$1,545 MXN</td>
+              </tr>
+              <tr>
+                <td className="p-2 border-b">Hab. de Lujo Doble</td>
+                <td className="p-2 border-b">Desayuno buffet + Internet</td>
+                <td className="p-2 border-b">$1,840 MXN</td>
+              </tr>
+            </tbody>
+          </table>
+          <p className="text-sm text-[#651D28] font-bodoni italic mb-2">
+            Las tarifas son por noche, más 16% IVA y 3.5% impuesto hospedaje.<br />
+            Persona extra: $480 MXN + impuestos (aplica en tarifa con desayuno).
+          </p>
+        </div>
+        
+        <div className="text-[#173039] font-bodoni text-base">
+          <b>Contacto directo:</b> Joanna Medina<br />
+          <a className="underline hover:text-[#651D28]" href="mailto:joanna.medina@caminoreal.com.mx">joanna.medina@caminoreal.com.mx</a><br />
+          Tel: <a className="underline hover:text-[#651D28]" href="tel:+525550041616">55 5004 1616</a> ext. 2812
+        </div>
+        <img
+          src="/ardilla.JPG"
+          alt="Ardilla Empulpada"
+          className="w-full max-w-md rounded-xl shadow-lg mx-auto"
+        />
+        */}
+        <div className="flex justify-center mt-6">
+          <a
+            href="tel:+525550041616"
+            className="bg-[#E4C3A1] hover:bg-[#F0DFCC] text-[#651D28] font-bold py-3 px-7 rounded-xl shadow-lg transition text-base text-center"
+            aria-label="Llamar al hotel para reservar"
+          >
+            Haz click aquí para llamar
+          </a>
+        </div>
+      </div>
+
       {/* Dress Code Section (NEW) 
       <section className="relative py-20 px-4 text-center min-h-[30vh] text-[#173039]">
         <h2 className="text-6xl sm:text-7xl mb-10 font-luxury font-bold tracking-wide">
