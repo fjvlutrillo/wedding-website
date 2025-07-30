@@ -57,7 +57,7 @@ export default function Home() {
   )
 
   useEffect(() => {
-    const weddingDate = new Date('2025-08-16T12:00:00')
+    const weddingDate = new Date('2025-08-16T13:30:00')
     const updateCountdown = () => {
       const now = new Date()
       const diff = weddingDate.getTime() - now.getTime()
@@ -263,7 +263,7 @@ export default function Home() {
             <circle cx="12" cy="10" r="3" fill="#7B4B38" />
           </svg>
           <span className="font-bodoni text-base sm:text-lg">
-            Terraza Camino Real · Santa Fe, CDMX
+            Salón Kio · Terraza Camino Real · Santa Fe, CDMX
           </span>
         </div>
         <div className="mt-6 flex flex-col items-center gap-2">
