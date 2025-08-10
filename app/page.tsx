@@ -57,7 +57,7 @@ export default function Home() {
   )
 
   useEffect(() => {
-    const weddingDate = new Date('2025-08-16T13:30:00')
+    const weddingDate = new Date('2025-08-16T14:30:00')
     const updateCountdown = () => {
       const now = new Date()
       const diff = weddingDate.getTime() - now.getTime()
@@ -239,7 +239,7 @@ export default function Home() {
         </h2>
         <div className="text-lg sm:text-xl text-[#173039] font-bodoni mb-4">
           {/*<p className="">Ceremonia y recepción</p>*/}
-          <p>16 de agosto de 2025 · 13:30 Horas</p>
+          <p>16 de agosto de 2025 · 14:30 Horas</p>
           <p> </p>
           <p>Código de vestimenta</p>
           <p className="text-lg sm:text-xl mb-6 font-bodoni italic text-[#173039]">
