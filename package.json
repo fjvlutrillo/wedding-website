@@ -13,9 +13,11 @@
     "@supabase/auth-helpers-react": "^0.5.0",
     "@supabase/supabase-js": "^2.49.8",
     "keen-slider": "^6.8.6",
+    "konva": "^9.3.22",
     "next": "15.3.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-konva": "^19.0.7",
     "uuid": "^11.1.0",
     "xlsx": "^0.18.5"
   },
