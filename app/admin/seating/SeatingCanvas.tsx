@@ -4,15 +4,10 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Stage, Layer, Rect, Circle, Text, Group } from 'react-konva'
 import { supabase } from '@/lib/supabaseClient'
 
-// ✅ Return a module that has a default export
-
-
-
-
 export default function SeatingCanvas() {
     /** ===========================
- *  Types
- *  =========================== */
+     *  Types
+     *  =========================== */
     type Guest = {
         id: string
         name: string | null
@@ -37,7 +32,7 @@ export default function SeatingCanvas() {
     }
     type Occupant =
         | { kind: 'guest'; guestId: string; name: string }
-        | { kind: 'companion'; guestId: string; name: string; idx: number } // idx=1..N-1
+        | { kind: 'companion'; guestId: string; name: string; idx: number }
     type Seat = { seatNo: number; occupant?: Occupant }
     type SeatingState = { [tableNumber: number]: Seat[] }
 
@@ -48,9 +43,7 @@ export default function SeatingCanvas() {
     const LS_STATE = 'sj_seating_state_v1'
     const genId = () => crypto.randomUUID()
     const seatsFrom = (g: Guest) =>
-        (g.number_confirmations ?? 0) > 0
-            ? g.number_confirmations!
-            : (g.guest_count ?? 1)
+        (g.number_confirmations ?? 0) > 0 ? g.number_confirmations! : (g.guest_count ?? 1)
 
     const palette = {
         burgundyDark: '#4D1C20',
@@ -63,13 +56,14 @@ export default function SeatingCanvas() {
         pageBg: '#FBF3F9',
     }
 
-    /** Seat positions around a circle/rect (we use circle layout for both to start) */
+    /** Seat positions (safe) */
     function circleSeats(cx: number, cy: number, radius: number, seats: number, rotationDeg: number) {
+        const count = Math.max(1, seats || 1)
         const rad = (deg: number) => (deg * Math.PI) / 180
         const out: { x: number; y: number }[] = []
-        const step = 360 / seats
-        for (let i = 0; i < seats; i++) {
-            const a = rad(rotationDeg + i * step - 90) // start top
+        const step = 360 / count
+        for (let i = 0; i < count; i++) {
+            const a = rad(rotationDeg + i * step - 90)
             out.push({ x: cx + radius * Math.cos(a), y: cy + radius * Math.sin(a) })
         }
         return out
@@ -102,7 +96,6 @@ export default function SeatingCanvas() {
     /** ===========================
      *  Component
      *  =========================== */
-
     const stageRef = useRef<any>(null)
     const containerRef = useRef<HTMLDivElement>(null)
     const [stageSize, setStageSize] = useState<{ w: number; h: number }>({ w: 1000, h: 700 })
@@ -189,7 +182,6 @@ export default function SeatingCanvas() {
         const rect = stage.container().getBoundingClientRect()
         return { x: clientX - rect.left, y: clientY - rect.top }
     }
-    // Hit‑test for table shapes
     const findTableAtPoint = (x: number, y: number): TableModel | null => {
         for (const t of tables) {
             if (t.type === 'rect') {
@@ -206,7 +198,7 @@ export default function SeatingCanvas() {
     }
     const onCanvasDragOver = (e: React.DragEvent) => e.preventDefault()
 
-    /** Place bundle (main + companions) */
+    /** Seating helpers */
     function firstFreeSeats(tableNo: number, needed: number, tableCapacity: number): number[] | null {
         const seats = seating[tableNo] ?? Array.from({ length: tableCapacity }, (_, i) => ({ seatNo: i + 1 }))
         const free = seats.filter(s => !s.occupant).map(s => s.seatNo)
@@ -236,18 +228,10 @@ export default function SeatingCanvas() {
         }
 
         const newSeats = [...tableSeats]
-        // main guest
-        newSeats[free[0] - 1] = {
-            seatNo: free[0],
-            occupant: { kind: 'guest', guestId: guest.id, name: guest.name || 'Invitado' }
-        }
-        // companions
+        newSeats[free[0] - 1] = { seatNo: free[0], occupant: { kind: 'guest', guestId: guest.id, name: guest.name || 'Invitado' } }
         for (let i = 1; i < needed; i++) {
             const seatNo = free[i]
-            newSeats[seatNo - 1] = {
-                seatNo,
-                occupant: { kind: 'companion', guestId: guest.id, name: `+${i}`, idx: i }
-            }
+            newSeats[seatNo - 1] = { seatNo, occupant: { kind: 'companion', guestId: guest.id, name: `+${i}`, idx: i } }
         }
         const next = { ...seating, [table.number]: newSeats }
         setSeating(next)
@@ -266,7 +250,7 @@ export default function SeatingCanvas() {
         await placeGuestBundleOnTable(g, table)
     }
 
-    /** Tables CRUD */
+    /** Tables CRUD (with seating sync) */
     const addTable = (t: Omit<TableModel, 'id'>) => {
         setTables(prev => {
             const next = [...prev, { ...t, id: genId() }]
@@ -275,19 +259,49 @@ export default function SeatingCanvas() {
         })
         setShowNewTable(false)
     }
+
     const updateTable = (id: string, patch: Partial<TableModel>) => {
         setTables(prev => {
-            const next = prev.map(t => (t.id === id ? { ...t, ...patch } : t))
-            saveTables(next)
-            return next
+            const before = prev.find(t => t.id === id)!
+            const nextTables = prev.map(t =>
+                t.id === id
+                    ? { ...t, ...patch, seats: patch.seats != null ? Math.max(1, patch.seats) : t.seats }
+                    : t
+            )
+            saveTables(nextTables)
+
+            setSeating(prevS => {
+                let s = { ...prevS }
+                const after = nextTables.find(t => t.id === id)!
+                const fromNo = before.number
+                const toNo = after.number
+
+                // move seating bucket if number changed
+                if (toNo !== fromNo) {
+                    s[toNo] = (s[fromNo] ?? []).map((seat, i) => ({ ...seat, seatNo: i + 1 }))
+                    delete s[fromNo]
+                }
+
+                // resize to capacity
+                const bucketNo = toNo
+                const cap = Math.max(1, after.seats)
+                const existing = s[bucketNo] ?? []
+                const resized = existing.slice(0, cap)
+                while (resized.length < cap) resized.push({ seatNo: resized.length + 1 })
+                s[bucketNo] = resized
+
+                return s
+            })
+
+            return nextTables
         })
     }
+
     const deleteTable = (id: string) => {
         setTables(prev => {
             const tbl = prev.find(t => t.id === id)
             const next = prev.filter(t => t.id !== id)
             saveTables(next)
-            // also clear seating for that table
             if (tbl) {
                 const s = { ...seating }
                 delete s[tbl.number]
@@ -316,18 +330,8 @@ export default function SeatingCanvas() {
             seats.forEach(s => {
                 if (!s?.occupant) return
                 const o = s.occupant
-                const allergies =
-                    o.kind === 'guest'
-                        ? '' // you can join real allergies if you add that field
-                        : ''
-                const row = [
-                    t.number,
-                    s.seatNo,
-                    o.kind,
-                    (o.name || '').replace(/"/g, '""'),
-                    allergies.replace(/"/g, '""'),
-                    o.guestId
-                ]
+                const allergies = o.kind === 'guest' ? '' : ''
+                const row = [t.number, s.seatNo, o.kind, (o.name || '').replace(/"/g, '""'), allergies.replace(/"/g, '""'), o.guestId]
                 lines.push(row.map(v => `"${String(v)}"`).join(','))
             })
         })
@@ -343,15 +347,13 @@ export default function SeatingCanvas() {
     /** Save layout to Supabase Storage (JSON + PNG) */
     async function saveLayoutToStorage() {
         const layout = { version: 1, saved_at: new Date().toISOString(), tables, seating }
-        // JSON
         const jsonBlob = new Blob([JSON.stringify(layout, null, 2)], { type: 'application/json' })
         const jsonPath = `layouts/${Date.now()}_layout.json`
         const { error: e1 } = await supabase.storage.from('seating').upload(jsonPath, jsonBlob, {
             upsert: true, contentType: 'application/json'
         })
-        if (e1) { alert('No se pudo guardar el JSON'); return }
+        if (e1) { alert('No se pudo guardar el JSON: ' + e1.message); return }
 
-        // PNG
         const stage = stageRef.current
         const dataUrl = stage.toDataURL({ pixelRatio: 2 })
         const res = await fetch(dataUrl)
@@ -360,7 +362,8 @@ export default function SeatingCanvas() {
         const { error: e2 } = await supabase.storage.from('seating').upload(pngPath, pngBlob, {
             upsert: true, contentType: 'image/png'
         })
-        if (e2) { alert('JSON guardado, pero falló el PNG'); return }
+        if (e2) { alert('JSON guardado, pero falló el PNG: ' + e2.message); return }
+        localStorage.setItem('sj_seating_last_cloud_json', jsonPath)
         alert('Layout guardado en Storage ✅')
     }
 
@@ -398,14 +401,8 @@ export default function SeatingCanvas() {
                         </label>
                         <div className="col-span-2 flex gap-3 items-center">
                             <span className="text-sm">Tipo:</span>
-                            <button
-                                onClick={() => setType('round')}
-                                className={`px-3 py-1 rounded border ${type === 'round' ? 'bg-gray-200' : ''}`}
-                            >Redonda</button>
-                            <button
-                                onClick={() => setType('rect')}
-                                className={`px-3 py-1 rounded border ${type === 'rect' ? 'bg-gray-200' : ''}`}
-                            >Rectangular</button>
+                            <button onClick={() => setType('round')} className={`px-3 py-1 rounded border ${type === 'round' ? 'bg-gray-200' : ''}`}>Redonda</button>
+                            <button onClick={() => setType('rect')} className={`px-3 py-1 rounded border ${type === 'rect' ? 'bg-gray-200' : ''}`}>Rectangular</button>
                         </div>
                     </div>
                     <div className="flex justify-end gap-2 pt-2">
@@ -464,9 +461,7 @@ export default function SeatingCanvas() {
                 </div>
 
                 <div className="mt-4 grid grid-cols-2 gap-2">
-                    <button onClick={() => setShowNewTable(true)} className="bg-[#E4C3A1] text-[#651D28] font-semibold py-2 rounded">
-                        Nueva mesa
-                    </button>
+                    <button onClick={() => setShowNewTable(true)} className="bg-[#E4C3A1] text-[#651D28] font-semibold py-2 rounded">Nueva mesa</button>
                     <button onClick={exportPNG} className="border py-2 rounded">Exportar PNG</button>
                     <button onClick={exportCSV} className="border py-2 rounded col-span-2">Exportar CSV</button>
                     <button onClick={saveLayoutToStorage} className="border py-2 rounded col-span-2">Guardar en la nube (JSON+PNG)</button>
@@ -501,10 +496,13 @@ export default function SeatingCanvas() {
                             const assigned = countAssigned(t.number)
                             const over = assigned > t.seats
 
-                            // seat ring positions
-                            const seatPositions = circleSeats(0, 0, 86, t.seats, t.rotation)
-                            const seatsArr =
-                                seating[t.number] ?? Array.from({ length: t.seats }, (_, i) => ({ seatNo: i + 1 } as Seat))
+                            // safe capacity + positions
+                            const cap = Math.max(1, t.seats || 1)
+                            const seatPositions = circleSeats(0, 0, 86, cap, t.rotation)
+
+                            // ensure seating array matches capacity
+                            let seatsArr = (seating[t.number] ?? []).slice(0, cap)
+                            while (seatsArr.length < cap) seatsArr.push({ seatNo: seatsArr.length + 1 } as Seat)
 
                             return (
                                 <Group
@@ -549,6 +547,7 @@ export default function SeatingCanvas() {
                                     {/* Seats */}
                                     {seatsArr.map((seat, idx) => {
                                         const pos = seatPositions[idx]
+                                        if (!pos) return null
                                         const occ = seat.occupant
                                         const initials = occ?.name
                                             ? occ.name.trim().split(/\s+/).map(w => w[0]?.toUpperCase()).slice(0, 2).join('')
@@ -558,7 +557,6 @@ export default function SeatingCanvas() {
                                             <Group key={idx} x={pos.x} y={pos.y}>
                                                 <Circle radius={14} fill={occ ? palette.roseMid : palette.sage} stroke={palette.burgundyDark} strokeWidth={1} />
                                                 <Text text={initials} fontSize={11} align="center" width={28} offsetX={14} y={-6} fill={palette.ivory} />
-                                                {/* Interaction overlay */}
                                                 <Rect
                                                     width={28} height={28} offsetX={14} offsetY={14} fillEnabled={false} listening
                                                     onClick={() => {
@@ -607,9 +605,7 @@ export default function SeatingCanvas() {
                                 <>
                                     <div className="flex items-center justify-between mb-2">
                                         <h3 className="font-semibold">Propiedades de la mesa</h3>
-                                        <button onClick={() => setSelectedTableId(null)} className="text-sm text-gray-600 hover:underline">
-                                            Cerrar
-                                        </button>
+                                        <button onClick={() => setSelectedTableId(null)} className="text-sm text-gray-600 hover:underline">Cerrar</button>
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-sm block">Nombre
@@ -643,7 +639,6 @@ export default function SeatingCanvas() {
                                         <div className="pt-2 border-t mt-2">
                                             <h4 className="text-sm font-semibold mb-1">Ocupación</h4>
                                             <div className="max-h-40 overflow-auto space-y-1 text-sm">
-                                                
                                                 {(seating[t.number] ?? []).filter(s => s.occupant).map(s => {
                                                     const occ = s.occupant!
                                                     return (
@@ -651,10 +646,8 @@ export default function SeatingCanvas() {
                                                             <span>{s.seatNo}. {occ.name}</span>
                                                             <div className="flex items-center gap-2">
                                                                 {occ.kind === 'companion' && (
-                                                                    <button
-                                                                        className="text-xs text-indigo-700 underline"
-                                                                        onClick={() => renameCompanion(t.number, s.seatNo - 1)}
-                                                                    >
+                                                                    <button className="text-xs text-indigo-700 underline"
+                                                                        onClick={() => renameCompanion(t.number, s.seatNo - 1)}>
                                                                         Renombrar
                                                                     </button>
                                                                 )}
@@ -674,15 +667,13 @@ export default function SeatingCanvas() {
                                                                         const copy = current.slice()
                                                                         copy[s.seatNo - 1] = { seatNo: s.seatNo }
                                                                         setSeating({ ...seating, [t.number]: copy })
-                                                                    }}
-                                                                >
+                                                                    }}>
                                                                     Quitar
                                                                 </button>
                                                             </div>
                                                         </div>
                                                     )
                                                 })}
-
                                             </div>
                                         </div>
                                     </div>
