@@ -5,9 +5,7 @@ import { Stage, Layer, Rect, Circle, Text, Group } from 'react-konva'
 import { supabase } from '@/lib/supabaseClient'
 
 export default function SeatingCanvas() {
-    /** ===========================
-     *  Types
-     *  =========================== */
+    // ========== Types ==========
     type Guest = {
         id: string
         name: string | null
@@ -22,8 +20,8 @@ export default function SeatingCanvas() {
     type TableShape = 'round' | 'rect'
     type TableModel = {
         id: string
-        number: number          // ties to guests.table_number
-        name: string            // "Mesa 1"
+        number: number
+        name: string
         type: TableShape
         seats: number
         x: number
@@ -36,9 +34,7 @@ export default function SeatingCanvas() {
     type Seat = { seatNo: number; occupant?: Occupant }
     type SeatingState = { [tableNumber: number]: Seat[] }
 
-    /** ===========================
-     *  Constants / helpers
-     *  =========================== */
+    // ========== Constants / helpers ==========
     const LS_TABLES = 'sj_seating_tables_v1'
     const LS_STATE = 'sj_seating_state_v1'
     const genId = () => crypto.randomUUID()
@@ -56,7 +52,11 @@ export default function SeatingCanvas() {
         pageBg: '#FBF3F9',
     }
 
-    /** Seat positions (safe) */
+    const toInt = (v: any, fallback: number) => {
+        const n = Number(v)
+        return Number.isFinite(n) ? Math.floor(n) : fallback
+    }
+
     function circleSeats(cx: number, cy: number, radius: number, seats: number, rotationDeg: number) {
         const count = Math.max(1, seats || 1)
         const rad = (deg: number) => (deg * Math.PI) / 180
@@ -80,7 +80,6 @@ export default function SeatingCanvas() {
         setSeating({ ...seating, [tableNo]: copy })
     }
 
-    /** Load/save localStorage */
     const loadTables = (): TableModel[] => {
         try { return JSON.parse(localStorage.getItem(LS_TABLES) || '[]') } catch { return [] }
     }
@@ -89,18 +88,14 @@ export default function SeatingCanvas() {
         try { return JSON.parse(localStorage.getItem(LS_STATE) || '{}') } catch { return {} }
     }
     const saveSeating = (s: SeatingState, set: (s: SeatingState) => void) => {
-        localStorage.setItem(LS_STATE, JSON.stringify(s))
-        set(s)
+        localStorage.setItem(LS_STATE, JSON.stringify(s)); set(s)
     }
 
-    /** ===========================
-     *  Component
-     *  =========================== */
+    // ========== Component state ==========
     const stageRef = useRef<any>(null)
     const containerRef = useRef<HTMLDivElement>(null)
     const [stageSize, setStageSize] = useState<{ w: number; h: number }>({ w: 1000, h: 700 })
 
-    // Data
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [guests, setGuests] = useState<Guest[]>([])
@@ -108,16 +103,14 @@ export default function SeatingCanvas() {
     const [seating, _setSeating] = useState<SeatingState>({})
     const setSeating = (s: SeatingState) => saveSeating(s, _setSeating)
 
-    // UI
     const [selectedTableId, setSelectedTableId] = useState<string | null>(null)
     const [showNewTable, setShowNewTable] = useState(false)
     const [search, setSearch] = useState('')
 
-    /** Resize stage to container */
+    // ========== Effects ==========
     useEffect(() => {
         const resize = () => {
-            const el = containerRef.current
-            if (!el) return
+            const el = containerRef.current; if (!el) return
             const rect = el.getBoundingClientRect()
             setStageSize({ w: rect.width, h: rect.height })
         }
@@ -126,7 +119,6 @@ export default function SeatingCanvas() {
         return () => window.removeEventListener('resize', resize)
     }, [])
 
-    /** Load guests */
     useEffect(() => {
         (async () => {
             setLoading(true)
@@ -134,44 +126,31 @@ export default function SeatingCanvas() {
                 .from('guests')
                 .select('id, name, guest_count, number_confirmations, table_number, email, phone_number, did_confirm')
                 .order('name', { ascending: true })
-            if (error) {
-                console.error(error)
-                setGuests([])
-            } else {
-                setGuests((data ?? []) as Guest[])
-            }
+            if (error) { console.error(error); setGuests([]) } else { setGuests((data ?? []) as Guest[]) }
             setLoading(false)
         })()
     }, [])
 
-    /** Load local layout/state */
+    // initial restore
     useEffect(() => {
         setTables(loadTables())
         setSeating(loadSeating())
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    /** Derivatives */
+    // 🔁 auto‑save whenever tables or seating change
+    useEffect(() => { saveTables(tables) }, [tables])
+    useEffect(() => { localStorage.setItem(LS_STATE, JSON.stringify(seating)) }, [seating])
+
+    // ========== Derived ==========
     const unassigned = useMemo(
-        () =>
-            guests
-                .filter(g => (!g.table_number || g.table_number === 0))
-                .filter(g => (search ? (g.name || '').toLowerCase().includes(search.toLowerCase()) : true)),
+        () => guests
+            .filter(g => (!g.table_number || g.table_number === 0))
+            .filter(g => (search ? (g.name || '').toLowerCase().includes(search.toLowerCase()) : true)),
         [guests, search]
     )
-    const byTable = useMemo(() => {
-        const map = new Map<number, Guest[]>()
-        guests.forEach(g => {
-            if (g.table_number && g.table_number > 0) {
-                const arr = map.get(g.table_number) ?? []
-                arr.push(g)
-                map.set(g.table_number, arr)
-            }
-        })
-        return map
-    }, [guests])
 
-    /** DnD from sidebar */
+    // ========== Drag from sidebar ==========
     const handleDragStartGuest = (e: React.DragEvent, guestId: string) => {
         e.dataTransfer.setData('text/plain', guestId)
         e.dataTransfer.effectAllowed = 'move'
@@ -189,8 +168,7 @@ export default function SeatingCanvas() {
                 const within = x >= t.x - w / 2 && x <= t.x + w / 2 && y >= t.y - h / 2 && y <= t.y + h / 2
                 if (within) return t
             } else {
-                const r = 70
-                const dx = x - t.x, dy = y - t.y
+                const r = 70, dx = x - t.x, dy = y - t.y
                 if (dx * dx + dy * dy <= r * r) return t
             }
         }
@@ -198,7 +176,6 @@ export default function SeatingCanvas() {
     }
     const onCanvasDragOver = (e: React.DragEvent) => e.preventDefault()
 
-    /** Seating helpers */
     function firstFreeSeats(tableNo: number, needed: number, tableCapacity: number): number[] | null {
         const seats = seating[tableNo] ?? Array.from({ length: tableCapacity }, (_, i) => ({ seatNo: i + 1 }))
         const free = seats.filter(s => !s.occupant).map(s => s.seatNo)
@@ -210,10 +187,7 @@ export default function SeatingCanvas() {
         const needed = Math.max(1, seatsFrom(guest))
         const tableSeats = seating[table.number] ?? Array.from({ length: table.seats }, (_, i) => ({ seatNo: i + 1 }))
         const free = firstFreeSeats(table.number, needed, table.seats)
-        if (!free) {
-            alert(`No hay asientos suficientes en ${table.name}.`)
-            return
-        }
+        if (!free) { alert(`No hay asientos suficientes en ${table.name}.`); return }
 
         try {
             setSaving(true)
@@ -221,10 +195,7 @@ export default function SeatingCanvas() {
             if (error) throw error
             setGuests(prev => prev.map(g => (g.id === guest.id ? { ...g, table_number: table.number } : g)))
         } catch (e) {
-            console.error(e)
-            alert('No se pudo asignar en la base de datos.')
-            setSaving(false)
-            return
+            console.error(e); alert('No se pudo asignar en la base de datos.'); setSaving(false); return
         }
 
         const newSeats = [...tableSeats]
@@ -233,8 +204,7 @@ export default function SeatingCanvas() {
             const seatNo = free[i]
             newSeats[seatNo - 1] = { seatNo, occupant: { kind: 'companion', guestId: guest.id, name: `+${i}`, idx: i } }
         }
-        const next = { ...seating, [table.number]: newSeats }
-        setSeating(next)
+        setSeating({ ...seating, [table.number]: newSeats })
         setSaving(false)
     }
 
@@ -243,48 +213,41 @@ export default function SeatingCanvas() {
         const guestId = e.dataTransfer.getData('text/plain')
         if (!guestId) return
         const { x, y } = clientPointToStage(e.clientX, e.clientY)
-        const table = findTableAtPoint(x, y)
-        if (!table) return
-        const g = guests.find(gg => gg.id === guestId)
-        if (!g) return
+        const table = findTableAtPoint(x, y); if (!table) return
+        const g = guests.find(gg => gg.id === guestId); if (!g) return
         await placeGuestBundleOnTable(g, table)
     }
 
-    /** Tables CRUD (with seating sync) */
+    // ========== Tables CRUD (with seating sync) ==========
     const addTable = (t: Omit<TableModel, 'id'>) => {
-        setTables(prev => {
-            const next = [...prev, { ...t, id: genId() }]
-            saveTables(next)
-            return next
-        })
+        setTables(prev => [...prev, { ...t, id: genId() }])
         setShowNewTable(false)
     }
 
     const updateTable = (id: string, patch: Partial<TableModel>) => {
         setTables(prev => {
             const before = prev.find(t => t.id === id)!
-            const nextTables = prev.map(t =>
-                t.id === id
-                    ? { ...t, ...patch, seats: patch.seats != null ? Math.max(1, patch.seats) : t.seats }
-                    : t
-            )
-            saveTables(nextTables)
+            const norm: Partial<TableModel> = { ...patch }
+            if (patch.seats !== undefined) norm.seats = Math.max(1, toInt(patch.seats, before.seats))
+            if (patch.number !== undefined) norm.number = Math.max(1, toInt(patch.number, before.number))
+            if (patch.rotation !== undefined) norm.rotation = toInt(patch.rotation, before.rotation)
 
+            const nextTables = prev.map(t => (t.id === id ? { ...t, ...norm } : t))
+
+            // sync seating
             setSeating(prevS => {
                 let s = { ...prevS }
                 const after = nextTables.find(t => t.id === id)!
                 const fromNo = before.number
                 const toNo = after.number
 
-                // move seating bucket if number changed
                 if (toNo !== fromNo) {
                     s[toNo] = (s[fromNo] ?? []).map((seat, i) => ({ ...seat, seatNo: i + 1 }))
                     delete s[fromNo]
                 }
 
-                // resize to capacity
-                const bucketNo = toNo
                 const cap = Math.max(1, after.seats)
+                const bucketNo = toNo
                 const existing = s[bucketNo] ?? []
                 const resized = existing.slice(0, cap)
                 while (resized.length < cap) resized.push({ seatNo: resized.length + 1 })
@@ -301,7 +264,6 @@ export default function SeatingCanvas() {
         setTables(prev => {
             const tbl = prev.find(t => t.id === id)
             const next = prev.filter(t => t.id !== id)
-            saveTables(next)
             if (tbl) {
                 const s = { ...seating }
                 delete s[tbl.number]
@@ -312,16 +274,13 @@ export default function SeatingCanvas() {
         if (selectedTableId === id) setSelectedTableId(null)
     }
 
-    /** Exporters */
+    // ========== Exporters / Cloud save / Local JSON backup ==========
     const exportPNG = () => {
-        const stage = stageRef.current
-        if (!stage) return
+        const stage = stageRef.current; if (!stage) return
         const dataURL = stage.toDataURL({ pixelRatio: 2 })
-        const a = document.createElement('a')
-        a.href = dataURL
-        a.download = 'plano-mesas.png'
-        a.click()
+        const a = document.createElement('a'); a.href = dataURL; a.download = 'plano-mesas.png'; a.click()
     }
+
     const exportCSV = () => {
         const headers = ['mesa', 'asiento', 'tipo', 'nombre', 'alergias', 'invitado_id']
         const lines: string[] = [headers.join(',')]
@@ -330,21 +289,16 @@ export default function SeatingCanvas() {
             seats.forEach(s => {
                 if (!s?.occupant) return
                 const o = s.occupant
-                const allergies = o.kind === 'guest' ? '' : ''
-                const row = [t.number, s.seatNo, o.kind, (o.name || '').replace(/"/g, '""'), allergies.replace(/"/g, '""'), o.guestId]
+                const row = [t.number, s.seatNo, o.kind, (o.name || '').replace(/"/g, '""'), '', o.guestId]
                 lines.push(row.map(v => `"${String(v)}"`).join(','))
             })
         })
         const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' })
         const url = URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = 'asignacion_mesas_detalle.csv'
-        a.click()
+        const a = document.createElement('a'); a.href = url; a.download = 'asignacion_mesas_detalle.csv'; a.click()
         URL.revokeObjectURL(url)
     }
 
-    /** Save layout to Supabase Storage (JSON + PNG) */
     async function saveLayoutToStorage() {
         const layout = { version: 1, saved_at: new Date().toISOString(), tables, seating }
         const jsonBlob = new Blob([JSON.stringify(layout, null, 2)], { type: 'application/json' })
@@ -367,17 +321,34 @@ export default function SeatingCanvas() {
         alert('Layout guardado en Storage ✅')
     }
 
-    /** Helpers */
+    // Local JSON backup (manual)
+    const downloadJSON = () => {
+        const layout = { version: 1, saved_at: new Date().toISOString(), tables, seating }
+        const blob = new Blob([JSON.stringify(layout, null, 2)], { type: 'application/json' })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a'); a.href = url; a.download = 'seating_layout.json'; a.click()
+        URL.revokeObjectURL(url)
+    }
+    const uploadJSON = async (file: File) => {
+        try {
+            const text = await file.text()
+            const layout = JSON.parse(text)
+            setTables(Array.isArray(layout.tables) ? layout.tables : [])
+            setSeating(typeof layout.seating === 'object' && layout.seating ? layout.seating : {})
+        } catch {
+            alert('Archivo inválido')
+        }
+    }
+
     const countAssigned = (tableNo: number) => (seating[tableNo] ?? []).filter(s => s.occupant).length
 
-    /** New table modal */
+    // ========== New table modal ==========
     const NewTableModal = () => {
         const nextNum = tables.length ? Math.max(...tables.map(t => t.number)) + 1 : 1
         const [number, setNumber] = useState<number>(nextNum)
         const [name, setName] = useState(`Mesa ${number}`)
         const [type, setType] = useState<TableShape>('round')
         const [seats, setSeats] = useState<number>(8)
-
         useEffect(() => { setName(`Mesa ${number}`) }, [number])
 
         return (
@@ -387,17 +358,16 @@ export default function SeatingCanvas() {
                     <div className="grid grid-cols-2 gap-3">
                         <label className="text-sm">Número
                             <input type="number" value={number}
-                                onChange={e => setNumber(parseInt(e.target.value || '1', 10))}
+                                onChange={e => setNumber(toInt(e.target.value, number))}
                                 className="mt-1 w-full border rounded px-2 py-1" />
                         </label>
                         <label className="text-sm">Capacidad
                             <input type="number" value={seats}
-                                onChange={e => setSeats(parseInt(e.target.value || '1', 10))}
+                                onChange={e => setSeats(Math.max(1, toInt(e.target.value, seats)))}
                                 className="mt-1 w-full border rounded px-2 py-1" />
                         </label>
                         <label className="text-sm col-span-2">Nombre
-                            <input value={name} onChange={e => setName(e.target.value)}
-                                className="mt-1 w-full border rounded px-2 py-1" />
+                            <input value={name} onChange={e => setName(e.target.value)} className="mt-1 w-full border rounded px-2 py-1" />
                         </label>
                         <div className="col-span-2 flex gap-3 items-center">
                             <span className="text-sm">Tipo:</span>
@@ -417,9 +387,7 @@ export default function SeatingCanvas() {
         )
     }
 
-    /** ===========================
-     *  Render
-     *  =========================== */
+    // ========== Render ==========
     return (
         <div className="h-[calc(100vh-80px)] flex text-black">
             {/* Sidebar */}
@@ -429,12 +397,7 @@ export default function SeatingCanvas() {
                     <span className="text-xs text-gray-600">{unassigned.length}</span>
                 </div>
 
-                <input
-                    placeholder="Buscar por nombre…"
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
-                    className="mb-3 w-full border rounded px-2 py-1"
-                />
+                <input placeholder="Buscar por nombre…" value={search} onChange={e => setSearch(e.target.value)} className="mb-3 w-full border rounded px-2 py-1" />
 
                 <div className="flex-1 overflow-auto space-y-2">
                     {loading ? (
@@ -443,18 +406,9 @@ export default function SeatingCanvas() {
                         <div className="text-sm text-gray-600">Todos asignados 🎉</div>
                     ) : (
                         unassigned.map(g => (
-                            <div
-                                key={g.id}
-                                draggable
-                                onDragStart={(e) => handleDragStartGuest(e, g.id)}
-                                className="bg-white border rounded-lg px-3 py-2 cursor-grab active:cursor-grabbing shadow-sm"
-                                title="Arrastra a una mesa"
-                            >
+                            <div key={g.id} draggable onDragStart={(e) => handleDragStartGuest(e, g.id)} className="bg-white border rounded-lg px-3 py-2 cursor-grab active:cursor-grabbing shadow-sm" title="Arrastra a una mesa">
                                 <div className="font-medium">{g.name || 'Sin nombre'}</div>
-                                <div className="text-xs text-gray-600">
-                                    Asientos: {Math.max(1, seatsFrom(g))}
-                                    {g.did_confirm ? ' · Confirmado' : ''}
-                                </div>
+                                <div className="text-xs text-gray-600">Asientos: {Math.max(1, seatsFrom(g))}{g.did_confirm ? ' · Confirmado' : ''}</div>
                             </div>
                         ))
                     )}
@@ -463,8 +417,20 @@ export default function SeatingCanvas() {
                 <div className="mt-4 grid grid-cols-2 gap-2">
                     <button onClick={() => setShowNewTable(true)} className="bg-[#E4C3A1] text-[#651D28] font-semibold py-2 rounded">Nueva mesa</button>
                     <button onClick={exportPNG} className="border py-2 rounded">Exportar PNG</button>
-                    <button onClick={exportCSV} className="border py-2 rounded col-span-2">Exportar CSV</button>
+                    <button onClick={exportCSV} className="border py-2 rounded">Exportar CSV</button>
                     <button onClick={saveLayoutToStorage} className="border py-2 rounded col-span-2">Guardar en la nube (JSON+PNG)</button>
+
+                    {/* NEW: Local JSON backup */}
+                    <button onClick={downloadJSON} className="border py-2 rounded col-span-2">Descargar JSON</button>
+                    <label className="border py-2 rounded col-span-2 text-center cursor-pointer">
+                        Cargar JSON
+                        <input
+                            type="file"
+                            accept="application/json"
+                            className="hidden"
+                            onChange={e => e.target.files?.[0] && uploadJSON(e.target.files[0])}
+                        />
+                    </label>
                 </div>
 
                 <div className="mt-6">
@@ -496,11 +462,9 @@ export default function SeatingCanvas() {
                             const assigned = countAssigned(t.number)
                             const over = assigned > t.seats
 
-                            // safe capacity + positions
                             const cap = Math.max(1, t.seats || 1)
                             const seatPositions = circleSeats(0, 0, 86, cap, t.rotation)
 
-                            // ensure seating array matches capacity
                             let seatsArr = (seating[t.number] ?? []).slice(0, cap)
                             while (seatsArr.length < cap) seatsArr.push({ seatNo: seatsArr.length + 1 } as Seat)
 
@@ -515,17 +479,14 @@ export default function SeatingCanvas() {
                                     onDragEnd={(e) => updateTable(t.id, { x: e.target.x(), y: e.target.y() })}
                                 >
                                     {t.type === 'rect' ? (
-                                        <Rect
-                                            x={-80} y={-50}
-                                            width={160} height={100} cornerRadius={12}
+                                        <Rect x={-80} y={-50} width={160} height={100} cornerRadius={12}
                                             fill={over ? '#ffe5e5' : palette.rose}
                                             stroke={selectedTableId === t.id ? palette.burgundy : palette.burgundyDark}
                                             strokeWidth={selectedTableId === t.id ? 3 : 2}
                                             shadowBlur={4}
                                         />
                                     ) : (
-                                        <Circle
-                                            radius={70}
+                                        <Circle radius={70}
                                             fill={over ? '#ffe5e5' : palette.rose}
                                             stroke={selectedTableId === t.id ? palette.burgundy : palette.burgundyDark}
                                             strokeWidth={selectedTableId === t.id ? 3 : 2}
@@ -544,10 +505,8 @@ export default function SeatingCanvas() {
                                         fill={palette.burgundyDark}
                                     />
 
-                                    {/* Seats */}
                                     {seatsArr.map((seat, idx) => {
-                                        const pos = seatPositions[idx]
-                                        if (!pos) return null
+                                        const pos = seatPositions[idx]; if (!pos) return null
                                         const occ = seat.occupant
                                         const initials = occ?.name
                                             ? occ.name.trim().split(/\s+/).map(w => w[0]?.toUpperCase()).slice(0, 2).join('')
@@ -577,9 +536,7 @@ export default function SeatingCanvas() {
                                                                 const { error } = await supabase.from('guests').update({ table_number: null }).eq('id', occ2.guestId)
                                                                 if (error) throw error
                                                                 setGuests(prev => prev.map(g => g.id === occ2.guestId ? { ...g, table_number: null } : g))
-                                                            } finally {
-                                                                setSaving(false)
-                                                            }
+                                                            } finally { setSaving(false) }
                                                         }
                                                         const s = current.slice()
                                                         s[idx] = { seatNo: idx + 1 }
@@ -600,7 +557,8 @@ export default function SeatingCanvas() {
                 {selectedTableId && (
                     <div className="absolute right-4 top-4 w-80 bg-white/95 backdrop-blur border rounded-xl p-4 shadow">
                         {(() => {
-                            const t = tables.find(x => x.id === selectedTableId)!
+                            const t = tables.find(x => x.id === selectedTableId)
+                            if (!t) { setSelectedTableId(null); return null }
                             return (
                                 <>
                                     <div className="flex items-center justify-between mb-2">
@@ -614,26 +572,23 @@ export default function SeatingCanvas() {
                                         </label>
                                         <label className="text-sm block">Número (liga con invitados)
                                             <input type="number" className="mt-1 w-full border rounded px-2 py-1" value={t.number}
-                                                onChange={e => updateTable(t.id, { number: parseInt(e.target.value || '1', 10) })} />
+                                                onChange={e => updateTable(t.id, { number: toInt(e.target.value, t.number) })} />
                                         </label>
                                         <label className="text-sm block">Capacidad
                                             <input type="number" className="mt-1 w-full border rounded px-2 py-1" value={t.seats}
-                                                onChange={e => updateTable(t.id, { seats: parseInt(e.target.value || '1', 10) })} />
+                                                onChange={e => updateTable(t.id, { seats: Math.max(1, toInt(e.target.value, t.seats)) })} />
                                         </label>
                                         <div className="flex items-center gap-2">
                                             <span className="text-sm">Tipo:</span>
-                                            <button className={`px-3 py-1 rounded border ${t.type === 'round' ? 'bg-gray-200' : ''}`}
-                                                onClick={() => updateTable(t.id, { type: 'round' })}>Redonda</button>
-                                            <button className={`px-3 py-1 rounded border ${t.type === 'rect' ? 'bg-gray-200' : ''}`}
-                                                onClick={() => updateTable(t.id, { type: 'rect' })}>Rectangular</button>
+                                            <button className={`px-3 py-1 rounded border ${t.type === 'round' ? 'bg-gray-200' : ''}`} onClick={() => updateTable(t.id, { type: 'round' })}>Redonda</button>
+                                            <button className={`px-3 py-1 rounded border ${t.type === 'rect' ? 'bg-gray-200' : ''}`} onClick={() => updateTable(t.id, { type: 'rect' })}>Rectangular</button>
                                         </div>
                                         <div className="flex items-center gap-3">
                                             <label className="text-sm block">Rotación
                                                 <input type="number" className="mt-1 w-24 border rounded px-2 py-1" value={t.rotation}
-                                                    onChange={e => updateTable(t.id, { rotation: parseInt(e.target.value || '0', 10) })} />
+                                                    onChange={e => updateTable(t.id, { rotation: toInt(e.target.value, t.rotation) })} />
                                             </label>
-                                            <button className="ml-auto text-red-700 border border-red-700 px-3 py-1 rounded"
-                                                onClick={() => deleteTable(t.id)}>Eliminar</button>
+                                            <button className="ml-auto text-red-700 border border-red-700 px-3 py-1 rounded" onClick={() => deleteTable(t.id)}>Eliminar</button>
                                         </div>
 
                                         <div className="pt-2 border-t mt-2">
