@@ -322,152 +322,151 @@ export default function GuestUploadPage() {
                     </thead>
 
                     <tbody>
-                        {guests.map((guest, idx) => (
-                            <tr key={guest.id} className="border-b">
-                                {editingIndex === idx ? (
-                                    <>
-                                        <td className="px-4 py-2">
-                                            <input
-                                                value={editForm.name ?? ''}
-                                                onChange={(e) => updateEditField('name', e.target.value)}
-                                            />
-                                        </td>
-                                        <td className="px-4 py-2">
-                                            <input
-                                                type="number"
-                                                value={editForm.guest_count ?? 0}
-                                                onChange={(e) => updateEditField('guest_count', parseInt(e.target.value))}
-                                            />
-                                        </td>
-                                        <td className="px-4 py-2">
-                                            <input
-                                                value={editForm.phone_number ?? ''}
-                                                onChange={(e) => updateEditField('phone_number', e.target.value)}
-                                            />
-                                        </td>
-                                        <td className="px-4 py-2">
-                                            <input
-                                                value={editForm.email ?? ''}
-                                                onChange={(e) => updateEditField('email', e.target.value)}
-                                            />
-                                        </td>
-                                        <td className="px-4 py-2">
-                                            <input
-                                                type="number"
-                                                value={editForm.number_confirmations ?? 0}
-                                                onChange={(e) =>
-                                                    updateEditField('number_confirmations', parseInt(e.target.value))
-                                                }
-                                            />
-                                        </td>
-                                        <td className="px-4 py-2">
-                                            <select
-                                                value={editForm.did_confirm ?? ''}
-                                                onChange={(e) =>
-                                                    updateEditField(
-                                                        'did_confirm',
-                                                        e.target.value === '' ? null : e.target.value === 'true'
-                                                    )
-                                                }
-                                            >
-                                                <option value="">-</option>
-                                                <option value="true">Sí</option>
-                                                <option value="false">No</option>
-                                            </select>
-                                        </td>
-                                        <td className="px-4 py-2">
-                                            <input
-                                                type="number"
-                                                value={editForm.table_number ?? ''}
-                                                onChange={(e) =>
-                                                    updateEditField(
-                                                        'table_number',
-                                                        e.target.value === '' ? null : parseInt(e.target.value)
-                                                    )
-                                                }
-                                            />
-                                        </td>
-                                        <td className="px-4 py-2 font-mono text-xs break-all">
-                                            {editForm.invite_token}
-                                        </td>
+                        {filteredGuests.map((guest) => {
+                            // link filtered row back to its index in the full guests array
+                            const globalIdx = guests.findIndex(g => g.id === guest.id)
+                            const isEditing = editingIndex === globalIdx
 
-                                        {/* WhatsApp cell not needed in edit mode */}
-                                        <td className="px-4 py-2" />
+                            return (
+                                <tr key={guest.id} className="border-b">
+                                    {isEditing ? (
+                                        <>
+                                            <td className="px-4 py-2">
+                                                <input
+                                                    value={editForm.name ?? ''}
+                                                    onChange={(e) => updateEditField('name', e.target.value)}
+                                                />
+                                            </td>
+                                            <td className="px-4 py-2">
+                                                <input
+                                                    type="number"
+                                                    value={editForm.guest_count ?? 0}
+                                                    onChange={(e) => updateEditField('guest_count', parseInt(e.target.value))}
+                                                />
+                                            </td>
+                                            <td className="px-4 py-2">
+                                                <input
+                                                    value={editForm.phone_number ?? ''}
+                                                    onChange={(e) => updateEditField('phone_number', e.target.value)}
+                                                />
+                                            </td>
+                                            <td className="px-4 py-2">
+                                                <input
+                                                    value={editForm.email ?? ''}
+                                                    onChange={(e) => updateEditField('email', e.target.value)}
+                                                />
+                                            </td>
+                                            <td className="px-4 py-2">
+                                                <input
+                                                    type="number"
+                                                    value={editForm.number_confirmations ?? 0}
+                                                    onChange={(e) => updateEditField('number_confirmations', parseInt(e.target.value))}
+                                                />
+                                            </td>
+                                            <td className="px-4 py-2">
+                                                <select
+                                                    value={editForm.did_confirm ?? ''}
+                                                    onChange={(e) =>
+                                                        updateEditField(
+                                                            'did_confirm',
+                                                            e.target.value === '' ? null : e.target.value === 'true'
+                                                        )
+                                                    }
+                                                >
+                                                    <option value="">-</option>
+                                                    <option value="true">Sí</option>
+                                                    <option value="false">No</option>
+                                                </select>
+                                            </td>
+                                            <td className="px-4 py-2">
+                                                <input
+                                                    type="number"
+                                                    value={editForm.table_number ?? ''}
+                                                    onChange={(e) =>
+                                                        updateEditField(
+                                                            'table_number',
+                                                            e.target.value === '' ? null : parseInt(e.target.value)
+                                                        )
+                                                    }
+                                                />
+                                            </td>
+                                            <td className="px-4 py-2 font-mono text-xs break-all">
+                                                {editForm.invite_token}
+                                            </td>
+                                            <td className="px-4 py-2" />
+                                            <td className="px-4 py-2">
+                                                <button onClick={() => saveEdit(guest.id)} className="text-green-600 mr-2">
+                                                    Guardar
+                                                </button>
+                                                <button onClick={cancelEdit} className="text-gray-500">
+                                                    Cancelar
+                                                </button>
+                                            </td>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <td className="px-4 py-2">{guest.name}</td>
+                                            <td className="px-4 py-2">{guest.guest_count}</td>
+                                            <td className="px-4 py-2">{guest.phone_number}</td>
+                                            <td className="px-4 py-2">{guest.email}</td>
+                                            <td className="px-4 py-2">{guest.number_confirmations}</td>
+                                            <td className="px-4 py-2">
+                                                {guest.did_confirm === null ? '-' : guest.did_confirm ? 'Sí' : 'No'}
+                                            </td>
+                                            <td className="px-4 py-2">{guest.table_number}</td>
+                                            <td className="px-4 py-2 font-mono text-xs break-all">{guest.invite_token}</td>
 
-                                        {/* ACTIONS (edit mode) */}
-                                        <td className="px-4 py-2">
-                                            <button onClick={() => saveEdit(guest.id)} className="text-green-600 mr-2">
-                                                Guardar
-                                            </button>
-                                            <button onClick={cancelEdit} className="text-gray-500">
-                                                Cancelar
-                                            </button>
-                                        </td>
-                                    </>
-                                ) : (
-                                    <>
-                                        <td className="px-4 py-2">{guest.name}</td>
-                                        <td className="px-4 py-2">{guest.guest_count}</td>
-                                        <td className="px-4 py-2">{guest.phone_number}</td>
-                                        <td className="px-4 py-2">{guest.email}</td>
-                                        <td className="px-4 py-2">{guest.number_confirmations}</td>
-                                        <td className="px-4 py-2">
-                                            {guest.did_confirm === null ? '-' : guest.did_confirm ? 'Sí' : 'No'}
-                                        </td>
-                                        <td className="px-4 py-2">{guest.table_number}</td>
-                                        <td className="px-4 py-2 font-mono text-xs break-all">{guest.invite_token}</td>
-
-                                        {/* ✅ WhatsApp cell with Enviar + Recordatorio */}
-                                        <td className="px-4 py-2">
-                                            {guest.phone_number && guest.invite_token ? (
-                                                <div className="flex gap-3">
-                                                    {/* Enviar (original) */}
-                                                    <a
-                                                        href={`https://wa.me/${guest.phone_number.replace(/[^\d]/g, '')}?text=${encodeURIComponent(
-                                                            `Hola ${guest.name}, \n\nTe compartimos los detalles de nuestra boda civil. Por favor confirma tu asistencia aquí: ${rsvpBaseUrl}${guest.invite_token}\n\nCon cariño,\nSusana & Javier 💍🥳🍾`
-                                                        )}`}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="underline text-[#173039] hover:text-[#7B4B38] transition"
-                                                        title={`Enviar WhatsApp a ${guest.name}`}
-                                                    >
-                                                        WhatsApp
-                                                    </a>
-
-                                                    {/* Recordatorio (solo si no ha confirmado) */}
-                                                    {guest.did_confirm !== true && (
+                                            {/* WhatsApp: Enviar + Recordatorio */}
+                                            <td className="px-4 py-2">
+                                                {guest.phone_number && guest.invite_token ? (
+                                                    <div className="flex gap-3">
                                                         <a
                                                             href={`https://wa.me/${guest.phone_number.replace(/[^\d]/g, '')}?text=${encodeURIComponent(
-                                                                `Hola ${guest.name},\n\nSolo como recordatorio 😊. ¿Podrías confirmar tu asistencia cuando tengas un momento?\n\nConfirma aquí: ${rsvpBaseUrl}${guest.invite_token}\n\n¡Gracias! ❤️`
+                                                                `Hola ${guest.name}, \n\nTe compartimos los detalles de nuestra boda civil. Por favor confirma tu asistencia aquí: https://bodasusanayjavier.com/?token=${guest.invite_token}\n\nCon cariño,\nSusana & Javier 💍🥳🍾`
                                                             )}`}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
                                                             className="underline text-[#173039] hover:text-[#7B4B38] transition"
-                                                            title={`Enviar recordatorio a ${guest.name}`}
+                                                            title={`Enviar WhatsApp a ${guest.name}`}
                                                         >
-                                                            Recordatorio
+                                                            WhatsApp
                                                         </a>
-                                                    )}
-                                                </div>
-                                            ) : (
-                                                <span className="text-gray-400">No phone</span>
-                                            )}
-                                        </td>
 
-                                        {/* ✅ ACTIONS (view mode) — this is the one that disappeared */}
-                                        <td className="px-4 py-2">
-                                            <button onClick={() => startEdit(idx, guest)} className="text-blue-600 mr-2">
-                                                Editar
-                                            </button>
-                                            <button onClick={() => deleteGuest(guest.id)} className="text-red-600">
-                                                Eliminar
-                                            </button>
-                                        </td>
-                                    </>
-                                )}
-                            </tr>
-                        ))}
+                                                        {guest.did_confirm !== true && (
+                                                            <a
+                                                                href={`https://wa.me/${guest.phone_number.replace(/[^\d]/g, '')}?text=${encodeURIComponent(
+                                                                    `Hola ${guest.name},\n\nSolo como recordatorio 😊. ¿Podrías confirmar tu asistencia cuando tengas un momento?\n\nConfirma aquí: https://bodasusanayjavier.com/?token=${guest.invite_token}\n\n¡Gracias! ❤️`
+                                                                )}`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="underline text-[#173039] hover:text-[#7B4B38] transition"
+                                                                title={`Enviar recordatorio a ${guest.name}`}
+                                                            >
+                                                                Recordatorio
+                                                            </a>
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-gray-400">No phone</span>
+                                                )}
+                                            </td>
+
+                                            {/* Actions */}
+                                            <td className="px-4 py-2">
+                                                <button onClick={() => startEdit(globalIdx, guest)} className="text-blue-600 mr-2">
+                                                    Editar
+                                                </button>
+                                                <button onClick={() => deleteGuest(guest.id)} className="text-red-600">
+                                                    Eliminar
+                                                </button>
+                                            </td>
+                                        </>
+                                    )}
+                                </tr>
+                            )
+                        })}
                     </tbody>
+                   
 
                     <tfoot>
                         <tr className="font-bold bg-[#F7E7D6]">
