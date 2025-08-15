@@ -227,6 +227,7 @@ export default function SeatingCanvas() {
     const updateTable = (id: string, patch: Partial<TableModel>) => {
         setTables(prev => {
             const before = prev.find(t => t.id === id)!
+            // normalize numeric inputs
             const norm: Partial<TableModel> = { ...patch }
             if (patch.seats !== undefined) norm.seats = Math.max(1, toInt(patch.seats, before.seats))
             if (patch.number !== undefined) norm.number = Math.max(1, toInt(patch.number, before.number))
@@ -234,23 +235,38 @@ export default function SeatingCanvas() {
 
             const nextTables = prev.map(t => (t.id === id ? { ...t, ...norm } : t))
 
-            // sync seating
+            // keep seating in sync with number/capacity changes
             setSeating(prevS => {
-                let s = { ...prevS }
+                const s: SeatingState = { ...prevS }
                 const after = nextTables.find(t => t.id === id)!
                 const fromNo = before.number
                 const toNo = after.number
 
+                // if table number changed, move bucket
                 if (toNo !== fromNo) {
-                    s[toNo] = (s[fromNo] ?? []).map((seat, i) => ({ ...seat, seatNo: i + 1 }))
+                    const fromSeats = Array.isArray(s[fromNo]) ? s[fromNo] : []
+                    s[toNo] = fromSeats.map((seat, i) => ({ ...seat, seatNo: i + 1 }))
                     delete s[fromNo]
                 }
 
-                const cap = Math.max(1, after.seats)
                 const bucketNo = toNo
-                const existing = s[bucketNo] ?? []
-                const resized = existing.slice(0, cap)
-                while (resized.length < cap) resized.push({ seatNo: resized.length + 1 })
+                const existing = Array.isArray(s[bucketNo]) ? s[bucketNo] : []
+
+                // 🚫 do not allow capacity smaller than occupied seats
+                const occupied = existing.filter(seat => !!seat.occupant).length
+                const requestedCap = Math.max(1, after.seats)
+                const finalCap = Math.max(requestedCap, occupied)
+
+                if (finalCap !== after.seats) {
+                    // bump table capacity so UI and state stay consistent
+                    // (this also keeps your DB/auto-save coherent)
+                    nextTables.forEach(t => {
+                        if (t.id === id) t.seats = finalCap
+                    })
+                }
+
+                const resized = existing.slice(0, finalCap)
+                while (resized.length < finalCap) resized.push({ seatNo: resized.length + 1 })
                 s[bucketNo] = resized
 
                 return s
