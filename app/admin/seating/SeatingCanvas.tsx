@@ -87,9 +87,7 @@ export default function SeatingCanvas() {
     const loadSeating = (): SeatingState => {
         try { return JSON.parse(localStorage.getItem(LS_STATE) || '{}') } catch { return {} }
     }
-    const saveSeating = (s: SeatingState, set: (s: SeatingState) => void) => {
-        localStorage.setItem(LS_STATE, JSON.stringify(s)); set(s)
-    }
+    
 
     // ========== Component state ==========
     const stageRef = useRef<any>(null)
@@ -100,8 +98,22 @@ export default function SeatingCanvas() {
     const [saving, setSaving] = useState(false)
     const [guests, setGuests] = useState<Guest[]>([])
     const [tables, setTables] = useState<TableModel[]>([])
+    // Seating state (supports value and functional updates, and persists to localStorage)
     const [seating, _setSeating] = useState<SeatingState>({})
-    const setSeating = (s: SeatingState) => saveSeating(s, _setSeating)
+
+    type SetSeating = (update: SeatingState | ((prev: SeatingState) => SeatingState)) => void
+    const setSeating: SetSeating = (update) => {
+        _setSeating(prev => {
+            const next =
+                typeof update === 'function'
+                    ? (update as (p: SeatingState) => SeatingState)(prev)
+                    : update
+            try {
+                localStorage.setItem(LS_STATE, JSON.stringify(next))
+            } catch { }
+            return next
+        })
+    }
 
     const [selectedTableId, setSelectedTableId] = useState<string | null>(null)
     const [showNewTable, setShowNewTable] = useState(false)
