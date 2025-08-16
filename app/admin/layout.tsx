@@ -81,6 +81,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <NavLink href="/admin/inventario">🍷 Inventario</NavLink>
                     {/* NEW TAB */}
                     <NavLink href="/admin/seating">🪑 Mesas</NavLink>
+                    <NavLink href="/admin/witness"> Dinámica</NavLink>
 
                     <button
                         onClick={handleLogout}
