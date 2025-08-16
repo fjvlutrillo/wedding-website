@@ -294,6 +294,7 @@ export default function WitnessDirector() {
                                 onStopSpinning={onStopSpinning}
                                 outerBorderColor="#4D1C20"
                                 outerBorderWidth={6}
+                                spinDuration={5.0}
                                 innerBorderColor="#4D1C20"
                                 radiusLineColor="#FCFCFC"
                                 radiusLineWidth={2}
