@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Enable smooth scrolling for anchor links */
+html {
+  scroll-behavior: smooth;
+}
+body {
+  font-family: var(--font-bodoni), serif;
+  overflow-x: hidden;
+}
+
+/* Fade in from 0 opacity */
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 1.5s ease-in-out 0.5s forwards;
+}
+
+/* Fade in + slide up */
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-pulse {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translateY(4px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(8px);
+  }
+}
+
+.animate-fade-pulse {
+  animation: fade-pulse 2.5s ease-in-out infinite;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s ease-out;
+}
+
+.notebook-paper {
+  box-shadow: 0 6px 24px 0 rgba(60, 40, 20, 0.07), 0 1.5px 6px 0 rgba(0, 0, 0, 0.07);
+  background: repeating-linear-gradient(to bottom,
+      #fff 0px,
+      #fff 34px,
+      #ece7e3 35px);
+  position: relative;
+}
+
+@font-face {
+  font-family: 'Brittany';
+  src: url('/fonts/Brittany.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}

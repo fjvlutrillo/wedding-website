@@ -2,7 +2,7 @@
 
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import Header from '@/components/Header'
+import Header from '@/components/Header2'
 import { supabase } from '@/lib/supabaseClient'
 
 export default function RSVPForm() {

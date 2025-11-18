@@ -7,11 +7,13 @@ const italianno = Italianno({
   subsets: ['latin'],
   variable: '--font-italianno',
 })
+
 const luxury = Luxurious_Script({
   weight: '400',
   subsets: ['latin'],
   variable: '--font-luxury',
 })
+
 const bodoni = Bodoni_Moda({
   weight: ['400'],
   subsets: ['latin'],
@@ -32,13 +34,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <BodyWrapper fontClasses={`${bodoni.variable} ${italianno.variable} ${luxury.variable}`}>
         {children}
 
-        <footer className="bg-[#173039] border-t-[3px] border-[#DAC5AC] text-white text-center py-6 text-sm mt-12 w-full">
-          <p className="italic text-lg mb-1 text-white drop-shadow">
-            Aprobado por Chayanne, Chester y Henry
-          </p>
-          <p className="text-xs font-bodoni text-[173039] tracking-wider">
-            &copy; {new Date().getFullYear()} Susana & Javier
-          </p>
+        <footer className="bg-gradient-to-b from-stone-50 to-white border-t border-stone-200 text-stone-600 text-center py-12 mt-16 w-full">
+          <div className="max-w-4xl mx-auto px-4 space-y-4">
+            <p className="text-lg font-light text-stone-500">
+              Aprobado por Chayanne, Chester y Henry
+            </p>
+            <div className="flex items-center justify-center gap-3">
+              <div className="h-px w-16 bg-gradient-to-r from-transparent to-stone-300" />
+              <svg className="w-4 h-4 text-stone-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+              </svg>
+              <div className="h-px w-16 bg-gradient-to-l from-transparent to-stone-300" />
+            </div>
+            <p className="text-sm font-light tracking-wider text-stone-400">
+              © {new Date().getFullYear()} Susana & Javier
+            </p>
+          </div>
         </footer>
       </BodyWrapper>
     </html>
