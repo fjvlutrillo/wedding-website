@@ -1,4 +1,15 @@
-// tailwind.config.js - Style C: Modern & Minimalist
+/** 
+ * TAILWIND CONFIG - Modular Wedding Theme
+ * 
+ * BASE COLOR: #47091C (Deep Burgundy)
+ * 
+ * LEARNING NOTE:
+ * - All colors are defined here in ONE place
+ * - To change the theme, just update the colors object below
+ * - Components reference these colors by name (e.g., 'wedding-burgundy')
+ * - This makes the design system maintainable and consistent
+ */
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -12,9 +23,68 @@ module.exports = {
         italianno: ['var(--font-italianno)'],
         luxury: ['var(--font-luxury)'],
       },
+      
       colors: {
-        // Style C: Modern & Minimalist Palette
-        // Neutral Base
+        // ========================================
+        // WEDDING THEME COLORS - Your Custom Palette
+        // ========================================
+        
+        // Primary Wedding Colors
+        wedding: {
+          // Main burgundy (your base color #47091C)
+          burgundy: {
+            DEFAULT: '#47091C',  // Main accent color
+            light: '#6B1429',     // Lighter burgundy
+            dark: '#2D0512',      // Darker burgundy
+            50: '#FDF3F5',        // Very light tint
+            100: '#FAE7EB',       // Light tint
+            200: '#F2C5CF',       // Soft tint
+            300: '#E39DAD',       // Medium tint
+            400: '#D4758B',       // 
+            500: '#B54D68',       // 
+            600: '#8B2F48',       // 
+            700: '#6B1429',       // 
+            800: '#47091C',       // Base color
+            900: '#2D0512',       // Darkest
+          },
+          
+          // Rose gold (complementary warm tone)
+          rose: {
+            DEFAULT: '#B76E79',
+            light: '#D4A1AA',
+            dark: '#8B4A54',
+            50: '#FDF8F9',
+            100: '#F9EFF1',
+            200: '#F0D9DD',
+            300: '#E4BDC4',
+            400: '#D4A1AA',
+            500: '#B76E79',
+            600: '#9A5963',
+            700: '#7D444D',
+            800: '#5F3037',
+            900: '#421C21',
+          },
+          
+          // Blush (soft romantic accent)
+          blush: {
+            DEFAULT: '#E8C5C0',
+            light: '#F5E5E3',
+            dark: '#D4A8A3',
+          },
+          
+          // Gold accent (use sparingly for elegance)
+          gold: {
+            DEFAULT: '#D4AF37',
+            light: '#E8D48C',
+            dark: '#9A7A1A',
+          },
+        },
+        
+        // ========================================
+        // NEUTRALS - For text, backgrounds, borders
+        // ========================================
+        
+        // Stone gray scale (keeping for flexibility)
         stone: {
           50: '#FAFAFA',
           100: '#F5F5F5',
@@ -28,34 +98,48 @@ module.exports = {
           900: '#171717',
         },
         
-        // Primary Accent (Deep Charcoal/Black)
+        // Warm neutrals (better for wedding aesthetic)
+        warm: {
+          white: '#FEFEFE',     // Pure white with warmth
+          cream: '#FAF9F7',     // Warm off-white
+          beige: '#F5F3F0',     // Light warm background
+          sand: '#EAE6E1',      // Soft warm gray
+          taupe: '#D4CFC7',     // Medium warm gray
+        },
+        
+        // Primary text and UI elements
         charcoal: {
           DEFAULT: '#2C2C2C',
           light: '#404040',
           dark: '#1A1A1A',
         },
         
-        // Warm Neutrals
-        warm: {
-          white: '#FEFEFE',
-          cream: '#FAF9F7',
-          beige: '#F5F3F0',
-          sand: '#EAE6E1',
+        // ========================================
+        // SEMANTIC COLORS - For UI states
+        // ========================================
+        
+        success: {
+          DEFAULT: '#10B981',
+          light: '#6EE7B7',
+          dark: '#059669',
         },
         
-        // Subtle Accent (for interactive elements)
-        accent: {
-          sage: '#A8B5A3',      // Muted green
-          blush: '#E8C5C0',     // Soft pink
-          gold: '#D4AF37',      // Elegant gold (use sparingly)
+        warning: {
+          DEFAULT: '#F59E0B',
+          light: '#FCD34D',
+          dark: '#D97706',
         },
-
-        // Legacy compatibility (optional - can remove if not needed elsewhere)
-        mist: '#BFC3C6',
-        almond: '#E4E0D9',
-        cocoa: '#57413A',
-        paper: '#F6F5F2',
+        
+        error: {
+          DEFAULT: '#EF4444',
+          light: '#FCA5A5',
+          dark: '#DC2626',
+        },
       },
+      
+      // ========================================
+      // SPACING & SIZING
+      // ========================================
       
       spacing: {
         '18': '4.5rem',
@@ -65,15 +149,31 @@ module.exports = {
         '128': '32rem',
       },
       
+      // ========================================
+      // SHADOWS - Using burgundy tints
+      // ========================================
+      
       boxShadow: {
+        'wedding': '0 2px 8px rgba(71, 9, 28, 0.08)',        // Subtle burgundy shadow
+        'wedding-md': '0 4px 20px rgba(71, 9, 28, 0.12)',    // Medium burgundy shadow
+        'wedding-lg': '0 10px 40px rgba(71, 9, 28, 0.15)',   // Large burgundy shadow
+        'wedding-xl': '0 20px 60px rgba(71, 9, 28, 0.20)',   // Extra large
         'minimal': '0 2px 8px rgba(0, 0, 0, 0.04)',
         'elegant': '0 4px 20px rgba(0, 0, 0, 0.08)',
         'soft': '0 10px 40px rgba(0, 0, 0, 0.05)',
       },
       
+      // ========================================
+      // BORDER RADIUS
+      // ========================================
+      
       borderRadius: {
         '4xl': '2rem',
       },
+      
+      // ========================================
+      // ANIMATIONS
+      // ========================================
       
       animation: {
         'fade-in': 'fade-in 1.5s ease-in-out forwards',

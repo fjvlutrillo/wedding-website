@@ -41,7 +41,7 @@ const RegistryCard = ({
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group bg-white rounded-2xl p-6 sm:p-8 border border-stone-200 hover:border-stone-300 hover:shadow-lg transition-all duration-300 flex flex-col h-full"
+      className="group bg-white rounded-2xl p-6 sm:p-8 border border-stone-200 hover:border-stone-300 hover:shadow-wedding-lg transition-all duration-300 flex flex-col h-full"
     >
       {/* Icon */}
       <div className={`w-16 h-16 rounded-full ${color} flex items-center justify-center mb-6`}>
@@ -123,7 +123,7 @@ export default function RegistrySectionHybrid() {
           <span className="text-xs uppercase tracking-[0.3em] text-stone-500 font-light">
             Capítulo 05
           </span>
-          <h2 className="text-5xl sm:text-6xl font-light text-[#2C2C2C]">
+          <h2 className="text-5xl sm:text-6xl font-light text-wedding-burgundy">
             Mesa de
             <span className="block font-luxury text-6xl sm:text-7xl mt-2">Regalos</span>
           </h2>
@@ -179,7 +179,7 @@ export default function RegistrySectionHybrid() {
                     <span className="font-medium text-[#2C2C2C]">CLABE:</span> 012180001234567890
                   </p>
                   <p className="text-stone-700">
-                    <span className="font-medium text-[#2C2C2C]">Titular:</span> Susana Calderón & El viejo sabroso
+                    <span className="font-medium text-[#2C2C2C]">Titular:</span> Susana Calderón & Javier Vazquez
                   </p>
                 </div>
               </div>

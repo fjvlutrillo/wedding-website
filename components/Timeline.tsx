@@ -1,5 +1,17 @@
 'use client'
 
+/**
+ * TIMELINE COMPONENT - Updated with Burgundy Theme
+ * 
+ * COLOR CHANGES EXPLAINED:
+ * - Section headers: wedding-burgundy instead of #2C2C2C
+ * - Timeline line: wedding-rose gradient
+ * - Icon circles: wedding-blush with burgundy icons
+ * - Hover states: wedding-burgundy accents
+ * - Cards: warm backgrounds with burgundy borders
+ * - Time badges: rose-gold background
+ */
+
 import { useState } from 'react'
 
 interface TimelineEvent {
@@ -12,7 +24,6 @@ interface TimelineEvent {
 
 export default function Timeline() {
   const timelineEvents: TimelineEvent[] = [
-    
     {
       time: '2:00 PM',
       title: 'Ceremonia Religiosa',
@@ -55,14 +66,16 @@ export default function Timeline() {
   return (
     <section className="relative py-24 px-4">
       <div className="max-w-5xl mx-auto">
-        {/* Section Header */}
+        {/* Section Header - Burgundy themed */}
         <div className="text-center mb-16 space-y-4">
-          <span className="text-xs uppercase tracking-[0.3em] text-stone-500 font-light">
+          <span className="text-xs uppercase tracking-[0.3em] text-wedding-rose font-light">
             Itinerario del día
           </span>
-          <h2 className="text-5xl sm:text-6xl font-light text-[#2C2C2C]">
+          <h2 className="text-5xl sm:text-6xl font-light text-charcoal">
             Agenda de la
-            <span className="block font-luxury text-6xl sm:text-7xl mt-2">Celebración</span>
+            <span className="block font-luxury text-6xl sm:text-7xl mt-2 text-wedding-burgundy">
+              Celebración
+            </span>
           </h2>
           <p className="text-lg text-stone-600 max-w-2xl mx-auto leading-relaxed">
             Así será nuestro día especial.
@@ -71,8 +84,8 @@ export default function Timeline() {
 
         {/* Timeline */}
         <div className="relative">
-          {/* Vertical Line */}
-          <div className="absolute left-8 sm:left-12 top-0 bottom-0 w-px bg-gradient-to-b from-stone-200 via-stone-300 to-stone-200" />
+          {/* Vertical Line - Rose gold gradient */}
+          <div className="absolute left-8 sm:left-12 top-0 bottom-0 w-px bg-gradient-to-b from-wedding-rose-light via-wedding-rose to-wedding-rose-light" />
 
           {/* Events */}
           <div className="space-y-6">
@@ -81,15 +94,15 @@ export default function Timeline() {
                 key={index}
                 className="relative pl-20 sm:pl-28 group"
               >
-                {/* Time Badge */}
+                {/* Time Badge with Icon */}
                 <div className="absolute left-0 top-0 flex items-center gap-3">
-                  {/* Icon Circle */}
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white border-2 border-stone-300 group-hover:border-[#2C2C2C] flex items-center justify-center transition-all duration-300 shadow-sm z-10">
-                    <svg 
-                      className="w-7 h-7 sm:w-8 sm:h-8 text-stone-600 group-hover:text-[#2C2C2C] transition-colors" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      strokeWidth="1.5" 
+                  {/* Icon Circle - Burgundy themed */}
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-wedding-blush border-2 border-wedding-rose group-hover:border-wedding-burgundy group-hover:bg-wedding-rose-light flex items-center justify-center transition-all duration-300 shadow-wedding z-10">
+                    <svg
+                      className="w-7 h-7 sm:w-8 sm:h-8 text-wedding-burgundy group-hover:text-white transition-colors"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
                       viewBox="0 0 24 24"
                     >
                       <path strokeLinecap="round" strokeLinejoin="round" d={event.icon} />
@@ -97,20 +110,21 @@ export default function Timeline() {
                   </div>
                 </div>
 
-                {/* Event Card */}
-                <div 
-                  className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-stone-200 hover:shadow-lg hover:border-stone-300 transition-all duration-300 cursor-pointer"
+                {/* Event Card - Warm backgrounds with burgundy accents */}
+                <div
+                  className="bg-warm-cream rounded-2xl p-6 sm:p-8 shadow-wedding border border-wedding-blush hover:shadow-wedding-md hover:border-wedding-rose transition-all duration-300 cursor-pointer"
                   onClick={() => setExpandedEvent(expandedEvent === index ? null : index)}
                 >
                   {/* Header */}
                   <div className="flex items-start justify-between gap-4 mb-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <span className="px-3 py-1 bg-stone-100 text-[#2C2C2C] text-xs font-medium rounded-full">
+                        {/* Time badge - Rose gold background */}
+                        <span className="px-3 py-1 bg-wedding-rose-light text-wedding-burgundy text-xs font-medium rounded-full">
                           {event.time}
                         </span>
                         {event.location && (
-                          <span className="text-xs text-stone-500 flex items-center gap-1">
+                          <span className="text-xs text-wedding-rose flex items-center gap-1">
                             <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
@@ -118,23 +132,22 @@ export default function Timeline() {
                           </span>
                         )}
                       </div>
-                      <h3 className="text-xl sm:text-2xl font-light text-[#2C2C2C]">
+                      <h3 className="text-xl sm:text-2xl font-light text-wedding-burgundy">
                         {event.title}
                       </h3>
                     </div>
-                    
-                    {/* Expand Icon */}
-                    <button 
-                      className="flex-shrink-0 w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 flex items-center justify-center transition-colors"
+
+                    {/* Expand Icon - Burgundy themed */}
+                    <button
+                      className="flex-shrink-0 w-8 h-8 rounded-full bg-wedding-blush hover:bg-wedding-rose-light flex items-center justify-center transition-colors"
                       aria-label={expandedEvent === index ? "Colapsar" : "Expandir"}
                     >
-                      <svg 
-                        className={`w-4 h-4 text-stone-600 transition-transform duration-300 ${
-                          expandedEvent === index ? 'rotate-180' : ''
-                        }`}
-                        fill="none" 
-                        stroke="currentColor" 
-                        strokeWidth="2" 
+                      <svg
+                        className={`w-4 h-4 text-wedding-burgundy transition-transform duration-300 ${expandedEvent === index ? 'rotate-180' : ''
+                          }`}
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
                         viewBox="0 0 24 24"
                       >
                         <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
@@ -143,19 +156,18 @@ export default function Timeline() {
                   </div>
 
                   {/* Description - Expandable */}
-                  <div 
-                    className={`overflow-hidden transition-all duration-300 ${
-                      expandedEvent === index ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
-                    }`}
+                  <div
+                    className={`overflow-hidden transition-all duration-300 ${expandedEvent === index ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
+                      }`}
                   >
-                    <p className="text-stone-600 leading-relaxed pt-2 border-t border-stone-100">
+                    <p className="text-stone-600 leading-relaxed pt-2 border-t border-wedding-blush">
                       {event.description}
                     </p>
                   </div>
 
                   {/* Collapsed preview */}
                   {expandedEvent !== index && (
-                    <p className="text-stone-500 text-sm line-clamp-1">
+                    <p className="text-stone-600 text-sm line-clamp-1">
                       {event.description}
                     </p>
                   )}
@@ -165,13 +177,13 @@ export default function Timeline() {
           </div>
         </div>
 
-        {/* Footer Note */}
+        {/* Footer Note - Burgundy accent */}
         <div className="mt-12 text-center">
-          <div className="inline-flex items-center gap-2 px-6 py-3 bg-stone-50 rounded-full border border-stone-200">
-            <svg className="w-4 h-4 text-stone-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <div className="inline-flex items-center gap-2 px-6 py-3 bg-wedding-blush-light rounded-full border border-wedding-blush">
+            <svg className="w-4 h-4 text-wedding-rose" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span className="text-sm text-stone-600">
+            <span className="text-sm text-charcoal">
               Los horarios son aproximados y pueden variar ligeramente
             </span>
           </div>

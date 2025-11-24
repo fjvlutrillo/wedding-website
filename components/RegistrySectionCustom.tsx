@@ -57,7 +57,7 @@ const RegistryItemCard = ({ item }: { item: RegistryItem }) => {
 
   return (
     <div 
-      className="group bg-white rounded-2xl overflow-hidden border border-stone-200 hover:border-stone-300 hover:shadow-lg transition-all duration-300"
+      className="group bg-white rounded-2xl overflow-hidden border border-stone-200 hover:border-stone-300 hover:shadow-wedding-lg transition-all duration-300"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -72,7 +72,7 @@ const RegistryItemCard = ({ item }: { item: RegistryItem }) => {
         
         {/* Purchased Badge */}
         {item.isPurchased && (
-          <div className="absolute top-4 right-4 bg-emerald-500 text-white text-xs font-medium px-3 py-1.5 rounded-full shadow-lg">
+          <div className="absolute top-4 right-4 bg-emerald-500 text-white text-xs font-medium px-3 py-1.5 rounded-full shadow-wedding-lg">
             ✓ Apartado
           </div>
         )}
@@ -205,7 +205,7 @@ export default function RegistrySectionCustom() {
           <span className="text-xs uppercase tracking-[0.3em] text-stone-500 font-light">
             Capítulo 05
           </span>
-          <h2 className="text-5xl sm:text-6xl font-light text-[#2C2C2C]">
+          <h2 className="text-5xl sm:text-6xl font-light text-wedding-burgundy">
             Mesa de
             <span className="block font-luxury text-6xl sm:text-7xl mt-2">Regalos</span>
           </h2>
@@ -224,7 +224,7 @@ export default function RegistrySectionCustom() {
               className={`
                 px-6 py-3 rounded-full text-sm font-medium transition-all duration-300
                 ${selectedCategory === cat.id
-                  ? 'bg-[#2C2C2C] text-white shadow-lg'
+                  ? 'bg-[#2C2C2C] text-white shadow-wedding-lg'
                   : 'bg-white text-stone-600 border border-stone-200 hover:border-stone-300'
                 }
               `}

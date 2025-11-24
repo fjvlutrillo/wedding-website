@@ -153,12 +153,12 @@ export default function Home() {
               <p className="text-sm sm:text-base font-light tracking-[0.3em] uppercase text-white/90">
                 save the date
               </p>
-              <h1 className="text-6xl sm:text-7xl md:text-8xl font-luxury font-light tracking-tight">
+              <h1 className="text-6xl sm:text-7xl md:text-8xl font-luxury font-light tracking-tight text-white">
                 Susana & Javier
               </h1>
             </div>
 
-            <div className="h-px w-24 mx-auto bg-white/40" />
+            <div className="h-px w-24 mx-auto bg-warm-cream/40" />
 
             <div className="space-y-1">
               <p className="text-3xl sm:text-4xl font-light tracking-wide">Boda</p>
@@ -215,7 +215,7 @@ export default function Home() {
             <div className="relative order-2 lg:order-1">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-4">
-                  <div className="relative h-64 rounded-2xl overflow-hidden shadow-lg">
+                  <div className="relative h-64 rounded-2xl overflow-hidden shadow-wedding-lg">
                     <Image
                       src="/historia/1.jpg"
                       alt="Susana y Javier - Momento 1"
@@ -223,7 +223,7 @@ export default function Home() {
                       className="object-cover"
                     />
                   </div>
-                  <div className="relative h-80 rounded-2xl overflow-hidden shadow-lg">
+                  <div className="relative h-80 rounded-2xl overflow-hidden shadow-wedding-lg">
                     <Image
                       src="/historia/2.jpg"
                       alt="Susana y Javier - Momento 2"
@@ -233,7 +233,7 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="space-y-4 pt-12">
-                  <div className="relative h-80 rounded-2xl overflow-hidden shadow-lg">
+                  <div className="relative h-80 rounded-2xl overflow-hidden shadow-wedding-lg">
                     <Image
                       src="/historia/3.jpg"
                       alt="Susana y Javier - Momento 3"
@@ -241,7 +241,7 @@ export default function Home() {
                       className="object-cover"
                     />
                   </div>
-                  <div className="relative h-64 rounded-2xl overflow-hidden shadow-lg">
+                  <div className="relative h-64 rounded-2xl overflow-hidden shadow-wedding-lg">
                     <Image
                       src="/historia/4.jpg"
                       alt="Susana y Javier - Momento 4"
@@ -256,12 +256,12 @@ export default function Home() {
             {/* Right: Story Text */}
             <div className="order-1 lg:order-2 space-y-8">
               <div className="space-y-4">
-                <span className="text-xs uppercase tracking-[0.3em] text-stone-500 font-light">
+                <span className="text-xs uppercase tracking-[0.3em] text-wedding-rose font-light">
                   Capítulo 01
                 </span>
-                <h2 className="text-5xl sm:text-6xl font-light text-[#2C2C2C]">
+                <h2 className="text-5xl sm:text-6xl font-light text-charcoal">
                   Nuestra
-                  <span className="block font-luxury text-6xl sm:text-7xl mt-2">Historia</span>
+                  <span className="block font-luxury text-6xl sm:text-7xl mt-2 text-wedding-burgundy">Historia</span>
                 </h2>
               </div>
 
@@ -284,7 +284,7 @@ export default function Home() {
               </div>
 
               <div className="pt-4">
-                <p className="text-2xl sm:text-3xl font-luxury text-[#2C2C2C]">
+                <p className="text-2xl sm:text-3xl font-luxury text-wedding-burgundy">
                   ¡Nos casamos!
                 </p>
               </div>
@@ -302,12 +302,12 @@ export default function Home() {
       <section className="relative py-24 px-4">
         <div className="max-w-3xl mx-auto text-center">
           <div className="space-y-4 mb-12">
-            <span className="text-xs uppercase tracking-[0.3em] text-stone-500 font-light">
+            <span className="text-xs uppercase tracking-[0.3em] text-wedding-rose font-light">
               Capítulo 03
             </span>
-            <h2 className="text-5xl sm:text-6xl font-light text-[#2C2C2C]">
+            <h2 className="text-5xl sm:text-6xl font-light text-charcoal">
               Cuenta
-              <span className="block font-luxury text-6xl sm:text-7xl mt-2">Regresiva</span>
+              <span className="block font-luxury text-6xl sm:text-7xl mt-2 text-wedding-burgundy">Regresiva</span>
             </h2>
           </div>
 
@@ -324,12 +324,12 @@ export default function Home() {
               ].map((item, idx) => (
                 <div
                   key={idx}
-                  className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-stone-100 hover:shadow-md transition-all duration-300 hover:-translate-y-1"
+                  className="bg-warm-cream rounded-2xl p-6 sm:p-8 shadow-wedding border border-wedding-blush hover:shadow-wedding-md transition-all duration-300 hover:-translate-y-1"
                 >
-                  <div className="text-5xl sm:text-6xl font-light text-[#2C2C2C] mb-2 tabular-nums">
+                  <div className="text-5xl sm:text-6xl font-light text-wedding-burgundy mb-2 tabular-nums">
                     {item.value}
                   </div>
-                  <div className="text-sm uppercase tracking-wider text-stone-500 font-light">
+                  <div className="text-sm uppercase tracking-wider text-wedding-rose font-light">
                     {item.label}
                   </div>
                 </div>
@@ -346,10 +346,10 @@ export default function Home() {
       >
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16 space-y-4">
-            <span className="text-xs uppercase tracking-[0.3em] text-stone-500 font-light">
+            <span className="text-xs uppercase tracking-[0.3em] text-wedding-rose font-light">
               Capítulo 04
             </span>
-            <h2 className="text-5xl sm:text-6xl font-light text-[#2C2C2C]">
+            <h2 className="text-5xl sm:text-6xl font-light text-wedding-burgundy">
               Galería         
             </h2>
           </div>
@@ -357,7 +357,7 @@ export default function Home() {
           <div className="relative max-w-4xl mx-auto">
             <div
               ref={sliderRef}
-              className="keen-slider rounded-2xl overflow-hidden shadow-xl border border-stone-200"
+              className="keen-slider rounded-2xl overflow-hidden shadow-xl border border-wedding-blush"
             >
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
                 <div key={num} className="keen-slider__slide flex items-center justify-center bg-stone-100">
@@ -376,19 +376,19 @@ export default function Home() {
             {/* Navigation Arrows */}
             <button
               onClick={() => instanceRef.current?.prev()}
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg border border-stone-200 flex items-center justify-center transition-all duration-300 hover:scale-110"
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-warm-cream/95 backdrop-blur-sm hover:bg-wedding-blush shadow-wedding border border-wedding-blush flex items-center justify-center transition-all duration-300 hover:scale-110"
               aria-label="Anterior"
             >
-              <svg className="w-6 h-6 text-stone-800" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 text-wedding-burgundy" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
             </button>
             <button
               onClick={() => instanceRef.current?.next()}
-              className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg border border-stone-200 flex items-center justify-center transition-all duration-300 hover:scale-110"
+              className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-warm-cream/95 backdrop-blur-sm hover:bg-wedding-blush shadow-wedding border border-wedding-blush flex items-center justify-center transition-all duration-300 hover:scale-110"
               aria-label="Siguiente"
             >
-              <svg className="w-6 h-6 text-stone-800" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 text-wedding-burgundy" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>
             </button>
@@ -402,8 +402,8 @@ export default function Home() {
                   className={`
                     transition-all duration-300
                     ${currentSlide === idx
-                      ? 'w-8 h-2 bg-[#2C2C2C] rounded-full'
-                      : 'w-2 h-2 bg-stone-300 rounded-full hover:bg-stone-400'
+                    ? 'w-8 h-2 bg-wedding-burgundy rounded-full'
+                    : 'w-2 h-2 bg-wedding-blush rounded-full hover:bg-wedding-rose'
                     }
                   `}
                   aria-label={`Slide ${idx + 1}`}
@@ -425,12 +425,12 @@ export default function Home() {
           <div className="max-w-2xl mx-auto text-center">
             <div className="space-y-8">
               <div className="space-y-4">
-                <span className="text-xs uppercase tracking-[0.3em] text-stone-500 font-light">
+                <span className="text-xs uppercase tracking-[0.3em] text-wedding-rose font-light">
                   Capítulo 06
                 </span>
-                <h2 className="text-5xl sm:text-6xl font-light text-[#2C2C2C]">
+                <h2 className="text-5xl sm:text-6xl font-light text-charcoal">
                   ¿Nos
-                  <span className="block font-luxury text-6xl sm:text-7xl mt-2">Acompañas?</span>
+                  <span className="block font-luxury text-6xl sm:text-7xl mt-2 text-wedding-burgundy">Acompañas?</span>
                 </h2>
               </div>
 
@@ -440,7 +440,7 @@ export default function Home() {
               </p>
 
               <Link href={`/rsvp?token=${token}`}>
-                <button className="group inline-flex items-center gap-3 px-8 py-4 bg-[#2C2C2C] hover:bg-[#1A1A1A] text-white text-sm tracking-wide uppercase transition-all duration-300 rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+                <button className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-burgundy hover:opacity-90 text-white text-sm tracking-wide uppercase transition-all duration-300 rounded-full shadow-wedding-lg hover:shadow-wedding-xl hover:-translate-y-0.5">
                   Confirmar asistencia
                   <svg
                     className="w-4 h-4 transition-transform group-hover:translate-x-1"

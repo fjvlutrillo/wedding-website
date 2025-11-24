@@ -1,5 +1,15 @@
 'use client'
 
+/**
+ * HEADER COMPONENT - Updated with Burgundy Theme
+ * 
+ * COLOR CHANGES:
+ * - Main accents: Changed from #2C2C2C to wedding-burgundy
+ * - Hover states: Using burgundy variants
+ * - Menu background: Warm cream instead of stark white
+ * - Borders: Soft burgundy tints
+ */
+
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
@@ -33,60 +43,66 @@ export default function Header() {
         <>
             <header
                 className={`main-header sticky top-0 z-50 h-16 sm:h-16 flex items-center transition-all duration-300 ${scrolled
-                        ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-stone-200'
+                        ? 'bg-white/95 backdrop-blur-md shadow-wedding border-b border-wedding-blush'
                         : 'bg-white/90 backdrop-blur-sm'
                     }`}
             >
                 <div className="relative flex justify-center items-center px-4 w-full max-w-6xl mx-auto">
-                    {/* Centered title - Minimalist */}
+                    {/* Centered title - Minimalist with burgundy accent */}
                     <Link
                         href="/"
                         className="absolute left-1/2 transform -translate-x-1/2 text-center group"
                     >
-                        <span className="font-light text-sm tracking-[0.2em] uppercase text-[#2C2C2C] group-hover:text-stone-600 transition-colors">
-                            Susana <span className="text-stone-400">&</span> Javier
+                        <span className="font-light text-sm tracking-[0.2em] uppercase text-wedding-burgundy group-hover:text-wedding-burgundy-light transition-colors">
+                            Susana <span className="text-wedding-rose">&</span> Javier
                         </span>
-                        <span className="block text-[10px] tracking-widest uppercase text-stone-500 mt-0.5">
+                        <span className="block text-[10px] tracking-widest uppercase text-wedding-rose mt-0.5">
                             6 · Junio · 2026
                         </span>
                     </Link>
 
-                    {/* Minimalist hamburger icon */}
+                    {/* Minimalist hamburger icon with burgundy */}
                     <button
                         onClick={() => setMenuOpen(true)}
                         className="absolute right-4 w-10 h-10 flex flex-col items-center justify-center gap-1.5 group"
                         aria-label="Abrir menú"
                     >
-                        <span className="w-5 h-px bg-[#2C2C2C] transition-all group-hover:w-6"></span>
-                        <span className="w-5 h-px bg-[#2C2C2C] transition-all"></span>
-                        <span className="w-5 h-px bg-[#2C2C2C] transition-all group-hover:w-6"></span>
+                        <span className="w-5 h-px bg-wedding-burgundy transition-all group-hover:w-6 group-hover:bg-wedding-burgundy-light"></span>
+                        <span className="w-5 h-px bg-wedding-burgundy transition-all group-hover:bg-wedding-burgundy-light"></span>
+                        <span className="w-5 h-px bg-wedding-burgundy transition-all group-hover:w-6 group-hover:bg-wedding-burgundy-light"></span>
                     </button>
                 </div>
             </header>
 
-            {/* Slide-out menu - Minimalist Design */}
+            {/* Slide-out menu - Burgundy themed */}
             <div
-                className={`fixed top-0 right-0 h-full w-full sm:w-96 bg-white shadow-2xl z-50 transform transition-transform duration-500 ease-out ${menuOpen ? 'translate-x-0' : 'translate-x-full'
+                className={`fixed top-0 right-0 h-full w-full sm:w-96 bg-warm-cream shadow-wedding-lg z-50 transform transition-transform duration-500 ease-out ${menuOpen ? 'translate-x-0' : 'translate-x-full'
                     }`}
             >
                 <div className="h-full flex flex-col">
-                    {/* Header */}
-                    <div className="flex items-center justify-between p-6 border-b border-stone-200">
-                        <span className="text-sm uppercase tracking-[0.2em] text-stone-500 font-light">
+                    {/* Header with burgundy accent */}
+                    <div className="flex items-center justify-between p-6 border-b border-wedding-blush">
+                        <span className="text-sm uppercase tracking-[0.2em] text-wedding-rose font-light">
                             Menú
                         </span>
                         <button
                             onClick={() => setMenuOpen(false)}
-                            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-stone-100 transition-colors group"
+                            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-wedding-blush-light transition-colors group"
                             aria-label="Cerrar menú"
                         >
-                            <svg className="w-5 h-5 text-stone-600 group-hover:text-[#2C2C2C] transition-colors" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <svg
+                                className="w-5 h-5 text-wedding-rose group-hover:text-wedding-burgundy transition-colors"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                viewBox="0 0 24 24"
+                            >
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
                     </div>
 
-                    {/* Navigation Links */}
+                    {/* Navigation Links with burgundy theme */}
                     <nav className="flex-1 p-6 space-y-1">
                         {[
                             { href: '/#inicio', label: 'Inicio', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
@@ -98,27 +114,40 @@ export default function Header() {
                                 key={item.href}
                                 href={item.href}
                                 onClick={() => setMenuOpen(false)}
-                                className="group flex items-center gap-4 py-3 px-4 rounded-lg hover:bg-stone-50 transition-all duration-200"
+                                className="group flex items-center gap-4 py-3 px-4 rounded-lg hover:bg-wedding-blush-light transition-all duration-200"
                             >
-                                <div className="w-10 h-10 rounded-full bg-stone-100 group-hover:bg-stone-200 flex items-center justify-center transition-colors">
-                                    <svg className="w-5 h-5 text-stone-600 group-hover:text-[#2C2C2C] transition-colors" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                                <div className="w-10 h-10 rounded-full bg-wedding-blush group-hover:bg-wedding-rose-light flex items-center justify-center transition-colors">
+                                    <svg
+                                        className="w-5 h-5 text-wedding-burgundy group-hover:text-white transition-colors"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="1.5"
+                                        viewBox="0 0 24 24"
+                                    >
                                         <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
                                     </svg>
                                 </div>
-                                <span className="text-base font-light text-[#2C2C2C] group-hover:translate-x-1 transition-transform">
+                                <span className="text-base font-light text-charcoal group-hover:text-wedding-burgundy group-hover:translate-x-1 transition-all">
                                     {item.label}
                                 </span>
                             </Link>
                         ))}
 
+                        {/* RSVP Button with burgundy gradient */}
                         {showRSVP && (
                             <Link
                                 href={`/rsvp?token=${token}`}
                                 onClick={() => setMenuOpen(false)}
-                                className="group flex items-center gap-4 py-3 px-4 rounded-lg bg-[#2C2C2C] hover:bg-[#1A1A1A] transition-all duration-200 mt-4"
+                                className="group flex items-center gap-4 py-3 px-4 rounded-lg bg-gradient-burgundy hover:opacity-90 transition-all duration-200 mt-4"
                             >
-                                <div className="w-10 h-10 rounded-full bg-white/10 group-hover:bg-white/20 flex items-center justify-center transition-colors">
-                                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                                <div className="w-10 h-10 rounded-full bg-white/20 group-hover:bg-white/30 flex items-center justify-center transition-colors">
+                                    <svg
+                                        className="w-5 h-5 text-white"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="1.5"
+                                        viewBox="0 0 24 24"
+                                    >
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                 </div>
@@ -129,16 +158,16 @@ export default function Header() {
                         )}
                     </nav>
 
-                    {/* Footer */}
-                    <div className="p-6 border-t border-stone-200">
+                    {/* Footer with burgundy accents */}
+                    <div className="p-6 border-t border-wedding-blush">
                         <div className="text-center space-y-2">
-                            <p className="text-sm text-stone-500 font-light">
+                            <p className="text-sm text-wedding-rose font-light">
                                 Nos casamos
                             </p>
-                            <p className="text-lg font-luxury text-[#2C2C2C]">
+                            <p className="text-lg font-luxury text-wedding-burgundy">
                                 6 de Junio, 2026
                             </p>
-                            <p className="text-xs text-stone-400 uppercase tracking-wider">
+                            <p className="text-xs text-stone-500 uppercase tracking-wider">
                                 Puebla, México
                             </p>
                         </div>
@@ -146,10 +175,10 @@ export default function Header() {
                 </div>
             </div>
 
-            {/* Overlay with blur */}
+            {/* Overlay with burgundy tint */}
             {menuOpen && (
                 <div
-                    className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 transition-opacity duration-300"
+                    className="fixed inset-0 bg-wedding-burgundy/20 backdrop-blur-sm z-40 transition-opacity duration-300"
                     onClick={() => setMenuOpen(false)}
                 />
             )}
