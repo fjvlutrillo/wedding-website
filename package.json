@@ -15,7 +15,7 @@
     "canvas-confetti": "^1.9.3",
     "keen-slider": "^6.8.6",
     "konva": "^9.3.22",
-    "next": "^16.0.3",
+    "next": "16.0.10",
     "react": "^19.2.0",
     "react-custom-roulette": "^1.4.1",
     "react-dom": "^19.2.0",
