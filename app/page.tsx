@@ -3,6 +3,8 @@
 /**
  * UPDATED MAIN PAGE - Wedding Invitation
  * 
+ * FIX: Wrapped useSearchParams in Suspense boundary for Next.js build
+ * 
  * Structure:
  * 1. Hero Section (existing)
  * 2. Historia Section (existing)
@@ -15,13 +17,13 @@
  * 9. RSVP (existing)
  */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Header from '@/components/Header'
 import Link from 'next/link'
 import { useKeenSlider } from 'keen-slider/react'
 import 'keen-slider/keen-slider.min.css'
 import Image from 'next/image'
-import RedirectWrapper from '@/components/RedirectWrapper'
 
 // Import new components
 import EventsSection from '@/components/EventDetails'
@@ -31,12 +33,41 @@ import TimelineSection from '@/components/Timeline'
 import RegistrySection from '@/components/RegistrySectionHybrid' // OR RegistrySectionCustom
 import RegistrySection2 from '@/components/RegistrySectionCustom'
 
-function MainPageContent() {
+/**
+ * LEARNING NOTE: Token Handler Component
+ * 
+ * This separate component handles URL parameters (like ?token=abc123).
+ * We wrap it in Suspense because Next.js can't pre-render pages that
+ * use useSearchParams() - it needs to wait for the client to load.
+ * 
+ * Think of Suspense like a loading boundary - Next.js shows a fallback
+ * while waiting for this client-side code to run.
+ */
+function TokenHandler({ onTokenFound }: { onTokenFound: (token: string) => void }) {
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    const token = searchParams.get('token')
+    if (token) {
+      onTokenFound(token)
+    }
+  }, [searchParams, onTokenFound])
+
+  return null // This component doesn't render anything
+}
+
+function HomeContent() {
   const [showRSVP, setShowRSVP] = useState(false)
   const [token, setToken] = useState('')
   const [imageLoaded, setImageLoaded] = useState(false)
   const [countdown, setCountdown] = useState('')
   const [currentSlide, setCurrentSlide] = useState(0)
+
+  // Handle token from URL
+  const handleTokenFound = (foundToken: string) => {
+    setShowRSVP(true)
+    setToken(foundToken)
+  }
 
   // Keen Slider setup for gallery
   const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>(
@@ -104,23 +135,16 @@ function MainPageContent() {
     return () => clearInterval(interval)
   }, [])
 
-  // Check for RSVP token in URL
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search)
-      const t = urlParams.get('token')
-      if (t) {
-        setShowRSVP(true)
-        setToken(t)
-      }
-    }
-  }, [])
-
   const isEventDay = countdown.startsWith('¡Hoy es')
   const [days, hours, minutes] = !isEventDay ? countdown.split(/\s+/) : []
 
   return (
     <main className="min-h-screen text-[#2C2C2C]">
+      {/* Token Handler wrapped in Suspense */}
+      <Suspense fallback={null}>
+        <TokenHandler onTokenFound={handleTokenFound} />
+      </Suspense>
+
       {/* ==================== HERO SECTION ==================== */}
       <section
         id="inicio"
@@ -462,11 +486,18 @@ function MainPageContent() {
   )
 }
 
-// Export the wrapped version
+// Main export with Suspense wrapper
 export default function Home() {
   return (
-    <RedirectWrapper>
-      <MainPageContent />
-    </RedirectWrapper>
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-warm-cream">
+        <div className="text-center space-y-4">
+          <div className="w-12 h-12 border-4 border-wedding-burgundy border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-wedding-burgundy font-light">Cargando...</p>
+        </div>
+      </div>
+    }>
+      <HomeContent />
+    </Suspense>
   )
 }
