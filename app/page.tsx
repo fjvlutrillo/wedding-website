@@ -21,6 +21,7 @@ import Link from 'next/link'
 import { useKeenSlider } from 'keen-slider/react'
 import 'keen-slider/keen-slider.min.css'
 import Image from 'next/image'
+import RedirectWrapper from '@/components/RedirectWrapper'
 
 // Import new components
 import EventsSection from '@/components/EventDetails'
@@ -30,7 +31,7 @@ import TimelineSection from '@/components/Timeline'
 import RegistrySection from '@/components/RegistrySectionHybrid' // OR RegistrySectionCustom
 import RegistrySection2 from '@/components/RegistrySectionCustom'
 
-export default function Home() {
+function MainPageContent() {
   const [showRSVP, setShowRSVP] = useState(false)
   const [token, setToken] = useState('')
   const [imageLoaded, setImageLoaded] = useState(false)
@@ -350,7 +351,7 @@ export default function Home() {
               Capítulo 04
             </span>
             <h2 className="text-5xl sm:text-6xl font-light text-wedding-burgundy">
-              Galería         
+              Galería
             </h2>
           </div>
 
@@ -402,8 +403,8 @@ export default function Home() {
                   className={`
                     transition-all duration-300
                     ${currentSlide === idx
-                    ? 'w-8 h-2 bg-wedding-burgundy rounded-full'
-                    : 'w-2 h-2 bg-wedding-blush rounded-full hover:bg-wedding-rose'
+                      ? 'w-8 h-2 bg-wedding-burgundy rounded-full'
+                      : 'w-2 h-2 bg-wedding-blush rounded-full hover:bg-wedding-rose'
                     }
                   `}
                   aria-label={`Slide ${idx + 1}`}
@@ -458,5 +459,14 @@ export default function Home() {
         </section>
       )}
     </main>
+  )
+}
+
+// Export the wrapped version
+export default function Home() {
+  return (
+    <RedirectWrapper>
+      <MainPageContent />
+    </RedirectWrapper>
   )
 }

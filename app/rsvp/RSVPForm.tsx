@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Header from '@/components/Header2'
 import { supabase } from '@/lib/supabaseClient'
+import RedirectWrapper from '@/components/RedirectWrapper'
 
 export default function RSVPForm() {
     const searchParams = useSearchParams()

@@ -34,19 +34,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <BodyWrapper fontClasses={`${bodoni.variable} ${italianno.variable} ${luxury.variable}`}>
         {children}
 
-        <footer className="bg-gradient-to-b from-stone-50 to-white border-t border-stone-200 text-stone-600 text-center py-6 mt-12 w-full">
+        <footer className="bg-gradient-to-b from-stone-50 to-white border-t border-stone-200 text-stone-600 text-center py-4 w-full">
           <div className="max-w-4xl mx-auto px-4 space-y-2">
-            <p className="text-sm font-light text-stone-500">
-              Aprobado por Chayanne, Chester y Henry
-            </p>
-            <div className="flex items-center justify-center gap-2">
-              <div className="h-px w-8 bg-gradient-to-r from-transparent to-stone-300" />
-              <svg className="w-3 h-3 text-stone-400" fill="currentColor" viewBox="0 0 20 20">
+            <div className="flex items-center justify-center gap-3">
+              <div className="h-px w-12 bg-gradient-to-r from-transparent to-stone-300" />
+              <svg className="w-3.5 h-3.5 text-stone-400" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
               </svg>
-              <div className="h-px w-8 bg-gradient-to-l from-transparent to-stone-300" />
+              <div className="h-px w-12 bg-gradient-to-l from-transparent to-stone-300" />
             </div>
-            <p className="text-xs font-light tracking-wider text-stone-400">
+            <p className="text-sm font-light tracking-wide text-stone-500">
               © {new Date().getFullYear()} Susana & Javier
             </p>
           </div>

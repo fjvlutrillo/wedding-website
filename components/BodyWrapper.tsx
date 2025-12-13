@@ -19,7 +19,7 @@ export default function BodyWrapper({
                     ? "bg-[url('/rsvp-bg.jpg')] bg-cover bg-fixed bg-center"
                     : "bg-[url('/background-wedding3.jpg')] bg-cover bg-fixed bg-center"
                 }
-        text-cocoa font-bodoni min-h-screen
+        text-cocoa font-bodoni min-h-screen flex flex-col
       `}
         >
             {children}
