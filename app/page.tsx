@@ -2,9 +2,7 @@
 
 /**
  * UPDATED MAIN PAGE - Wedding Invitation
- * 
- * FIX: Wrapped useSearchParams in Suspense boundary for Next.js build
- * 
+ *
  * Structure:
  * 1. Hero Section (existing)
  * 2. Historia Section (existing)
@@ -17,13 +15,13 @@
  * 9. RSVP (existing)
  */
 
-import { useEffect, useState, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import Header from '@/components/Header'
 import Link from 'next/link'
 import { useKeenSlider } from 'keen-slider/react'
 import 'keen-slider/keen-slider.min.css'
 import Image from 'next/image'
+import RedirectWrapper from '@/components/RedirectWrapper'
 
 // Import new components
 import EventsSection from '@/components/EventDetails'
@@ -33,41 +31,12 @@ import TimelineSection from '@/components/Timeline'
 import RegistrySection from '@/components/RegistrySectionHybrid' // OR RegistrySectionCustom
 import RegistrySection2 from '@/components/RegistrySectionCustom'
 
-/**
- * LEARNING NOTE: Token Handler Component
- * 
- * This separate component handles URL parameters (like ?token=abc123).
- * We wrap it in Suspense because Next.js can't pre-render pages that
- * use useSearchParams() - it needs to wait for the client to load.
- * 
- * Think of Suspense like a loading boundary - Next.js shows a fallback
- * while waiting for this client-side code to run.
- */
-function TokenHandler({ onTokenFound }: { onTokenFound: (token: string) => void }) {
-  const searchParams = useSearchParams()
-
-  useEffect(() => {
-    const token = searchParams.get('token')
-    if (token) {
-      onTokenFound(token)
-    }
-  }, [searchParams, onTokenFound])
-
-  return null // This component doesn't render anything
-}
-
-function HomeContent() {
+function MainPageContent() {
   const [showRSVP, setShowRSVP] = useState(false)
   const [token, setToken] = useState('')
   const [imageLoaded, setImageLoaded] = useState(false)
   const [countdown, setCountdown] = useState('')
   const [currentSlide, setCurrentSlide] = useState(0)
-
-  // Handle token from URL
-  const handleTokenFound = (foundToken: string) => {
-    setShowRSVP(true)
-    setToken(foundToken)
-  }
 
   // Keen Slider setup for gallery
   const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>(
@@ -135,16 +104,39 @@ function HomeContent() {
     return () => clearInterval(interval)
   }, [])
 
+  // Check for RSVP token in URL
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search)
+      const t = urlParams.get('token')
+      if (t) {
+        setShowRSVP(true)
+        setToken(t)
+      }
+    }
+  }, [])
+
+  // ==================== REDIRECT GATE (ONLY CHANGE) ====================
+  // Redirect everyone to /save-the-date unless you add ?dev=1 to the URL
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const urlParams = new URLSearchParams(window.location.search)
+    const devAllowed = urlParams.get('dev') === '1'
+    if (devAllowed) return
+
+    // Prevent redirect loop if you're already on the save-the-date route
+    if (window.location.pathname !== '/save-the-date') {
+      window.location.replace('/save-the-date')
+    }
+  }, [])
+  // ====================================================================
+
   const isEventDay = countdown.startsWith('¡Hoy es')
   const [days, hours, minutes] = !isEventDay ? countdown.split(/\s+/) : []
 
   return (
     <main className="min-h-screen text-[#2C2C2C]">
-      {/* Token Handler wrapped in Suspense */}
-      <Suspense fallback={null}>
-        <TokenHandler onTokenFound={handleTokenFound} />
-      </Suspense>
-
       {/* ==================== HERO SECTION ==================== */}
       <section
         id="inicio"
@@ -230,10 +222,7 @@ function HomeContent() {
       <Header />
 
       {/* ==================== HISTORIA SECTION ==================== */}
-      <section
-        id="historia"
-        className="relative py-24 px-4 min-h-screen flex items-center"
-      >
+      <section id="historia" className="relative py-24 px-4 min-h-screen flex items-center">
         <div className="max-w-7xl mx-auto w-full">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             {/* Left: Images */}
@@ -241,38 +230,18 @@ function HomeContent() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-4">
                   <div className="relative h-64 rounded-2xl overflow-hidden shadow-wedding-lg">
-                    <Image
-                      src="/historia/1.jpg"
-                      alt="Susana y Javier - Momento 1"
-                      fill
-                      className="object-cover"
-                    />
+                    <Image src="/historia/1.jpg" alt="Susana y Javier - Momento 1" fill className="object-cover" />
                   </div>
                   <div className="relative h-80 rounded-2xl overflow-hidden shadow-wedding-lg">
-                    <Image
-                      src="/historia/2.jpg"
-                      alt="Susana y Javier - Momento 2"
-                      fill
-                      className="object-cover"
-                    />
+                    <Image src="/historia/2.jpg" alt="Susana y Javier - Momento 2" fill className="object-cover" />
                   </div>
                 </div>
                 <div className="space-y-4 pt-12">
                   <div className="relative h-80 rounded-2xl overflow-hidden shadow-wedding-lg">
-                    <Image
-                      src="/historia/3.jpg"
-                      alt="Susana y Javier - Momento 3"
-                      fill
-                      className="object-cover"
-                    />
+                    <Image src="/historia/3.jpg" alt="Susana y Javier - Momento 3" fill className="object-cover" />
                   </div>
                   <div className="relative h-64 rounded-2xl overflow-hidden shadow-wedding-lg">
-                    <Image
-                      src="/historia/4.jpg"
-                      alt="Susana y Javier - Momento 4"
-                      fill
-                      className="object-cover"
-                    />
+                    <Image src="/historia/4.jpg" alt="Susana y Javier - Momento 4" fill className="object-cover" />
                   </div>
                 </div>
               </div>
@@ -286,32 +255,29 @@ function HomeContent() {
                 </span>
                 <h2 className="text-5xl sm:text-6xl font-light text-charcoal">
                   Nuestra
-                  <span className="block font-luxury text-6xl sm:text-7xl mt-2 text-wedding-burgundy">Historia</span>
+                  <span className="block font-luxury text-6xl sm:text-7xl mt-2 text-wedding-burgundy">
+                    Historia
+                  </span>
                 </h2>
               </div>
 
               <div className="space-y-6 text-stone-600 leading-relaxed">
                 <p>
-                  Todo comenzó en una tarde de otoño cuando nuestros caminos se cruzaron
-                  de la manera más inesperada. Lo que empezó como una amistad se convirtió
-                  en algo mucho más profundo.
+                  Todo comenzó en una tarde de otoño cuando nuestros caminos se cruzaron de la manera más
+                  inesperada. Lo que empezó como una amistad se convirtió en algo mucho más profundo.
                 </p>
                 <p>
-                  Con cada día que pasaba, descubríamos más razones para sonreír juntos.
-                  Las conversaciones se volvieron más largas, las risas más frecuentes, y
-                  los silencios más cómodos.
+                  Con cada día que pasaba, descubríamos más razones para sonreír juntos. Las conversaciones se
+                  volvieron más largas, las risas más frecuentes, y los silencios más cómodos.
                 </p>
                 <p>
-                  Ahora, después de compartir tantos momentos inolvidables, estamos listos
-                  para escribir el siguiente capítulo de nuestra historia. Y queremos que tú
-                  seas parte de este momento tan especial.
+                  Ahora, después de compartir tantos momentos inolvidables, estamos listos para escribir el
+                  siguiente capítulo de nuestra historia. Y queremos que tú seas parte de este momento tan especial.
                 </p>
               </div>
 
               <div className="pt-4">
-                <p className="text-2xl sm:text-3xl font-luxury text-wedding-burgundy">
-                  ¡Nos casamos!
-                </p>
+                <p className="text-2xl sm:text-3xl font-luxury text-wedding-burgundy">¡Nos casamos!</p>
               </div>
             </div>
           </div>
@@ -332,7 +298,9 @@ function HomeContent() {
             </span>
             <h2 className="text-5xl sm:text-6xl font-light text-charcoal">
               Cuenta
-              <span className="block font-luxury text-6xl sm:text-7xl mt-2 text-wedding-burgundy">Regresiva</span>
+              <span className="block font-luxury text-6xl sm:text-7xl mt-2 text-wedding-burgundy">
+                Regresiva
+              </span>
             </h2>
           </div>
 
@@ -345,7 +313,7 @@ function HomeContent() {
               {[
                 { value: days, label: 'Días' },
                 { value: hours, label: 'Horas' },
-                { value: minutes, label: 'Minutos' }
+                { value: minutes, label: 'Minutos' },
               ].map((item, idx) => (
                 <div
                   key={idx}
@@ -354,9 +322,7 @@ function HomeContent() {
                   <div className="text-5xl sm:text-6xl font-light text-wedding-burgundy mb-2 tabular-nums">
                     {item.value}
                   </div>
-                  <div className="text-sm uppercase tracking-wider text-wedding-rose font-light">
-                    {item.label}
-                  </div>
+                  <div className="text-sm uppercase tracking-wider text-wedding-rose font-light">{item.label}</div>
                 </div>
               ))}
             </div>
@@ -365,40 +331,26 @@ function HomeContent() {
       </section>
 
       {/* ==================== GALLERY SECTION ==================== */}
-      <section
-        id="galeria"
-        className="relative py-24 px-4 bg-gradient-to-b from-white to-stone-50"
-      >
+      <section id="galeria" className="relative py-24 px-4 bg-gradient-to-b from-white to-stone-50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16 space-y-4">
             <span className="text-xs uppercase tracking-[0.3em] text-wedding-rose font-light">
               Capítulo 04
             </span>
-            <h2 className="text-5xl sm:text-6xl font-light text-wedding-burgundy">
-              Galería
-            </h2>
+            <h2 className="text-5xl sm:text-6xl font-light text-wedding-burgundy">Galería</h2>
           </div>
 
           <div className="relative max-w-4xl mx-auto">
-            <div
-              ref={sliderRef}
-              className="keen-slider rounded-2xl overflow-hidden shadow-xl border border-wedding-blush"
-            >
+            <div ref={sliderRef} className="keen-slider rounded-2xl overflow-hidden shadow-xl border border-wedding-blush">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
                 <div key={num} className="keen-slider__slide flex items-center justify-center bg-stone-100">
                   <div className="relative w-full h-[400px] sm:h-[500px]">
-                    <Image
-                      src={`/gallery/${num}.jpg`}
-                      alt={`Galería ${num}`}
-                      fill
-                      className="object-cover"
-                    />
+                    <Image src={`/gallery/${num}.jpg`} alt={`Galería ${num}`} fill className="object-cover" />
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Navigation Arrows */}
             <button
               onClick={() => instanceRef.current?.prev()}
               className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-warm-cream/95 backdrop-blur-sm hover:bg-wedding-blush shadow-wedding border border-wedding-blush flex items-center justify-center transition-all duration-300 hover:scale-110"
@@ -418,7 +370,6 @@ function HomeContent() {
               </svg>
             </button>
 
-            {/* Dots */}
             <div className="flex justify-center mt-8 space-x-2">
               {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((idx) => (
                 <button
@@ -441,7 +392,6 @@ function HomeContent() {
 
       {/* ==================== REGISTRY SECTION ==================== */}
       <RegistrySection />
-
       <RegistrySection2 />
 
       {/* ==================== RSVP SECTION ==================== */}
@@ -455,25 +405,20 @@ function HomeContent() {
                 </span>
                 <h2 className="text-5xl sm:text-6xl font-light text-charcoal">
                   ¿Nos
-                  <span className="block font-luxury text-6xl sm:text-7xl mt-2 text-wedding-burgundy">Acompañas?</span>
+                  <span className="block font-luxury text-6xl sm:text-7xl mt-2 text-wedding-burgundy">
+                    Acompañas?
+                  </span>
                 </h2>
               </div>
 
               <p className="text-lg text-stone-600 leading-relaxed max-w-xl mx-auto">
-                Tu presencia es el mejor regalo. Por favor, haznos saber si podrás
-                acompañarnos en este día tan especial.
+                Tu presencia es el mejor regalo. Por favor, haznos saber si podrás acompañarnos en este día tan especial.
               </p>
 
               <Link href={`/rsvp?token=${token}`}>
                 <button className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-burgundy hover:opacity-90 text-white text-sm tracking-wide uppercase transition-all duration-300 rounded-full shadow-wedding-lg hover:shadow-wedding-xl hover:-translate-y-0.5">
                   Confirmar asistencia
-                  <svg
-                    className="w-4 h-4 transition-transform group-hover:translate-x-1"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
                 </button>
@@ -486,18 +431,11 @@ function HomeContent() {
   )
 }
 
-// Main export with Suspense wrapper
+// Export the wrapped version
 export default function Home() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-warm-cream">
-        <div className="text-center space-y-4">
-          <div className="w-12 h-12 border-4 border-wedding-burgundy border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="text-wedding-burgundy font-light">Cargando...</p>
-        </div>
-      </div>
-    }>
-      <HomeContent />
-    </Suspense>
+    <RedirectWrapper>
+      <MainPageContent />
+    </RedirectWrapper>
   )
 }
