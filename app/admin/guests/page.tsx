@@ -43,7 +43,8 @@ export default function GuestUploadPage() {
             }
         }
         getSession()
-    }, [router])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     const fetchGuests = async () => {
         const { data } = await supabase.from('guests').select('*')
@@ -52,6 +53,17 @@ export default function GuestUploadPage() {
 
     const handleManualAdd = async () => {
         if (!session) return
+
+        // Basic validation
+        if (!manualGuest.name.trim()) {
+            alert('❌ Por favor ingresa el nombre del invitado')
+            return
+        }
+
+        if (manualGuest.guest_count < 1) {
+            alert('❌ El número de invitados debe ser al menos 1')
+            return
+        }
 
         const { error } = await supabase.from('guests').insert([{
             ...manualGuest,
@@ -64,10 +76,11 @@ export default function GuestUploadPage() {
         }])
 
         if (!error) {
-            fetchGuests()
+            await fetchGuests()
             setManualGuest({ name: '', guest_count: 1, phone_number: '', email: '', whoInvites: 'Susana' })
+            alert(`✅ Invitado "${manualGuest.name}" agregado correctamente`)
         } else {
-            alert('Error al agregar: ' + error.message)
+            alert('❌ Error al agregar: ' + error.message)
         }
     }
 
@@ -90,11 +103,16 @@ export default function GuestUploadPage() {
             created_by: session.user.id,
             did_confirm: null,
             email: '',
+            whoInvites: g.Invita || 'Susana', // FIX: Added whoInvites field with default value
         }))
 
         const { error } = await supabase.from('guests').insert(mapped)
-        if (!error) fetchGuests()
-        else alert('Error al importar: ' + error.message)
+        if (!error) {
+            await fetchGuests() // FIX: Added await to ensure state updates after fetch completes
+            alert(`✅ ${mapped.length} invitados importados correctamente`)
+        } else {
+            alert('❌ Error al importar: ' + error.message)
+        }
     }
 
     const startEdit = (index: number, guest: any) => {
@@ -112,6 +130,17 @@ export default function GuestUploadPage() {
     }
 
     const saveEdit = async (id: string) => {
+        // FIX: Added validation before saving
+        if (!editForm.name?.trim()) {
+            alert('❌ El nombre no puede estar vacío')
+            return
+        }
+
+        if (editForm.guest_count && editForm.guest_count < 1) {
+            alert('❌ El número de invitados debe ser al menos 1')
+            return
+        }
+
         const updatableFields = [
             'name',
             'guest_count',
@@ -120,20 +149,21 @@ export default function GuestUploadPage() {
             'table_number',
             'number_confirmations',
             'did_confirm',
-            'whoInvites'
+            'whoInvites' // This is already included - CORRECT
         ]
         const updateData: any = {}
         updatableFields.forEach((key) => {
             if (editForm[key] !== undefined) updateData[key] = editForm[key]
         })
+
         const { error } = await supabase.from('guests').update(updateData).eq('id', id)
         if (!error) {
-            const updated = [...guests]
-            updated[editingIndex!] = { ...editForm }
-            setGuests(updated)
-            cancelEdit()
+            // FIX: Properly update local state after successful database update
+            await fetchGuests() // Refetch all guests to ensure consistency
+            cancelEdit() // Clear edit state
+            alert('✅ Cambios guardados correctamente')
         } else {
-            alert('Error al guardar: ' + error.message)
+            alert('❌ Error al guardar: ' + error.message)
         }
     }
 
@@ -143,8 +173,9 @@ export default function GuestUploadPage() {
         const { error } = await supabase.from('guests').delete().eq('id', id)
         if (!error) {
             setGuests(guests.filter((g) => g.id !== id))
+            alert('✅ Invitado eliminado correctamente')
         } else {
-            alert('Error al eliminar: ' + error.message)
+            alert('❌ Error al eliminar: ' + error.message)
         }
     }
 
@@ -310,6 +341,9 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}
                     onChange={handleFileUpload}
                     className="border rounded px-4 py-2 bg-white"
                 />
+                <p className="text-sm text-gray-600">
+                    💡 El Excel debe tener columnas: "Invitado", "Invitados", "Teléfono", "Invita"
+                </p>
             </div>
 
             {/* Filters */}
@@ -499,11 +533,11 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}
                                             </td>
                                             <td className="px-4 py-2" />
                                             <td className="px-4 py-2">
-                                                <button onClick={() => saveEdit(guest.id)} className="text-green-600 mr-2">
-                                                    Guardar
+                                                <button onClick={() => saveEdit(guest.id)} className="text-green-600 mr-2 font-medium">
+                                                    ✓ Guardar
                                                 </button>
                                                 <button onClick={cancelEdit} className="text-gray-500">
-                                                    Cancelar
+                                                    ✕ Cancelar
                                                 </button>
                                             </td>
                                         </>
@@ -583,10 +617,10 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}
                                             {/* Actions */}
                                             <td className="px-4 py-2">
                                                 <button onClick={() => startEdit(globalIdx, guest)} className="text-blue-600 mr-2 text-sm">
-                                                    Editar
+                                                    ✏️ Editar
                                                 </button>
                                                 <button onClick={() => deleteGuest(guest.id)} className="text-red-600 text-sm">
-                                                    Eliminar
+                                                    🗑️ Eliminar
                                                 </button>
                                             </td>
                                         </>
