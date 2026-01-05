@@ -158,13 +158,11 @@ Queremos compartir contigo una noticia muy especial: ¡Nos casamos! 💍
 
 Save the date
 📅 6 de Junio, 2026
-📍 Hacienda San Juan Bautista Amalucan
-    Puebla, México
-
-Te compartimos más detalles aquí:
-https://bodasusanayjavier.com/
+📍 Puebla, México
 
 ¡Pronto recibirás la invitación formal!
+
+https://bodasusanayjavier.com/save-the-date
 
 Con cariño,
 Susana & Javier ❤️`
@@ -178,13 +176,11 @@ We want to share some very special news with you: We're getting married! 💍
 
 Save the date
 📅 June 6, 2026
-📍 Hacienda San Juan Bautista Amalucan
-    Puebla, Mexico
-
-Here are more details:
-https://bodasusanayjavier.com/en
+📍 Puebla, Mexico
 
 You'll receive the formal invitation soon!
+
+https://bodasusanayjavier.com/en
 
 With love,
 Susana & Javier ❤️`
