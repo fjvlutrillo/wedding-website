@@ -84,40 +84,74 @@ export default function GuestUploadPage() {
         }
     }
 
+    // 🔧 FIX #1: Flexible column name matching for Excel uploads
+    // This handles variations in column names (with/without accents, different cases)
+    const findColumnValue = (row: any, possibleNames: string[]): string => {
+        for (const name of possibleNames) {
+            if (row[name] !== undefined && row[name] !== null) {
+                return String(row[name]).trim()
+            }
+        }
+        return ''
+    }
+
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
         if (!file || !session) return
 
-        const data = await file.arrayBuffer()
-        const workbook = XLSX.read(data)
-        const worksheet = workbook.Sheets[workbook.SheetNames[0]]
-        const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet)
+        try {
+            const data = await file.arrayBuffer()
+            const workbook = XLSX.read(data)
+            const worksheet = workbook.Sheets[workbook.SheetNames[0]]
+            const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet)
 
-        const mapped = jsonData.map((g: any) => ({
-            name: g.Invitado || '',
-            guest_count: parseInt(g.Invitados) || 0,
-            phone_number: g.Teléfono || '',
-            invite_token: uuidv4(),
-            number_confirmations: 0,
-            table_number: null,
-            created_by: session.user.id,
-            did_confirm: null,
-            email: '',
-            whoInvites: g.Invita || 'Susana', // FIX: Added whoInvites field with default value
-        }))
+            console.log('📊 Excel columns detected:', Object.keys(jsonData[0] || {}))
+            console.log('📊 First row sample:', jsonData[0])
 
-        const { error } = await supabase.from('guests').insert(mapped)
-        if (!error) {
-            await fetchGuests() // FIX: Added await to ensure state updates after fetch completes
-            alert(`✅ ${mapped.length} invitados importados correctamente`)
-        } else {
-            alert('❌ Error al importar: ' + error.message)
+            const mapped = jsonData.map((g: any) => {
+                // 🔧 FIX: Try multiple column name variations
+                const guestData = {
+                    name: findColumnValue(g, ['Invitado', 'invitado', 'Nombre', 'nombre', 'Name', 'name']),
+                    guest_count: parseInt(findColumnValue(g, ['Invitados', 'invitados', 'Numero', 'numero', 'Number', 'number', 'Número', 'número'])) || 1,
+                    // 🔧 FIX: Handle phone with AND without accent
+                    phone_number: findColumnValue(g, ['Teléfono', 'Telefono', 'teléfono', 'telefono', 'Phone', 'phone', 'Celular', 'celular', 'WhatsApp', 'whatsapp']),
+                    email: findColumnValue(g, ['Email', 'email', 'Correo', 'correo', 'E-mail', 'e-mail']),
+                    whoInvites: findColumnValue(g, ['Invita', 'invita', 'QuienInvita', 'quien_invita']) || 'Susana',
+                    invite_token: uuidv4(),
+                    number_confirmations: 0,
+                    table_number: null,
+                    created_by: session.user.id,
+                    did_confirm: null,
+                }
+
+                console.log('✅ Mapped guest:', guestData)
+                return guestData
+            })
+
+            console.log(`📤 Uploading ${mapped.length} guests to Supabase...`)
+
+            const { error, data: insertedData } = await supabase.from('guests').insert(mapped).select()
+
+            if (!error) {
+                await fetchGuests()
+                console.log('✅ Upload successful!', insertedData)
+                alert(`✅ ${mapped.length} invitados importados correctamente\n\n` +
+                    `Nombres: ${mapped.map(g => g.name).join(', ')}`)
+            } else {
+                console.error('❌ Upload error:', error)
+                alert('❌ Error al importar: ' + error.message)
+            }
+        } catch (err) {
+            console.error('❌ File processing error:', err)
+            alert('❌ Error al procesar el archivo: ' + err)
         }
     }
 
     const startEdit = (index: number, guest: any) => {
         setEditingIndex(index)
         setEditForm({ ...guest })
+        console.log('🔧 Editing guest:', guest)
+        console.log('🔧 whoInvites value:', guest.whoInvites)
     }
 
     const cancelEdit = () => {
@@ -126,11 +160,12 @@ export default function GuestUploadPage() {
     }
 
     const updateEditField = (field: string, value: any) => {
+        console.log(`🔧 Updating field "${field}" to:`, value)
         setEditForm((prev: any) => ({ ...prev, [field]: value }))
     }
 
     const saveEdit = async (id: string) => {
-        // FIX: Added validation before saving
+        // Validation
         if (!editForm.name?.trim()) {
             alert('❌ El nombre no puede estar vacío')
             return
@@ -141,28 +176,36 @@ export default function GuestUploadPage() {
             return
         }
 
-        const updatableFields = [
-            'name',
-            'guest_count',
-            'phone_number',
-            'email',
-            'table_number',
-            'number_confirmations',
-            'did_confirm',
-            'whoInvites' // This is already included - CORRECT
-        ]
-        const updateData: any = {}
-        updatableFields.forEach((key) => {
-            if (editForm[key] !== undefined) updateData[key] = editForm[key]
-        })
+        // 🔧 FIX #2: Always include all fields in update, don't skip if undefined
+        // The problem was that if whoInvites was "Susana" and we're setting it to "Susana",
+        // it might not be in editForm properly
+        const updateData: any = {
+            name: editForm.name,
+            guest_count: parseInt(editForm.guest_count) || 0,
+            phone_number: editForm.phone_number || '',
+            email: editForm.email || '',
+            table_number: editForm.table_number ? parseInt(editForm.table_number) : null,
+            number_confirmations: parseInt(editForm.number_confirmations) || 0,
+            did_confirm: editForm.did_confirm === null ? null : editForm.did_confirm,
+            whoInvites: editForm.whoInvites || 'Susana', // 🔧 CRITICAL FIX: Always set this field
+        }
 
-        const { error } = await supabase.from('guests').update(updateData).eq('id', id)
+        console.log('💾 Saving to Supabase:', updateData)
+        console.log('💾 Guest ID:', id)
+
+        const { error, data } = await supabase
+            .from('guests')
+            .update(updateData)
+            .eq('id', id)
+            .select() // 🔧 FIX: Add .select() to see what was actually saved
+
         if (!error) {
-            // FIX: Properly update local state after successful database update
-            await fetchGuests() // Refetch all guests to ensure consistency
-            cancelEdit() // Clear edit state
+            console.log('✅ Supabase update successful:', data)
+            await fetchGuests() // Refetch to ensure UI matches database
+            cancelEdit()
             alert('✅ Cambios guardados correctamente')
         } else {
+            console.error('❌ Supabase update error:', error)
             alert('❌ Error al guardar: ' + error.message)
         }
     }
@@ -181,7 +224,6 @@ export default function GuestUploadPage() {
 
     // ---- WhatsApp Message Templates ----
 
-    // Spanish Save the Date
     const getSaveTheDateMessageES = (guestName: string) => {
         return `¡Hola ${guestName}! 👋
 
@@ -199,7 +241,6 @@ Con cariño,
 Susana & Javier ❤️`
     }
 
-    // English Save the Date
     const getSaveTheDateMessageEN = (guestName: string) => {
         return `Hi ${guestName}! 👋
 
@@ -217,7 +258,6 @@ With love,
 Susana & Javier ❤️`
     }
 
-    // Formal Invitation (when RSVP is ready)
     const getFormalInviteMessage = (guestName: string, token: string) => {
         return `Hola ${guestName}, 
 
@@ -229,7 +269,6 @@ Con cariño,
 Susana & Javier 💑🥳🍾`
     }
 
-    // Reminder message
     const getReminderMessage = (guestName: string, token: string) => {
         return `Hola ${guestName},
 
@@ -341,9 +380,15 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}
                     onChange={handleFileUpload}
                     className="border rounded px-4 py-2 bg-white"
                 />
-                <p className="text-sm text-gray-600">
-                    💡 El Excel debe tener columnas: "Invitado", "Invitados", "Teléfono", "Invita"
-                </p>
+                <div className="text-sm text-gray-600">
+                    <p className="font-medium">💡 Columnas aceptadas en el Excel:</p>
+                    <ul className="text-xs mt-1 ml-4 space-y-1">
+                        <li>• Nombre: "Invitado" o "Nombre"</li>
+                        <li>• Cantidad: "Invitados" o "Numero"</li>
+                        <li>• Teléfono: "Telefono" (con o sin acento)</li>
+                        <li>• Invita: "Invita" → debe ser "Susana" o "Javier"</li>
+                    </ul>
+                </div>
             </div>
 
             {/* Filters */}
@@ -449,7 +494,7 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}
                             const isEditing = editingIndex === globalIdx
 
                             return (
-                                <tr key={guest.id} className="border-b">
+                                <tr key={guest.id} className="border-b hover:bg-stone-50">
                                     {isEditing ? (
                                         <>
                                             <td className="px-4 py-2">
@@ -462,12 +507,18 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}
                                             <td className="px-4 py-2">
                                                 <select
                                                     value={editForm.whoInvites ?? 'Susana'}
-                                                    onChange={(e) => updateEditField('whoInvites', e.target.value)}
-                                                    className="border px-2 py-1 rounded"
+                                                    onChange={(e) => {
+                                                        console.log('🔧 Dropdown changed to:', e.target.value)
+                                                        updateEditField('whoInvites', e.target.value)
+                                                    }}
+                                                    className="border px-2 py-1 rounded w-full bg-white"
                                                 >
                                                     <option value="Susana">Susana</option>
                                                     <option value="Javier">Javier</option>
                                                 </select>
+                                                <div className="text-xs text-gray-500 mt-1">
+                                                    Actual: {editForm.whoInvites}
+                                                </div>
                                             </td>
                                             <td className="px-4 py-2">
                                                 <input
@@ -545,7 +596,7 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}
                                         <>
                                             <td className="px-4 py-2">{guest.name}</td>
                                             <td className="px-4 py-2">
-                                                <span className={`px-2 py-1 rounded text-xs ${guest.whoInvites === 'Susana' ? 'bg-pink-100 text-pink-800' : 'bg-blue-100 text-blue-800'}`}>
+                                                <span className={`px-2 py-1 rounded text-xs font-medium ${guest.whoInvites === 'Susana' ? 'bg-pink-100 text-pink-800' : 'bg-blue-100 text-blue-800'}`}>
                                                     {guest.whoInvites || '-'}
                                                 </span>
                                             </td>
@@ -559,11 +610,9 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}
                                             <td className="px-4 py-2">{guest.table_number}</td>
                                             <td className="px-4 py-2 font-mono text-xs break-all">{guest.invite_token}</td>
 
-                                            {/* WhatsApp Actions - NOW WITH BILINGUAL OPTIONS */}
                                             <td className="px-4 py-2">
                                                 {guest.phone_number && guest.invite_token ? (
                                                     <div className="flex flex-col gap-2">
-                                                        {/* Save the Date - Spanish */}
                                                         <a
                                                             href={`https://wa.me/${guest.phone_number.replace(/[^\d]/g, '')}?text=${encodeURIComponent(getSaveTheDateMessageES(guest.name))}`}
                                                             target="_blank"
@@ -574,7 +623,6 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}
                                                             📅 Save the Date 🇲🇽
                                                         </a>
 
-                                                        {/* Save the Date - English */}
                                                         <a
                                                             href={`https://wa.me/${guest.phone_number.replace(/[^\d]/g, '')}?text=${encodeURIComponent(getSaveTheDateMessageEN(guest.name))}`}
                                                             target="_blank"
@@ -585,7 +633,6 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}
                                                             📅 Save the Date 🇺🇸
                                                         </a>
 
-                                                        {/* Formal Invitation (with RSVP token) */}
                                                         <a
                                                             href={`https://wa.me/${guest.phone_number.replace(/[^\d]/g, '')}?text=${encodeURIComponent(getFormalInviteMessage(guest.name, guest.invite_token))}`}
                                                             target="_blank"
@@ -596,7 +643,6 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}
                                                             💌 Invitación
                                                         </a>
 
-                                                        {/* Reminder (only if not confirmed) */}
                                                         {guest.did_confirm !== true && (
                                                             <a
                                                                 href={`https://wa.me/${guest.phone_number.replace(/[^\d]/g, '')}?text=${encodeURIComponent(getReminderMessage(guest.name, guest.invite_token))}`}
@@ -614,7 +660,6 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}
                                                 )}
                                             </td>
 
-                                            {/* Actions */}
                                             <td className="px-4 py-2">
                                                 <button onClick={() => startEdit(globalIdx, guest)} className="text-blue-600 mr-2 text-sm">
                                                     ✏️ Editar
