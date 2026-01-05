@@ -78,18 +78,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     return (
         <div className="min-h-screen flex flex-col bg-warm-cream">
-            {/* Updated Navigation with Wedding Theme */}
-            <nav className="bg-gradient-to-r from-wedding-burgundy-dark via-wedding-burgundy to-wedding-burgundy-dark text-white shadow-wedding-lg">
-                <div className="max-w-7xl mx-auto px-4">
-                    <div className="flex items-center justify-between py-3">
+            {/* Updated Navigation with Wedding Theme - NO SCROLLBAR */}
+            <nav className="bg-gradient-to-r from-wedding-burgundy-dark via-wedding-burgundy to-wedding-burgundy-dark text-white shadow-wedding-lg sticky top-0 z-50">
+                <div className="max-w-full px-4">
+                    <div className="flex items-center justify-between py-3 gap-4">
                         {/* Logo/Title */}
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-shrink-0">
                             <span className="text-xl font-luxury text-warm-cream">S&J</span>
-                            <span className="text-sm font-light text-warm-cream/80">Wedding Planner</span>
+                            <span className="hidden sm:inline text-sm font-light text-warm-cream/80">Wedding Planner</span>
                         </div>
 
-                        {/* Navigation Links */}
-                        <div className="flex items-center gap-2 overflow-x-auto">
+                        {/* Navigation Links - Wrapped and responsive */}
+                        <div className="flex items-center gap-2 flex-wrap justify-center flex-1">
                             <NavLink href="/admin/guests">🎫 Invitados</NavLink>
                             <NavLink href="/admin/venues/church">🏛️ Iglesia</NavLink>
                             <NavLink href="/admin/venues/party">🎉 Fiesta</NavLink>
@@ -104,9 +104,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         {/* Logout Button */}
                         <button
                             onClick={handleLogout}
-                            className="ml-4 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-white text-sm font-medium transition-colors shadow-md hover:shadow-lg"
+                            className="flex-shrink-0 bg-red-600 hover:bg-red-700 px-3 py-2 rounded-md text-white text-sm font-medium transition-colors shadow-md hover:shadow-lg"
                         >
-                            Cerrar sesión
+                            <span className="hidden sm:inline">Cerrar sesión</span>
+                            <span className="sm:hidden">🚪</span>
                         </button>
                     </div>
                 </div>
