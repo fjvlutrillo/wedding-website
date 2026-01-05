@@ -113,8 +113,8 @@ export default function PaymentsPage() {
             ...newPayment,
             amount: parseFloat(String(newPayment.amount)),
             paid_amount: parseFloat(String(newPayment.paid_amount)) || 0,
-            due_date: newPayment.due_date || null,
-            payment_date: newPayment.payment_date || null,
+            due_date: newPayment.due_date && newPayment.due_date !== '' ? newPayment.due_date : null,
+            payment_date: newPayment.payment_date && newPayment.payment_date !== '' ? newPayment.payment_date : null,
         }
 
         const { error } = await supabase.from('payments').insert([paymentData])
@@ -159,8 +159,8 @@ export default function PaymentsPage() {
             amount: parseFloat(String(editForm.amount)),
             paid_amount: parseFloat(String(editForm.paid_amount)),
             status: editForm.status,
-            due_date: editForm.due_date || null,
-            payment_date: editForm.payment_date || null,
+            due_date: editForm.due_date && editForm.due_date !== '' ? editForm.due_date : null,
+            payment_date: editForm.payment_date && editForm.payment_date !== '' ? editForm.payment_date : null,
             notes: editForm.notes || '',
         }
 
@@ -349,8 +349,8 @@ export default function PaymentsPage() {
                             </label>
                             <input
                                 type="date"
-                                value={newPayment.due_date}
-                                onChange={(e) => setNewPayment({ ...newPayment, due_date: e.target.value })}
+                                value={newPayment.due_date || ''}
+                                onChange={(e) => setNewPayment({ ...newPayment, due_date: e.target.value || null })}
                                 className="w-full border border-stone-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-wedding-burgundy focus:border-transparent"
                             />
                         </div>
