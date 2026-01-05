@@ -123,7 +123,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             <NavLink href="/admin/checklist">📅 <span className="hidden lg:inline">Checklist</span></NavLink>
                             <NavLink href="/admin/inventario">🍷 <span className="hidden lg:inline">Inventario</span></NavLink>
                             <NavLink href="/admin/seating">🪑 <span className="hidden lg:inline">Mesas</span></NavLink>
-                            <NavLink href="/admin/witness">🎭 <span className="hidden lg:inline">Dinámica</span></NavLink>
                         </div>
 
                         {/* Logout Button - Compact */}
