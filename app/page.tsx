@@ -24,6 +24,7 @@ import Image from 'next/image'
 import RedirectWrapper from '@/components/RedirectWrapper'
 
 // Import new components
+import HeroSectionBohoChic from '@/components/HeroSectionBohoChic'
 import EventsSection from '@/components/EventDetails'
 import DressCodeSection from '@/components/DressCode'
 import TimelineSection from '@/components/Timeline'
@@ -137,6 +138,8 @@ function MainPageContent() {
 
   return (
     <main className="min-h-screen text-[#2C2C2C] bg-warm-cream">
+
+      <HeroSectionBohoChic />
       
      
      {/* ==================== HERO SECTION ==================== */}
