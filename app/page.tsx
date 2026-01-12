@@ -24,6 +24,8 @@ import Image from 'next/image'
 import RedirectWrapper from '@/components/RedirectWrapper'
 
 // Import new components
+import HeaderBohoChic from '@/components/HeaderBohoChic'
+import SectionHeader from '@/components/SectionHeader'
 import HeroSectionBohoChic from '@/components/HeroSectionBohoChic'
 import EventsSection from '@/components/EventDetails'
 import DressCodeSection from '@/components/DressCode'
@@ -140,92 +142,8 @@ function MainPageContent() {
     <main className="min-h-screen text-[#2C2C2C] bg-warm-cream">
 
       <HeroSectionBohoChic />
-      
-     
-     {/* ==================== HERO SECTION ==================== */}
-           <section
-             id="inicio"
-             className="relative h-screen flex items-center justify-center text-center text-white overflow-hidden"
-           >
-             {/* Placeholder background */}
-             <div className="absolute inset-0 bg-gradient-to-br from-stone-200 via-stone-100 to-white" />
-     
-             {/* Hero image with fade-in */}
-             <div
-               className={`absolute inset-0 transition-opacity duration-1000 ${imageLoaded ? 'opacity-100' : 'opacity-0'
-                 }`}
-             >
-               <Image
-                 src="/hero.jpg"
-                 alt="Susana y Javier"
-                 fill
-                 priority
-                 quality={90}
-                 className="object-cover object-center sm:object-[center_30%]"
-                 onLoad={() => setImageLoaded(true)}
-               />
-             </div>
-     
-             {/* Elegant overlay */}
-             <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/50" />
-     
-             <div className="relative z-10 flex flex-col items-center h-[85%] w-full max-w-2xl px-4 text-center pt-56 sm:pt-72">
-               <div className="flex-1 flex flex-col justify-center space-y-6">
-                 <div className="space-y-2">
-                   <p className="text-sm sm:text-base font-light tracking-[0.3em] uppercase text-white/90">
-                     save the date
-                   </p>
-                   <h1 className="text-6xl sm:text-7xl md:text-8xl font-light font-light tracking-tight text-white">
-                     Susana & Javier
-                   </h1>
-                 </div>
-     
-                 <div className="h-px w-24 mx-auto bg-warm-cream/40" />
-     
-                 <div className="space-y-1">
-                   <p className="text-3xl sm:text-4xl font-light tracking-wide">Boda</p>
-                   <p className="text-base sm:text-lg font-light text-white/90">6 de Junio, 2026</p>
-                   <p className="text-base sm:text-lg font-light text-white/90">Puebla, México</p>
-                 </div>
-               </div>
-     
-               {/* Scroll indicator */}
-               <button
-                 onClick={() => {
-                   const target = document.getElementById('historia')
-                   if (target) {
-                     const headerHeight = 64
-                     const targetPosition =
-                       target.getBoundingClientRect().top + window.scrollY - headerHeight
-                     window.scrollTo({ top: targetPosition, behavior: 'smooth' })
-                   }
-                   const header = document.querySelector('.main-header') as HTMLElement
-                   if (header) header.style.display = 'flex'
-                 }}
-                 className="group mb-12 animate-fade-pulse hover:scale-110 transition-transform duration-300"
-                 aria-label="Ir a historia"
-               >
-                 <div className="flex flex-col items-center gap-2">
-                   <span className="text-xs uppercase tracking-widest text-white/70 font-light">
-                     Descubre nuestra historia
-                   </span>
-                   <svg
-                     className="w-8 h-8 text-white/90 group-hover:text-white transition-colors"
-                     fill="none"
-                     stroke="currentColor"
-                     strokeWidth="1.5"
-                     viewBox="0 0 24 24"
-                   >
-                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                   </svg>
-                 </div>
-               </button>
-             </div>
-           </section>
-     
-           {/* Header appears after scroll */}
 
-      <Header />
+      <HeaderBohoChic />
 
       {/* ==================== HISTORIA - BOLD MAGAZINE LAYOUT ==================== */}
       <section id="historia" className="relative py-16 sm:py-24 lg:py-32 px-4 bg-warm-cream overflow-hidden">
@@ -239,39 +157,13 @@ function MainPageContent() {
 
         <div className="max-w-7xl mx-auto relative">
 
-          {/* BOLD header - better mobile */}
-          <div className="mb-12 sm:mb-16 lg:mb-24">
-            <div className="flex flex-col lg:flex-row items-start gap-4 sm:gap-6 lg:gap-12">
-
-              {/* Vertical chapter number - simplified for mobile */}
-              <div className="lg:pt-4">
-                <div className="flex lg:block items-center gap-3">
-                  <div className="w-1 h-16 sm:h-20 lg:h-32 bg-wedding-terracotta" />
-                  <p className="lg:[writing-mode:vertical-lr] text-xs sm:text-sm uppercase tracking-[0.25em] text-wedding-terracotta font-bold">
-                    Capítulo 01
-                  </p>
-                </div>
-              </div>
-
-              {/* Title - responsive sizes */}
-              <div className="flex-1">
-                <div className="space-y-2 sm:space-y-3">
-                  {/* "Nuestra" - responsive from 5xl to 9xl */}
-                  <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-light text-wedding-burgundy leading-none">
-                    Nuestra
-                  </h2>
-
-                  {/* Thick terracotta underline - responsive width */}
-                  <div className="w-48 sm:w-64 md:w-80 lg:w-full max-w-xl h-2 sm:h-3 bg-wedding-terracotta rounded-full" />
-
-                  {/* "Historia" below - responsive */}
-                  <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light text-charcoal pt-1 sm:pt-2">
-                    Historia
-                  </h2>
-                </div>
-              </div>
-            </div>
-          </div>
+          <SectionHeader
+            chapter="01"
+            title="Nuestra"
+            subtitle="Historia"
+            description="Conoce cómo comenzó nuestra aventura juntos"
+            align="center"
+          />
 
           {/* MAGAZINE-STYLE GRID - better mobile stacking */}
           <div className="grid lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-12 items-start">
@@ -414,14 +306,12 @@ function MainPageContent() {
         <div className="max-w-6xl mx-auto relative">
 
           {/* Bold centered title */}
-          <div className="text-center mb-20">
-            <h2 className="text-7xl sm:text-8xl lg:text-9xl font-light text-charcoal leading-none mb-6">
-              Faltan
-            </h2>
-            <div className="flex justify-center">
-              <div className="w-48 h-2 bg-charcoal/40" />
-            </div>
-          </div>
+          <SectionHeader
+            chapter="05"
+            title="Cuenta"
+            subtitle="Regresiva"
+            align="center"
+          />
 
           {typeof days === 'undefined' ? (
             <div className="text-center py-20">
@@ -457,12 +347,14 @@ function MainPageContent() {
       {/* ==================== GALLERY SECTION ==================== */}
       <section id="galeria" className="relative py-24 px-4 bg-gradient-to-b from-white to-stone-50">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16 space-y-4">
-            <span className="text-xs uppercase tracking-[0.3em] text-wedding-rose font-light">
-              Capítulo 04
-            </span>
-            <h2 className="text-5xl sm:text-6xl font-light text-wedding-burgundy">Galería</h2>
-          </div>
+          
+          {/* NEW: Editorial Section Header - No description for gallery */}
+          <SectionHeader
+            chapter="06"
+            title=""
+            subtitle="Galería"
+            align="center"
+          />
 
           <div className="relative max-w-4xl mx-auto">
             <div ref={sliderRef} className="keen-slider rounded-2xl overflow-hidden shadow-xl border border-wedding-blush">
@@ -520,26 +412,21 @@ function MainPageContent() {
       {/* ==================== RSVP SECTION ==================== */}
       {showRSVP && (
         <section className="relative py-24 px-4">
-          <div className="max-w-2xl mx-auto text-center">
-            <div className="space-y-8">
-              <div className="space-y-4">
-                <span className="text-xs uppercase tracking-[0.3em] text-wedding-rose font-light">
-                  Capítulo 06
-                </span>
-                <h2 className="text-5xl sm:text-6xl font-light text-charcoal">
-                  ¿Nos
-                  <span className="block font-light text-6xl sm:text-7xl mt-2 text-wedding-burgundy">
-                    Acompañas?
-                  </span>
-                </h2>
-              </div>
+          <div className="max-w-2xl mx-auto">
 
-              <p className="text-lg text-stone-600 leading-relaxed max-w-xl mx-auto">
-                Tu presencia es el mejor regalo. Por favor, haznos saber si podrás acompañarnos en este día tan especial.
-              </p>
+            {/* Editorial Section Header */}
+            <SectionHeader
+              chapter="08"
+              title="¿Nos"
+              subtitle="Acompañas?"
+              description="Tu presencia es el mejor regalo. Por favor, haznos saber si podrás acompañarnos en este día tan especial."
+              align="center"
+            />
 
+            {/* CTA Button */}
+            <div className="flex justify-center mt-12">
               <Link href={`/rsvp?token=${token}`}>
-                <button className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-burgundy hover:opacity-90 text-white text-sm tracking-wide uppercase transition-all duration-300 rounded-full shadow-wedding-lg hover:shadow-wedding-xl hover:-translate-y-0.5">
+                <button className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-wedding-burgundy to-wedding-burgundy-light hover:opacity-90 text-white text-sm tracking-wide uppercase transition-all duration-300 rounded-full shadow-wedding-lg hover:shadow-wedding-xl hover:-translate-y-0.5">
                   Confirmar asistencia
                   <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />

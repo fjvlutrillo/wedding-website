@@ -13,6 +13,7 @@
  */
 
 import { useState } from 'react'
+import SectionHeader from '@/components/SectionHeader'
 
 interface TimelineEvent {
   time: string
@@ -67,20 +68,13 @@ export default function Timeline() {
     <section className="relative py-24 px-4">
       <div className="max-w-5xl mx-auto">
         {/* Section Header - Burgundy themed */}
-        <div className="text-center mb-16 space-y-4">
-          <span className="text-xs uppercase tracking-[0.3em] text-wedding-rose font-light">
-            Itinerario del día
-          </span>
-          <h2 className="text-5xl sm:text-6xl font-light text-charcoal">
-            Agenda de la
-            <span className="block font-light text-6xl sm:text-7xl mt-2 text-wedding-burgundy">
-              Celebración
-            </span>
-          </h2>
-          <p className="text-lg text-stone-600 max-w-2xl mx-auto leading-relaxed">
-            Así será nuestro día especial.
-          </p>
-        </div>
+        <SectionHeader
+          chapter="04"
+          title="Agenda de la"
+          subtitle="Celebración"
+          description="Así será nuestro día especial"
+          align="center"
+        />
 
         {/* Timeline */}
         <div className="relative">

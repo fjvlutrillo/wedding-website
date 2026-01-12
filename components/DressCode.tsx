@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import SectionHeader from '@/components/SectionHeader'
 
 interface DressCodeOption {
   gender: 'Hombres' | 'Mujeres'
@@ -35,18 +36,14 @@ export default function DressCode() {
     <section className="relative py-24 px-4 bg-gradient-to-b from-white to-stone-50">
       <div className="max-w-6xl mx-auto">
         {/* Section Header */}
-        <div className="text-center mb-16 space-y-4">
-          <span className="text-xs uppercase tracking-[0.3em] text-wedding-rose font-light">
-            Detalles importantes
-          </span>
-          <h2 className="text-5xl sm:text-6xl font-light text-charcoal">
-            Código de
-            <span className="block font-luxury text-6xl sm:text-7xl mt-2 text-wedding-burgundy">Vestimenta</span>
-          </h2>
-          <p className="text-lg text-stone-600 max-w-2xl mx-auto leading-relaxed">
-            Queremos que te sientas cómodo y elegante en nuestra celebración
-          </p>
-        </div>
+        
+        <SectionHeader
+          chapter="03"
+          title="Código de"
+          subtitle="Vestimenta"
+          description="Queremos que te sientas cómodo y elegante en nuestra celebración"
+          align="center"
+        />
 
         {/* Dress Code Cards */}
         <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-12">

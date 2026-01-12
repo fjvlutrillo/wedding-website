@@ -1,5 +1,7 @@
 'use client'
 
+import SectionHeader from '@/components/SectionHeader'
+
 /**
  * LEARNING NOTE: Registry Section - HYBRID APPROACH (Zola Integration)
  * 
@@ -105,19 +107,14 @@ export default function RegistrySectionHybrid() {
     >
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
-        <div className="text-center mb-16 space-y-4">
-          <span className="text-xs uppercase tracking-[0.3em] text-stone-500 font-light">
-            Capítulo 05
-          </span>
-          <h2 className="text-5xl sm:text-6xl font-light text-wedding-burgundy">
-            Mesa de
-            <span className="block font-light text-6xl sm:text-7xl mt-2">Regalos</span>
-          </h2>
-          <p className="text-stone-600 max-w-2xl mx-auto leading-relaxed">
-            Tu presencia es nuestro mejor regalo pero si deseas tener un detalle con nosotros, 
-            hemos creado una mesa de regalos en las siguiente pagina para tu comodidad.
-          </p>
-        </div>
+        
+        <SectionHeader
+          chapter="07"
+          title="Mesa de"
+          subtitle="Regalos"
+          description="Tu presencia es nuestro mejor regalo"
+          align="center"
+        />
 
         {/* Registry Cards Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">

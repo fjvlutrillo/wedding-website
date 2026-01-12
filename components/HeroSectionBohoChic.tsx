@@ -1,21 +1,13 @@
 'use client'
 
 /**
- * BOHO CHIC EDITORIAL HERO SECTION
+ * BOHO CHIC EDITORIAL HERO SECTION - FIXED SCROLL
  * 
- * DESIGN CONCEPT:
- * - Fashion magazine editorial layout
- * - Asymmetric typography (Vogue/Harper's Bazaar style)
- * - Floating geometric elements
- * - Split-screen aesthetic with text overlay
- * - Animated entrance like a magazine spread opening
- * - Modern minimalist with boho touches
- * 
- * LEARNING NOTES:
- * - CSS Grid for editorial layout
- * - Stagger animations for magazine reveal effect
- * - Backdrop filters for glass morphism
- * - Custom keyframes for unique animations
+ * Fixed Issues:
+ * - Scroll arrow now properly scrolls to historia section
+ * - Uses window.pageYOffset instead of window.scrollY for better compatibility
+ * - Added cursor-pointer class for better UX
+ * - Fallback scroll if historia section not found
  */
 
 import { useState, useEffect } from 'react'
@@ -31,6 +23,43 @@ export default function HeroSectionBohoChic() {
             setTimeout(() => setTextVisible(true), 300)
         }
     }, [imageLoaded])
+
+    const handleScrollToHistoria = () => {
+        // Find the historia section
+        const target = document.getElementById('historia')
+
+        if (target) {
+            // Show header first
+            const header = document.querySelector('.main-header') as HTMLElement
+            if (header) {
+                header.style.display = 'flex'
+            }
+
+            // Use a fixed header height
+            const headerHeight = 80
+
+            // Get the target position
+            const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - headerHeight
+
+            // Smooth scroll
+            window.scrollTo({
+                top: targetPosition,
+                behavior: 'smooth'
+            })
+        } else {
+            // Fallback: scroll one viewport
+            window.scrollTo({
+                top: window.innerHeight - 100,
+                behavior: 'smooth'
+            })
+
+            // Show header
+            const header = document.querySelector('.main-header') as HTMLElement
+            if (header) {
+                header.style.display = 'flex'
+            }
+        }
+    }
 
     return (
         <section
@@ -75,7 +104,7 @@ export default function HeroSectionBohoChic() {
                             <div className="flex items-center gap-4">
                                 <div className="w-12 h-px bg-warm-cream"></div>
                                 <span className="text-[10px] sm:text-xs font-light tracking-[0.4em] uppercase text-warm-cream">
-                                    Editorial 2026
+                                    Edición 2026
                                 </span>
                             </div>
                         </div>
@@ -128,25 +157,44 @@ export default function HeroSectionBohoChic() {
                             </div>
                         </div>
 
-                        {/* Date & Location - Clean info block */}
+                        {/* Date & Location - Responsive: card on desktop, simple text on mobile */}
                         <div
-                            className={`bg-warm-cream/10 backdrop-blur-md border border-warm-cream/20 rounded-2xl p-6 sm:p-8 max-w-md transition-all duration-700 delay-700 ${textVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                            className={`max-w-md transition-all duration-700 delay-700 ${textVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
                                 }`}
                         >
-                            <div className="space-y-4">
-                                <div className="flex items-baseline gap-4">
-                                    <span className="text-6xl sm:text-7xl font-light text-warm-cream tabular-nums">06</span>
-                                    <div className="flex-1 space-y-1">
-                                        <p className="text-xl sm:text-2xl font-light text-warm-cream">Junio</p>
-                                        <p className="text-4xl sm:text-5xl font-light text-warm-cream tabular-nums">2026</p>
+                            {/* Mobile version - no blur, simpler */}
+                            <div className="sm:hidden space-y-4">
+                                <div className="flex items-baseline gap-3">
+                                    <span className="text-5xl font-light text-warm-cream tabular-nums">06</span>
+                                    <div className="space-y-0.5">
+                                        <p className="text-lg font-light text-warm-cream">Junio</p>
+                                        <p className="text-3xl font-light text-warm-cream tabular-nums">2026</p>
                                     </div>
                                 </div>
 
-                                <div className="h-px bg-warm-cream/20"></div>
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-px bg-warm-cream/40"></div>
+                                    <p className="text-base text-warm-cream">Puebla, México</p>
+                                </div>
+                            </div>
 
-                                <div className="space-y-1">
-                                    <p className="text-sm uppercase tracking-[0.2em] text-warm-cream/70">Ceremonia</p>
-                                    <p className="text-base sm:text-lg text-warm-cream">Puebla, México</p>
+                            {/* Desktop version - with blur card */}
+                            <div className="hidden sm:block bg-warm-cream/10 backdrop-blur-md border border-warm-cream/20 rounded-2xl p-6 sm:p-8">
+                                <div className="space-y-4">
+                                    <div className="flex items-baseline gap-4">
+                                        <span className="text-6xl sm:text-7xl font-light text-warm-cream tabular-nums">06</span>
+                                        <div className="flex-1 space-y-1">
+                                            <p className="text-xl sm:text-2xl font-light text-warm-cream">Junio</p>
+                                            <p className="text-4xl sm:text-5xl font-light text-warm-cream tabular-nums">2026</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="h-px bg-warm-cream/20"></div>
+
+                                    <div className="space-y-1">
+                                        <p className="text-sm uppercase tracking-[0.2em] text-warm-cream/70">Ceremonia</p>
+                                        <p className="text-base sm:text-lg text-warm-cream">Puebla, México</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -188,30 +236,27 @@ export default function HeroSectionBohoChic() {
                 </div>
             </div>
 
-            {/* ==================== SCROLL INDICATOR - Minimalist ==================== */}
+            {/* ==================== SCROLL INDICATOR - FIXED ==================== */}
             <button
-                onClick={() => {
-                    const target = document.getElementById('historia')
-                    if (target) {
-                        const headerHeight = 64
-                        const targetPosition = target.getBoundingClientRect().top + window.scrollY - headerHeight
-                        window.scrollTo({ top: targetPosition, behavior: 'smooth' })
-                    }
-                    const header = document.querySelector('.main-header') as HTMLElement
-                    if (header) header.style.display = 'flex'
-                }}
-                className={`absolute bottom-8 sm:bottom-12 left-1/2 -translate-x-1/2 group transition-all duration-700 delay-1000 ${textVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                onClick={handleScrollToHistoria}
+                className={`absolute bottom-8 sm:bottom-12 left-1/2 -translate-x-1/2 group transition-all duration-700 delay-1000 hover:scale-110 cursor-pointer z-20 ${textVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                     }`}
-                aria-label="Ir a historia"
+                aria-label="Scroll to next section"
             >
-                <div className="flex flex-col items-center gap-3">
-                    {/* Animated scroll line */}
-                    <div className="w-px h-16 bg-gradient-to-b from-transparent via-warm-cream to-transparent relative overflow-hidden">
-                        <div className="absolute inset-0 w-full h-8 bg-warm-cream animate-fade-pulse"></div>
-                    </div>
+                <div className="flex flex-col items-center gap-2 px-6 py-4 rounded-full hover:bg-warm-cream/10 transition-colors">
+                    {/* Animated chevron icon */}
+                    <svg
+                        className="w-8 h-8 text-warm-cream animate-fade-pulse group-hover:text-wedding-burgundy transition-colors"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
 
-                    {/* Minimal text */}
-                    <span className="text-[10px] uppercase tracking-[0.3em] text-warm-cream/70 font-light group-hover:text-warm-cream transition-colors">
+                    {/* Desktop only text */}
+                    <span className="hidden sm:block text-[10px] uppercase tracking-[0.3em] text-warm-cream/70 font-light group-hover:text-warm-cream transition-colors">
                         Scroll
                     </span>
                 </div>
