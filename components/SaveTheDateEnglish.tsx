@@ -132,7 +132,7 @@ END:VCALENDAR`
                                 </p>
 
                                 {/* Names - elegant serif */}
-                                <h1 className="text-5xl sm:text-6xl md:text-7xl font-luxury text-white drop-shadow-lg tracking-wide">
+                                <h1 className="text-5xl sm:text-6xl md:text-7xl font-light text-white drop-shadow-lg tracking-wide">
                                     Susana <span className="text-white/90">&</span> Javier
                                 </h1>
 

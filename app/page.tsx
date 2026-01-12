@@ -136,148 +136,257 @@ function MainPageContent() {
   const [days, hours, minutes] = !isEventDay ? countdown.split(/\s+/) : []
 
   return (
-    <main className="min-h-screen text-[#2C2C2C]">
-      {/* ==================== HERO SECTION ==================== */}
-      <section
-        id="inicio"
-        className="relative h-screen flex items-center justify-center text-center text-white overflow-hidden"
-      >
-        {/* Placeholder background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-stone-200 via-stone-100 to-white" />
+    <main className="min-h-screen text-[#2C2C2C] bg-warm-cream">
+      
+     
+     {/* ==================== HERO SECTION ==================== */}
+           <section
+             id="inicio"
+             className="relative h-screen flex items-center justify-center text-center text-white overflow-hidden"
+           >
+             {/* Placeholder background */}
+             <div className="absolute inset-0 bg-gradient-to-br from-stone-200 via-stone-100 to-white" />
+     
+             {/* Hero image with fade-in */}
+             <div
+               className={`absolute inset-0 transition-opacity duration-1000 ${imageLoaded ? 'opacity-100' : 'opacity-0'
+                 }`}
+             >
+               <Image
+                 src="/hero.jpg"
+                 alt="Susana y Javier"
+                 fill
+                 priority
+                 quality={90}
+                 className="object-cover object-center sm:object-[center_30%]"
+                 onLoad={() => setImageLoaded(true)}
+               />
+             </div>
+     
+             {/* Elegant overlay */}
+             <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/50" />
+     
+             <div className="relative z-10 flex flex-col items-center h-[85%] w-full max-w-2xl px-4 text-center pt-56 sm:pt-72">
+               <div className="flex-1 flex flex-col justify-center space-y-6">
+                 <div className="space-y-2">
+                   <p className="text-sm sm:text-base font-light tracking-[0.3em] uppercase text-white/90">
+                     save the date
+                   </p>
+                   <h1 className="text-6xl sm:text-7xl md:text-8xl font-light font-light tracking-tight text-white">
+                     Susana & Javier
+                   </h1>
+                 </div>
+     
+                 <div className="h-px w-24 mx-auto bg-warm-cream/40" />
+     
+                 <div className="space-y-1">
+                   <p className="text-3xl sm:text-4xl font-light tracking-wide">Boda</p>
+                   <p className="text-base sm:text-lg font-light text-white/90">6 de Junio, 2026</p>
+                   <p className="text-base sm:text-lg font-light text-white/90">Puebla, México</p>
+                 </div>
+               </div>
+     
+               {/* Scroll indicator */}
+               <button
+                 onClick={() => {
+                   const target = document.getElementById('historia')
+                   if (target) {
+                     const headerHeight = 64
+                     const targetPosition =
+                       target.getBoundingClientRect().top + window.scrollY - headerHeight
+                     window.scrollTo({ top: targetPosition, behavior: 'smooth' })
+                   }
+                   const header = document.querySelector('.main-header') as HTMLElement
+                   if (header) header.style.display = 'flex'
+                 }}
+                 className="group mb-12 animate-fade-pulse hover:scale-110 transition-transform duration-300"
+                 aria-label="Ir a historia"
+               >
+                 <div className="flex flex-col items-center gap-2">
+                   <span className="text-xs uppercase tracking-widest text-white/70 font-light">
+                     Descubre nuestra historia
+                   </span>
+                   <svg
+                     className="w-8 h-8 text-white/90 group-hover:text-white transition-colors"
+                     fill="none"
+                     stroke="currentColor"
+                     strokeWidth="1.5"
+                     viewBox="0 0 24 24"
+                   >
+                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                   </svg>
+                 </div>
+               </button>
+             </div>
+           </section>
+     
+           {/* Header appears after scroll */}
 
-        {/* Hero image with fade-in */}
-        <div
-          className={`absolute inset-0 transition-opacity duration-1000 ${imageLoaded ? 'opacity-100' : 'opacity-0'
-            }`}
-        >
-          <Image
-            src="/hero.jpg"
-            alt="Susana y Javier"
-            fill
-            priority
-            quality={90}
-            className="object-cover object-center sm:object-[center_30%]"
-            onLoad={() => setImageLoaded(true)}
-          />
+      <Header />
+
+      {/* ==================== HISTORIA - BOLD MAGAZINE LAYOUT ==================== */}
+      <section id="historia" className="relative py-16 sm:py-24 lg:py-32 px-4 bg-warm-cream overflow-hidden">
+
+        {/* GIANT background text - "AMOR" - hidden on mobile */}
+        <div className="hidden lg:block absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none opacity-[0.025]">
+          <span className="text-[420px] font-light text-wedding-burgundy whitespace-nowrap leading-none">
+            AMOR
+          </span>
         </div>
 
-        {/* Elegant overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/50" />
+        <div className="max-w-7xl mx-auto relative">
 
-        <div className="relative z-10 flex flex-col items-center h-[85%] w-full max-w-2xl px-4 text-center pt-56 sm:pt-72">
-          <div className="flex-1 flex flex-col justify-center space-y-6">
-            <div className="space-y-2">
-              <p className="text-sm sm:text-base font-light tracking-[0.3em] uppercase text-white/90">
-                save the date
-              </p>
-              <h1 className="text-6xl sm:text-7xl md:text-8xl font-luxury font-light tracking-tight text-white">
-                Susana & Javier
-              </h1>
-            </div>
+          {/* BOLD header - better mobile */}
+          <div className="mb-12 sm:mb-16 lg:mb-24">
+            <div className="flex flex-col lg:flex-row items-start gap-4 sm:gap-6 lg:gap-12">
 
-            <div className="h-px w-24 mx-auto bg-warm-cream/40" />
+              {/* Vertical chapter number - simplified for mobile */}
+              <div className="lg:pt-4">
+                <div className="flex lg:block items-center gap-3">
+                  <div className="w-1 h-16 sm:h-20 lg:h-32 bg-wedding-terracotta" />
+                  <p className="lg:[writing-mode:vertical-lr] text-xs sm:text-sm uppercase tracking-[0.25em] text-wedding-terracotta font-bold">
+                    Capítulo 01
+                  </p>
+                </div>
+              </div>
 
-            <div className="space-y-1">
-              <p className="text-3xl sm:text-4xl font-light tracking-wide">Boda</p>
-              <p className="text-base sm:text-lg font-light text-white/90">6 de Junio, 2026</p>
-              <p className="text-base sm:text-lg font-light text-white/90">Puebla, México</p>
+              {/* Title - responsive sizes */}
+              <div className="flex-1">
+                <div className="space-y-2 sm:space-y-3">
+                  {/* "Nuestra" - responsive from 5xl to 9xl */}
+                  <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-light text-wedding-burgundy leading-none">
+                    Nuestra
+                  </h2>
+
+                  {/* Thick terracotta underline - responsive width */}
+                  <div className="w-48 sm:w-64 md:w-80 lg:w-full max-w-xl h-2 sm:h-3 bg-wedding-terracotta rounded-full" />
+
+                  {/* "Historia" below - responsive */}
+                  <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light text-charcoal pt-1 sm:pt-2">
+                    Historia
+                  </h2>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Scroll indicator */}
-          <button
-            onClick={() => {
-              const target = document.getElementById('historia')
-              if (target) {
-                const headerHeight = 64
-                const targetPosition =
-                  target.getBoundingClientRect().top + window.scrollY - headerHeight
-                window.scrollTo({ top: targetPosition, behavior: 'smooth' })
-              }
-              const header = document.querySelector('.main-header') as HTMLElement
-              if (header) header.style.display = 'flex'
-            }}
-            className="group mb-12 animate-fade-pulse hover:scale-110 transition-transform duration-300"
-            aria-label="Ir a historia"
-          >
-            <div className="flex flex-col items-center gap-2">
-              <span className="text-xs uppercase tracking-widest text-white/70 font-light">
-                Descubre nuestra historia
-              </span>
-              <svg
-                className="w-8 h-8 text-white/90 group-hover:text-white transition-colors"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-          </button>
-        </div>
-      </section>
+          {/* MAGAZINE-STYLE GRID - better mobile stacking */}
+          <div className="grid lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-12 items-start">
 
-      {/* Header appears after scroll */}
-      <Header />
+            {/* LEFT SIDE - 7 columns - FEATURED CONTENT */}
+            <div className="lg:col-span-7 space-y-6 sm:space-y-8 lg:space-y-10">
 
-      {/* ==================== HISTORIA SECTION ==================== */}
-      <section id="historia" className="relative py-24 px-4 min-h-screen flex items-center">
-        <div className="max-w-7xl mx-auto w-full">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-            {/* Left: Images */}
-            <div className="relative order-2 lg:order-1">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-4">
-                  <div className="relative h-64 rounded-2xl overflow-hidden shadow-wedding-lg">
-                    <Image src="/historia/1.jpg" alt="Susana y Javier - Momento 1" fill className="object-cover" />
-                  </div>
-                  <div className="relative h-80 rounded-2xl overflow-hidden shadow-wedding-lg">
-                    <Image src="/historia/2.jpg" alt="Susana y Javier - Momento 2" fill className="object-cover" />
-                  </div>
+              {/* HERO IMAGE - responsive heights with terracotta accent */}
+              <div className="relative group">
+                {/* Image container - better mobile heights */}
+                <div className="relative h-[350px] sm:h-[450px] md:h-[550px] lg:h-[650px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl sm:shadow-2xl">
+                  <Image
+                    src="/historia/1.jpg"
+                    alt="Susana y Javier"
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                  {/* Dark gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                 </div>
-                <div className="space-y-4 pt-12">
-                  <div className="relative h-80 rounded-2xl overflow-hidden shadow-wedding-lg">
-                    <Image src="/historia/3.jpg" alt="Susana y Javier - Momento 3" fill className="object-cover" />
-                  </div>
-                  <div className="relative h-64 rounded-2xl overflow-hidden shadow-wedding-lg">
-                    <Image src="/historia/4.jpg" alt="Susana y Javier - Momento 4" fill className="object-cover" />
+
+                {/* TERRACOTTA CORNER ACCENT - responsive sizes */}
+                <div className="absolute top-0 right-0 w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-40 lg:h-40 bg-wedding-terracotta"
+                  style={{ clipPath: 'polygon(100% 0, 100% 100%, 0 0)' }}
+                />
+              </div>
+
+              {/* STORY TEXT - better mobile readability, NO drop cap on mobile */}
+              <div className="lg:pr-8">
+                <div className="space-y-4 sm:space-y-6">
+                  {/* First paragraph - drop cap only on desktop */}
+                  <p className="text-base sm:text-lg lg:text-xl leading-relaxed text-stone-700 
+                    lg:first-letter:text-8xl lg:first-letter:font-light lg:first-letter:text-wedding-burgundy 
+                    lg:first-letter:float-left lg:first-letter:mr-4 lg:first-letter:leading-none lg:first-letter:mt-2">
+                    Todo comenzó en una tarde de otoño cuando nuestros caminos se cruzaron de la manera más inesperada. Lo que empezó como una amistad se convirtió en algo mucho más profundo.
+                  </p>
+
+                  {/* Second paragraph */}
+                  <p className="text-sm sm:text-base lg:text-lg leading-relaxed text-stone-600">
+                    Con cada día que pasaba, descubríamos más razones para sonreír juntos. Las conversaciones se volvieron más largas, las risas más frecuentes, y los silencios más cómodos.
+                  </p>
+
+                  {/* Decorative terracotta dots */}
+                  <div className="flex items-center gap-2 pt-2 sm:pt-4">
+                    <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-wedding-terracotta" />
+                    <div className="w-2 h-2 rounded-full bg-wedding-burgundy" />
+                    <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-wedding-terracotta" />
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Right: Story Text */}
-            <div className="order-1 lg:order-2 space-y-8">
-              <div className="space-y-4">
-                <span className="text-xs uppercase tracking-[0.3em] text-wedding-rose font-light">
-                  Capítulo 01
-                </span>
-                <h2 className="text-5xl sm:text-6xl font-light text-charcoal">
-                  Nuestra
-                  <span className="block font-luxury text-6xl sm:text-7xl mt-2 text-wedding-burgundy">
-                    Historia
-                  </span>
-                </h2>
+            {/* RIGHT SIDE - 5 columns - SIDEBAR CONTENT */}
+            <div className="lg:col-span-5 space-y-6 sm:space-y-8">
+
+              {/* Secondary photo - responsive heights */}
+              <div className="relative h-[240px] sm:h-[280px] md:h-[320px] rounded-xl sm:rounded-2xl overflow-hidden shadow-lg sm:shadow-xl group">
+                <Image
+                  src="/historia/2.jpg"
+                  alt="Momento especial"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                />
               </div>
 
-              <div className="space-y-6 text-stone-600 leading-relaxed">
-                <p>
-                  Todo comenzó en una tarde de otoño cuando nuestros caminos se cruzaron de la manera más
-                  inesperada. Lo que empezó como una amistad se convirtió en algo mucho más profundo.
-                </p>
-                <p>
-                  Con cada día que pasaba, descubríamos más razones para sonreír juntos. Las conversaciones se
-                  volvieron más largas, las risas más frecuentes, y los silencios más cómodos.
-                </p>
-                <p>
-                  Ahora, después de compartir tantos momentos inolvidables, estamos listos para escribir el
-                  siguiente capítulo de nuestra historia. Y queremos que tú seas parte de este momento tan especial.
-                </p>
+              {/* PULL QUOTE CARD - responsive padding and text */}
+              <div className="bg-wedding-burgundy rounded-xl sm:rounded-2xl p-6 sm:p-8 lg:p-10 text-warm-cream relative overflow-hidden shadow-xl sm:shadow-2xl">
+                {/* Giant quotation mark background - hidden on small mobile */}
+                <div className="hidden sm:block absolute -top-4 -left-2 text-[120px] sm:text-[140px] lg:text-[160px] font-light text-wedding-terracotta/20 leading-none select-none">
+                  "
+                </div>
+
+                {/* Quote text - responsive */}
+                <div className="relative z-10">
+                  <p className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light leading-tight mb-4 sm:mb-6">
+                    ¡Nos casamos!
+                  </p>
+
+                  {/* Date with terracotta accent */}
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-8 sm:w-10 lg:w-12 h-0.5 sm:h-1 bg-wedding-terracotta" />
+                    <p className="text-xs sm:text-sm lg:text-base uppercase tracking-widest text-wedding-terracotta font-medium">
+                      6 de Junio, 2026
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              <div className="pt-4">
-                <p className="text-2xl sm:text-3xl font-luxury text-wedding-burgundy">¡Nos casamos!</p>
+              {/* Small photo grid - 2x2 responsive */}
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                <div className="relative h-[140px] sm:h-[180px] md:h-[200px] rounded-lg sm:rounded-xl overflow-hidden shadow-md sm:shadow-lg group">
+                  <Image
+                    src="/historia/3.jpg"
+                    alt="Momento 3"
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  {/* Terracotta hover overlay */}
+                  <div className="absolute inset-0 bg-wedding-terracotta/0 group-hover:bg-wedding-terracotta/10 transition-colors duration-300" />
+                </div>
+
+                <div className="relative h-[140px] sm:h-[180px] md:h-[200px] rounded-lg sm:rounded-xl overflow-hidden shadow-md sm:shadow-lg group">
+                  <Image
+                    src="/historia/4.jpg"
+                    alt="Momento 4"
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  {/* Terracotta hover overlay */}
+                  <div className="absolute inset-0 bg-wedding-terracotta/0 group-hover:bg-wedding-terracotta/10 transition-colors duration-300" />
+                </div>
+              </div>
+
+              {/* Final text snippet - responsive */}
+              <div className="bg-white rounded-lg sm:rounded-xl p-4 sm:p-6 shadow-md sm:shadow-lg border-l-4 border-wedding-terracotta">
+                <p className="text-sm sm:text-base lg:text-lg leading-relaxed text-stone-700 italic">
+                  Ahora, después de compartir tantos momentos inolvidables, estamos listos para escribir el siguiente capítulo.
+                </p>
               </div>
             </div>
           </div>
@@ -289,46 +398,58 @@ function MainPageContent() {
       <DressCodeSection />
       <TimelineSection />
 
-      {/* ==================== COUNTDOWN SECTION ==================== */}
-      <section className="relative py-24 px-4">
-        <div className="max-w-3xl mx-auto text-center">
-          <div className="space-y-4 mb-12">
-            <span className="text-xs uppercase tracking-[0.3em] text-wedding-rose font-light">
-              Capítulo 03
-            </span>
-            <h2 className="text-5xl sm:text-6xl font-light text-charcoal">
-              Cuenta
-              <span className="block font-luxury text-6xl sm:text-7xl mt-2 text-wedding-burgundy">
-                Regresiva
-              </span>
+      {/* ==================== COUNTDOWN - BOLD GRAPHIC DESIGN ==================== */}
+      <section className="relative py-24 lg:py-32 px-4 bg-wedding-terracotta overflow-hidden">
+        
+
+        {/* Large background numbers */}
+        <div className="absolute inset-0 pointer-events-none opacity-10 select-none overflow-hidden">
+          <span className="absolute top-10 -right-20 text-[300px] font-light text-white">06</span>
+          <span className="absolute bottom-10 -left-20 text-[300px] font-light text-white">26</span>
+        </div>
+
+        <div className="max-w-6xl mx-auto relative">
+
+          {/* Bold centered title */}
+          <div className="text-center mb-20">
+            <h2 className="text-7xl sm:text-8xl lg:text-9xl font-light text-charcoal leading-none mb-6">
+              Faltan
             </h2>
+            <div className="flex justify-center">
+              <div className="w-48 h-2 bg-charcoal/40" />
+            </div>
           </div>
 
           {typeof days === 'undefined' ? (
-            <div className="py-12">
-              <p className="text-4xl font-light text-[#2C2C2C]">¡Hoy es el gran día!</p>
+            <div className="text-center py-20">
+              <p className="text-6xl sm:text-7xl font-light text-white">
+                ¡Hoy es el gran día!
+              </p>
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-6 sm:gap-12 max-w-2xl mx-auto">
+            <div className="grid sm:grid-cols-3 gap-8 lg:gap-12">
               {[
-                { value: days, label: 'Días' },
-                { value: hours, label: 'Horas' },
-                { value: minutes, label: 'Minutos' },
+                { value: days, label: 'Días', bg: 'bg-white', text: 'text-wedding-burgundy' },
+                { value: hours, label: 'Horas', bg: 'bg-wedding-burgundy', text: 'text-white' },
+                { value: minutes, label: 'Minutos', bg: 'bg-white', text: 'text-wedding-burgundy' },
               ].map((item, idx) => (
                 <div
                   key={idx}
-                  className="bg-warm-cream rounded-2xl p-6 sm:p-8 shadow-wedding border border-wedding-blush hover:shadow-wedding-md transition-all duration-300 hover:-translate-y-1"
+                  className={`${item.bg} rounded-3xl p-10 lg:p-12 shadow-2xl transform hover:scale-105 transition-transform duration-300`}
                 >
-                  <div className="text-5xl sm:text-6xl font-light text-wedding-burgundy mb-2 tabular-nums">
+                  <div className={`text-8xl sm:text-9xl font-light ${item.text} leading-none mb-4 tabular-nums`}>
                     {item.value}
                   </div>
-                  <div className="text-sm uppercase tracking-wider text-wedding-rose font-light">{item.label}</div>
+                  <div className={`text-lg uppercase tracking-[0.3em] ${item.text} font-medium`}>
+                    {item.label}
+                  </div>
                 </div>
               ))}
             </div>
           )}
         </div>
       </section>
+
 
       {/* ==================== GALLERY SECTION ==================== */}
       <section id="galeria" className="relative py-24 px-4 bg-gradient-to-b from-white to-stone-50">
@@ -392,7 +513,6 @@ function MainPageContent() {
 
       {/* ==================== REGISTRY SECTION ==================== */}
       <RegistrySection />
-      <RegistrySection2 />
 
       {/* ==================== RSVP SECTION ==================== */}
       {showRSVP && (
@@ -405,7 +525,7 @@ function MainPageContent() {
                 </span>
                 <h2 className="text-5xl sm:text-6xl font-light text-charcoal">
                   ¿Nos
-                  <span className="block font-luxury text-6xl sm:text-7xl mt-2 text-wedding-burgundy">
+                  <span className="block font-light text-6xl sm:text-7xl mt-2 text-wedding-burgundy">
                     Acompañas?
                   </span>
                 </h2>

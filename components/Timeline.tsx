@@ -73,7 +73,7 @@ export default function Timeline() {
           </span>
           <h2 className="text-5xl sm:text-6xl font-light text-charcoal">
             Agenda de la
-            <span className="block font-luxury text-6xl sm:text-7xl mt-2 text-wedding-burgundy">
+            <span className="block font-light text-6xl sm:text-7xl mt-2 text-wedding-burgundy">
               Celebración
             </span>
           </h2>

@@ -95,20 +95,6 @@ export default function RegistrySectionHybrid() {
       url: "https://www.zola.com/registry/franciscojavierandsusana", // Replace with your actual Zola URL
       icon: "M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z",
       color: "bg-rose-500"
-    },
-    {
-      name: "Amazon",
-      description: "Encuentra desde electrodomésticos hasta decoración. Envío directo a nuestra dirección.",
-      url: "https://www.amazon.com.mx/wedding/susana-javier", // Replace with your actual Amazon registry
-      icon: "M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z",
-      color: "bg-orange-500"
-    },
-    {
-      name: "Liverpool",
-      description: "Mesa de regalos en tienda departamental con amplia variedad de productos y facilidad para invitados nacionales.",
-      url: "https://www.liverpool.com.mx/tienda?s=susana-javier", // Replace with your actual Liverpool registry
-      icon: "M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 3.44A1.5 1.5 0 015.378 3h13.243a1.5 1.5 0 011.06.44l1.19 1.189a3 3 0 01-.621 4.72m-13.5 8.65h3.75a.75.75 0 00.75-.75V13.5a.75.75 0 00-.75-.75H6.75a.75.75 0 00-.75.75v3.75c0 .415.336.75.75.75z",
-      color: "bg-red-600"
     }
   ]
 
@@ -125,11 +111,11 @@ export default function RegistrySectionHybrid() {
           </span>
           <h2 className="text-5xl sm:text-6xl font-light text-wedding-burgundy">
             Mesa de
-            <span className="block font-luxury text-6xl sm:text-7xl mt-2">Regalos</span>
+            <span className="block font-light text-6xl sm:text-7xl mt-2">Regalos</span>
           </h2>
           <p className="text-stone-600 max-w-2xl mx-auto leading-relaxed">
-            Tu presencia es nuestro mejor regalo. Si deseas tener un detalle con nosotros, 
-            hemos creado mesas de regalos en las siguientes tiendas para tu comodidad.
+            Tu presencia es nuestro mejor regalo pero si deseas tener un detalle con nosotros, 
+            hemos creado una mesa de regalos en las siguiente pagina para tu comodidad.
           </p>
         </div>
 
@@ -164,19 +150,18 @@ export default function RegistrySectionHybrid() {
                   Lluvia de sobres
                 </h3>
                 <p className="text-stone-600 leading-relaxed mb-4">
-                  Si prefieres contribuir con un regalo monetario, habrá un buzón especial 
-                  durante la recepción donde podrás depositar tu sobre. También puedes realizar 
-                  una transferencia bancaria:
+                  Si prefieres contribuir con un regalo monetario, puedes realizar 
+                  una transferencia bancaria aquí:
                 </p>
                 <div className="bg-stone-50 rounded-xl p-4 space-y-2 text-sm">
                   <p className="text-stone-700">
-                    <span className="font-medium text-[#2C2C2C]">Banco:</span> BBVA Bancomer
+                    <span className="font-medium text-[#2C2C2C]">Banco:</span> BanBajío
                   </p>
                   <p className="text-stone-700">
-                    <span className="font-medium text-[#2C2C2C]">Cuenta:</span> 0123456789
+                    <span className="font-medium text-[#2C2C2C]">Cuenta:</span> 498341530201
                   </p>
                   <p className="text-stone-700">
-                    <span className="font-medium text-[#2C2C2C]">CLABE:</span> 012180001234567890
+                    <span className="font-medium text-[#2C2C2C]">CLABE:</span> 030180900046901593
                   </p>
                   <p className="text-stone-700">
                     <span className="font-medium text-[#2C2C2C]">Titular:</span> Susana Calderón & Javier Vazquez

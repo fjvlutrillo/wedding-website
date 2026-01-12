@@ -347,3 +347,376 @@ img[loading="lazy"] {
     scroll-behavior: auto !important;
   }
 }
+
+/* ========================================
+   GLAM BOHO CHIC - Additional Utilities
+   
+   Add these to your globals.css file
+   ======================================== */
+
+/* ========================================
+   GLAM EFFECTS
+   ======================================== */
+
+/* Metallic gold text effect */
+.text-gold-metallic {
+  background: linear-gradient(135deg, #B8860B 0%, #D4AF37 50%, #B8860B 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% auto;
+}
+
+/* Shimmer animation for gold elements */
+.gold-shimmer {
+  background: linear-gradient(90deg,
+      rgba(184, 134, 11, 0.2) 0%,
+      rgba(212, 175, 55, 0.4) 50%,
+      rgba(184, 134, 11, 0.2) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 3s linear infinite;
+}
+
+/* Glam glow effect */
+.glam-glow {
+  box-shadow:
+    0 0 20px rgba(212, 175, 55, 0.2),
+    0 0 40px rgba(212, 175, 55, 0.1),
+    0 4px 20px rgba(71, 9, 28, 0.12);
+}
+
+.glam-glow:hover {
+  box-shadow:
+    0 0 30px rgba(212, 175, 55, 0.3),
+    0 0 60px rgba(212, 175, 55, 0.15),
+    0 8px 30px rgba(71, 9, 28, 0.15);
+}
+
+/* ========================================
+   BOHO EFFECTS
+   ======================================== */
+
+/* Organic texture overlay */
+.boho-texture {
+  position: relative;
+}
+
+.boho-texture::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%239CAF88' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+  background-size: 100px 100px;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* Natural border with imperfect edges */
+.boho-border {
+  position: relative;
+  padding: 1px;
+}
+
+.boho-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(135deg, #9CAF88 0%, #E07856 50%, #D4AF37 100%);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.6;
+}
+
+/* ========================================
+   HACIENDA SPANISH TILE PATTERNS
+   ======================================== */
+
+/* Spanish tile background */
+.spanish-tile-bg {
+  background-color: #FAF9F7;
+  background-image:
+    repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(71, 9, 28, 0.02) 35px, rgba(71, 9, 28, 0.02) 70px),
+    repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(212, 175, 55, 0.02) 35px, rgba(212, 175, 55, 0.02) 70px);
+}
+
+/* Terracotta arch effect */
+.hacienda-arch {
+  position: relative;
+}
+
+.hacienda-arch::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 40px;
+  background: radial-gradient(ellipse at bottom, transparent 60%, rgba(224, 120, 86, 0.1) 60%);
+}
+
+/* ========================================
+   DECORATIVE ELEMENTS
+   ======================================== */
+
+/* Pampas grass flourish (use with SVG) */
+.pampas-flourish {
+  filter: drop-shadow(0 2px 4px rgba(156, 175, 136, 0.2));
+}
+
+/* Gold leaf accent */
+.gold-leaf {
+  position: relative;
+}
+
+.gold-leaf::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 30px;
+  height: 30px;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.3) 0%, transparent 70%);
+  border-radius: 0 100% 0 100%;
+  transform: rotate(45deg);
+}
+
+/* ========================================
+   TYPOGRAPHY ENHANCEMENTS
+   ======================================== */
+
+/* First letter drop cap - boho style */
+.boho-drop-cap::first-letter {
+  initial-letter: 3;
+  font-size: 4rem;
+  line-height: 1;
+  font-family: var(--font-luxury);
+  background: linear-gradient(135deg, #47091C 0%, #D4AF37 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  float: left;
+  margin-right: 0.5rem;
+  margin-top: 0.1em;
+}
+
+/* Elegant quote styling */
+.glam-quote {
+  position: relative;
+  font-style: italic;
+  padding-left: 2rem;
+}
+
+.glam-quote::before {
+  content: '"';
+  position: absolute;
+  left: 0;
+  top: -0.5rem;
+  font-size: 4rem;
+  font-family: var(--font-luxury);
+  color: #D4AF37;
+  opacity: 0.3;
+  line-height: 1;
+}
+
+/* ========================================
+   CARD STYLES
+   ======================================== */
+
+/* Glam card with gold frame */
+.glam-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid #F7E7CE;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow:
+    0 4px 20px rgba(71, 9, 28, 0.08),
+    0 0 0 1px rgba(212, 175, 55, 0.1);
+}
+
+.glam-card:hover {
+  box-shadow:
+    0 8px 30px rgba(71, 9, 28, 0.12),
+    0 0 0 2px rgba(212, 175, 55, 0.2);
+  transform: translateY(-4px);
+  transition: all 0.3s ease;
+}
+
+/* Boho card with natural texture */
+.boho-card {
+  position: relative;
+  background: linear-gradient(135deg, #FEFEFE 0%, #F5F3F0 100%);
+  border: 1px solid rgba(156, 175, 136, 0.2);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  overflow: hidden;
+}
+
+.boho-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239CAF88' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ========================================
+   BUTTON STYLES
+   ======================================== */
+
+/* Glam gold button */
+.btn-glam-gold {
+  position: relative;
+  background: linear-gradient(135deg, #B8860B 0%, #D4AF37 50%, #B8860B 100%);
+  background-size: 200% auto;
+  color: white;
+  padding: 0.75rem 2rem;
+  border-radius: 9999px;
+  border: none;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.btn-glam-gold:hover {
+  background-position: right center;
+  box-shadow:
+    0 4px 20px rgba(212, 175, 55, 0.4),
+    0 8px 30px rgba(212, 175, 55, 0.2);
+  transform: translateY(-2px);
+}
+
+.btn-glam-gold::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent);
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+.btn-glam-gold:hover::before {
+  transform: translateX(100%);
+}
+
+/* Boho outline button */
+.btn-boho-outline {
+  position: relative;
+  background: transparent;
+  color: #47091C;
+  padding: 0.75rem 2rem;
+  border-radius: 9999px;
+  border: 2px solid currentColor;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-boho-outline:hover {
+  background: #47091C;
+  color: white;
+  border-color: #47091C;
+  box-shadow: 0 4px 20px rgba(71, 9, 28, 0.2);
+}
+
+/* ========================================
+   DIVIDERS & SEPARATORS
+   ======================================== */
+
+/* Gold ornamental divider */
+.divider-gold-ornament {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.divider-gold-ornament::before,
+.divider-gold-ornament::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right,
+      transparent,
+      rgba(212, 175, 55, 0.4),
+      transparent);
+}
+
+/* Boho natural divider */
+.divider-boho {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 3rem 0;
+}
+
+/* ========================================
+   ACCESSIBILITY IMPROVEMENTS
+   ======================================== */
+
+/* Ensure decorative elements don't interfere with screen readers */
+.decorative {
+  aria-hidden: true;
+  pointer-events: none;
+}
+
+/* ========================================
+   RESPONSIVE ADJUSTMENTS
+   ======================================== */
+
+@media (max-width: 640px) {
+
+  /* Reduce glam effects on mobile for performance */
+  .glam-glow {
+    box-shadow: 0 4px 20px rgba(71, 9, 28, 0.12);
+  }
+
+  .gold-shimmer {
+    animation: none;
+  }
+
+  /* Simplify boho textures on mobile */
+  .boho-texture::before {
+    opacity: 0.15;
+  }
+}
+
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+
+@media print {
+
+  /* Remove decorative elements for printing */
+  .decorative,
+  .boho-texture::before,
+  .gold-leaf::after {
+    display: none !important;
+  }
+
+  /* Simplify colors for printing */
+  .text-gold-metallic,
+  .glam-card,
+  .boho-card {
+    color: #2C2C2C !important;
+    background: white !important;
+    border: 1px solid #D4D4D4 !important;
+  }
+}
