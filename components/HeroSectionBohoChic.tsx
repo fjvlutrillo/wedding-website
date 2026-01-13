@@ -102,7 +102,7 @@ export default function HeroSectionBohoChic() {
                                 }`}
                         >
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-px bg-warm-cream"></div>
+                                <div className="w-12 h-px bg-wedding-burgundy"></div>
                                 <span className="text-[10px] sm:text-xs font-light tracking-[0.4em] uppercase text-warm-cream">
                                     Edición 2026
                                 </span>
@@ -150,7 +150,7 @@ export default function HeroSectionBohoChic() {
                             </div>
 
                             <div className="flex items-center gap-4 pl-8 sm:pl-12">
-                                <span className="text-3xl sm:text-4xl text-warm-cream/80">&</span>
+                                <span className="text-3xl sm:text-4xl text-wedding-burgundy/80">&</span>
                                 <p className="text-5xl sm:text-6xl md:text-7xl font-luxury text-warm-cream">
                                     Javier
                                 </p>
@@ -173,7 +173,7 @@ export default function HeroSectionBohoChic() {
                                 </div>
 
                                 <div className="flex items-center gap-3">
-                                    <div className="w-8 h-px bg-warm-cream/40"></div>
+                                    <div className="w-8 h-px bg-wedding-burgundy/40"></div>
                                     <p className="text-base text-warm-cream">Puebla, México</p>
                                 </div>
                             </div>
