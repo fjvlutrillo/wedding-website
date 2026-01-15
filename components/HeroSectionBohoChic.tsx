@@ -1,21 +1,51 @@
 'use client'
 
 /**
- * BOHO CHIC EDITORIAL HERO SECTION - FIXED SCROLL
+ * ENHANCED BOHO CHIC EDITORIAL HERO SECTION - MOBILE OPTIMIZED
  * 
- * Fixed Issues:
- * - Scroll arrow now properly scrolls to historia section
- * - Uses window.pageYOffset instead of window.scrollY for better compatibility
- * - Added cursor-pointer class for better UX
- * - Fallback scroll if historia section not found
+ * FIXES APPLIED:
+ * ✅ Disabled laggy photo parallax on mobile
+ * ✅ Added visible geometric shapes for mobile
+ * ✅ Fixed "Edición 2026" positioning on mobile
+ * ✅ Reduced text spacing on mobile
+ * ✅ Made all elements responsive and smooth
+ * 
+ * Features:
+ * 1. Asymmetric Typography - Overlapping text layers
+ * 2. Parallax Scrolling - Smooth performance on all devices
+ * 3. Floating Geometric Shapes - Visible on both mobile and desktop
+ * 4. Grain Texture Overlay - Print magazine aesthetic
  */
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 
-export default function HeroSectionBohoChic() {
+export default function HeroSectionBohoChicEnhanced() {
     const [imageLoaded, setImageLoaded] = useState(false)
     const [textVisible, setTextVisible] = useState(false)
+    const [scrollY, setScrollY] = useState(0)
+    const [isMobile, setIsMobile] = useState(false)
+
+    // ==================== MOBILE DETECTION ====================
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 1024)
+        }
+
+        checkMobile() // Initial check
+        window.addEventListener('resize', checkMobile)
+        return () => window.removeEventListener('resize', checkMobile)
+    }, [])
+
+    // ==================== PARALLAX SCROLL TRACKING ====================
+    useEffect(() => {
+        const handleScroll = () => {
+            setScrollY(window.pageYOffset)
+        }
+
+        window.addEventListener('scroll', handleScroll)
+        return () => window.removeEventListener('scroll', handleScroll)
+    }, [])
 
     // Stagger text animation after image loads
     useEffect(() => {
@@ -24,40 +54,41 @@ export default function HeroSectionBohoChic() {
         }
     }, [imageLoaded])
 
+    // ==================== PARALLAX CALCULATIONS - MOBILE OPTIMIZED ====================
+    /**
+     * MOBILE FIX:
+     * - Photo parallax DISABLED on mobile (prevents lag)
+     * - Text parallax reduced on mobile for smoother performance
+     * - Desktop gets full parallax effect
+     */
+
+    // Photo parallax - DISABLED on mobile to prevent lag
+    const photoParallax = isMobile ? 0 : scrollY * 0.3
+
+    // Text parallax - DISABLED on mobile to prevent lag when scrolling back up
+    const textParallax = isMobile ? 0 : scrollY * 0.3
+
+    // Decorative elements - reduced on mobile
+    const decorativeParallax = isMobile ? scrollY * 0.15 : scrollY * 0.7
+
+    // Geometric shapes (desktop + mobile now)
+    const shapeRotation = scrollY * 0.1
+    const shapeOpacity = Math.max(0, 1 - scrollY / 500)
+
+    // ==================== SCROLL TO SECTION ====================
     const handleScrollToHistoria = () => {
-        // Find the historia section
         const target = document.getElementById('historia')
-
         if (target) {
-            // Show header first
             const header = document.querySelector('.main-header') as HTMLElement
-            if (header) {
-                header.style.display = 'flex'
-            }
+            if (header) header.style.display = 'flex'
 
-            // Use a fixed header height
             const headerHeight = 80
-
-            // Get the target position
             const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - headerHeight
 
-            // Smooth scroll
             window.scrollTo({
                 top: targetPosition,
                 behavior: 'smooth'
             })
-        } else {
-            // Fallback: scroll one viewport
-            window.scrollTo({
-                top: window.innerHeight - 100,
-                behavior: 'smooth'
-            })
-
-            // Show header
-            const header = document.querySelector('.main-header') as HTMLElement
-            if (header) {
-                header.style.display = 'flex'
-            }
         }
     }
 
@@ -66,14 +97,30 @@ export default function HeroSectionBohoChic() {
             id="inicio"
             className="relative h-screen flex items-center justify-center overflow-hidden bg-warm-cream"
         >
-            {/* ==================== BACKGROUND IMAGE ==================== */}
-            {/* Subtle placeholder */}
+            {/* ==================== GRAIN TEXTURE OVERLAY ==================== */}
+            <div
+                className="absolute inset-0 z-30 pointer-events-none"
+                style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.3'/%3E%3C/svg%3E")`,
+                    backgroundRepeat: 'repeat',
+                    backgroundSize: '200px 200px',
+                    mixBlendMode: 'overlay',
+                    opacity: 0.03
+                }}
+            />
+
+            {/* ==================== BACKGROUND IMAGE WITH PARALLAX ==================== */}
             <div className="absolute inset-0 bg-gradient-to-br from-warm-cream via-wedding-blush-light to-warm-cream" />
 
-            {/* Hero image with editorial crop & fade-in */}
+            {/* Hero image with parallax effect */}
             <div
                 className={`absolute inset-0 transition-all duration-1500 ${imageLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
                     }`}
+                style={{
+                    // MOBILE FIX: No parallax on mobile (photoParallax = 0)
+                    transform: `translateY(${photoParallax}px)`,
+                    willChange: 'transform' // Performance optimization
+                }}
             >
                 <Image
                     src="/hero.jpg"
@@ -86,59 +133,202 @@ export default function HeroSectionBohoChic() {
                 />
             </div>
 
-            {/* Modern gradient overlay - lighter on left for text readability */}
-            <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-black/40" />
+            {/* Gradient overlay */}
+            <div
+                className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-black/40"
+                style={{
+                    transform: `translateY(${photoParallax * 0.8}px)`
+                }}
+            />
 
-            {/* ==================== EDITORIAL LAYOUT ==================== */}
+            {/* ==================== FLOATING GEOMETRIC SHAPES ==================== */}
+            {textVisible && (
+                <>
+                    {/* ========== DESKTOP SHAPES ========== */}
+                    <div
+                        className="absolute top-20 right-20 w-64 h-64 pointer-events-none hidden lg:block"
+                        style={{
+                            transform: `translateY(${decorativeParallax}px) rotate(${shapeRotation}deg)`,
+                            opacity: shapeOpacity,
+                            transition: 'opacity 0.3s ease-out'
+                        }}
+                    >
+                        <svg viewBox="0 0 200 200" className="w-full h-full">
+                            <circle cx="100" cy="100" r="90" fill="none" stroke="#B76E79" strokeWidth="1" opacity="0.3" />
+                            <circle cx="100" cy="100" r="70" fill="none" stroke="#47091C" strokeWidth="0.5" opacity="0.2" />
+                        </svg>
+                    </div>
+
+                    <div
+                        className="absolute bottom-32 left-16 w-32 h-32 pointer-events-none hidden lg:block"
+                        style={{
+                            transform: `translateY(${-decorativeParallax * 0.5}px) rotate(${-shapeRotation * 2}deg)`,
+                            opacity: shapeOpacity * 0.8
+                        }}
+                    >
+                        <div className="w-full h-full border border-warm-cream/40 rotate-12" />
+                    </div>
+
+                    <div
+                        className="absolute bottom-40 right-1/4 w-48 h-24 pointer-events-none hidden lg:block"
+                        style={{
+                            transform: `translateY(${decorativeParallax * 1.2}px)`,
+                            opacity: shapeOpacity * 0.6
+                        }}
+                    >
+                        <svg viewBox="0 0 200 100" className="w-full h-full">
+                            <path d="M0,50 Q50,20 100,50 T200,50" fill="none" stroke="#B76E79" strokeWidth="1" opacity="0.4" />
+                        </svg>
+                    </div>
+
+                    <div
+                        className="absolute top-40 left-1/4 flex gap-3 pointer-events-none hidden lg:block"
+                        style={{
+                            transform: `translateY(${decorativeParallax * 0.8}px)`,
+                            opacity: shapeOpacity
+                        }}
+                    >
+                        <div className="w-2 h-2 rounded-full bg-wedding-burgundy/40" />
+                        <div className="w-3 h-3 rounded-full bg-wedding-rose/30" />
+                        <div className="w-2 h-2 rounded-full bg-wedding-burgundy/40" />
+                    </div>
+
+                    {/* ========== MOBILE SHAPES (NOW VISIBLE!) ========== */}
+                    <div
+                        className="absolute top-16 right-6 w-32 h-32 pointer-events-none lg:hidden"
+                        style={{
+                            transform: `translateY(${decorativeParallax}px)`,
+                            opacity: shapeOpacity * 0.5
+                        }}
+                    >
+                        <svg viewBox="0 0 200 200" className="w-full h-full">
+                            <circle cx="100" cy="100" r="90" fill="none" stroke="#B76E79" strokeWidth="2" opacity="0.6" />
+                        </svg>
+                    </div>
+
+                    <div
+                        className="absolute top-40 left-6 w-20 h-20 pointer-events-none lg:hidden"
+                        style={{
+                            transform: `translateY(${-decorativeParallax * 0.4}px)`,
+                            opacity: shapeOpacity * 0.4
+                        }}
+                    >
+                        <div className="w-full h-full border-2 border-warm-cream/60 rounded-full" />
+                    </div>
+
+                    <div
+                        className="absolute top-1/3 right-4 flex flex-col gap-2 pointer-events-none lg:hidden"
+                        style={{
+                            transform: `translateY(${decorativeParallax * 0.6}px)`,
+                            opacity: shapeOpacity * 0.6
+                        }}
+                    >
+                        <div className="w-2.5 h-2.5 rounded-full bg-wedding-burgundy/70" />
+                        <div className="w-2 h-2 rounded-full bg-wedding-rose/60" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-wedding-burgundy/70" />
+                    </div>
+
+                    <div
+                        className="absolute bottom-1/3 left-6 w-16 h-16 pointer-events-none lg:hidden"
+                        style={{
+                            transform: `translateY(${-decorativeParallax * 0.5}px) rotate(20deg)`,
+                            opacity: shapeOpacity * 0.4
+                        }}
+                    >
+                        <div className="w-full h-full border-2 border-warm-cream/50" />
+                    </div>
+                </>
+            )}
+
+            {/* ==================== TYPOGRAPHY LAYERS ==================== */}
             <div className="relative z-10 w-full h-full max-w-7xl mx-auto px-4 sm:px-8">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-full items-center">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-full items-start lg:items-center justify-items-start pt-20 sm:pt-24 lg:pt-0">
 
-                    {/* ==================== LEFT COLUMN: Editorial Typography ==================== */}
-                    <div className="lg:col-span-6 space-y-8 lg:space-y-12">
+                    {/* LEFT COLUMN - MOBILE OPTIMIZED SPACING */}
+                    <div className="lg:col-span-6 space-y-12 sm:space-y-14 lg:space-y-12 relative w-full">
 
-                        {/* Masthead - Magazine style */}
+                        {/* LAYER 1: Background "LOVE" (Desktop only) */}
                         <div
-                            className={`space-y-2 transition-all duration-700 delay-100 ${textVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                            className={`absolute -top-20 -left-10 text-9xl font-light text-warm-cream/5 select-none pointer-events-none hidden lg:block transition-all duration-700 ${textVisible ? 'opacity-100' : 'opacity-0'
                                 }`}
+                            style={{
+                                transform: `translateY(${textParallax * 0.5}px)`,
+                                zIndex: 1
+                            }}
                         >
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-px bg-wedding-burgundy"></div>
-                                <span className="text-[10px] sm:text-xs font-light tracking-[0.4em] uppercase text-warm-cream">
+                            LOVE
+                        </div>
+
+                        {/* LAYER 2: Masthead - Magazine style */}
+                        <div
+                            className={`transition-all duration-700 delay-100 ${textVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                                }`}
+                            style={{
+                                transform: `translateY(${-textParallax * 0.3}px)`,
+                                zIndex: 5
+                            }}
+                        >
+                            <div className="flex items-center gap-2 sm:gap-4">
+                                <div className="w-10 sm:w-12 h-px bg-wedding-burgundy"></div>
+                                <span className="text-xs sm:text-sm font-light tracking-[0.3em] sm:tracking-[0.4em] uppercase text-warm-cream">
                                     Edición 2026
                                 </span>
                             </div>
                         </div>
 
-                        {/* Main Title - Asymmetric Vogue Style */}
+                        {/* LAYER 3: "Save The" */}
                         <div
-                            className={`space-y-4 transition-all duration-700 delay-300 ${textVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                            className={`transition-all duration-700 delay-300 ${textVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
                                 }`}
+                            style={{
+                                transform: `translateY(${-textParallax * 0.4}px)`,
+                                zIndex: 10
+                            }}
                         >
-                            {/* "Save The" - Small caps above */}
-                            <div className="overflow-hidden">
-                                <h2 className="text-sm sm:text-base font-light tracking-[0.3em] uppercase text-warm-cream/90">
-                                    Save The
-                                </h2>
-                            </div>
+                            <h2 className="text-xs sm:text-base font-light tracking-[0.25em] sm:tracking-[0.3em] uppercase text-warm-cream/90">
+                                Save The
+                            </h2>
+                        </div>
 
-                            {/* "DATE" - Large bold statement */}
-                            <div className="overflow-hidden">
-                                <h1 className="text-7xl sm:text-8xl md:text-9xl font-light tracking-tight text-warm-cream leading-none">
-                                    DATE
-                                </h1>
-                            </div>
+                        {/* LAYER 4: "DATE" */}
+                        <div
+                            className={`transition-all duration-700 delay-400 -mt-6 sm:-mt-8 lg:-mt-2 ${textVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                                }`}
+                            style={{
+                                transform: `translateY(${-textParallax * 0.6}px)`,
+                                zIndex: 15
+                            }}
+                        >
+                            <h1 className="text-7xl sm:text-8xl md:text-9xl font-light tracking-tight text-warm-cream leading-none">
+                                DATE
+                            </h1>
 
-                            {/* Decorative line */}
-                            <div className="flex items-center gap-3 pt-2">
-                                <div className="w-20 h-[2px] bg-wedding-burgundy"></div>
-                                <div className="w-2 h-2 rounded-full bg-wedding-burgundy"></div>
+                            <div className="flex items-center gap-2 sm:gap-3 pt-2">
+                                <div className="w-16 sm:w-20 h-[1.5px] sm:h-[2px] bg-wedding-burgundy"></div>
+                                <div className="w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full bg-wedding-burgundy"></div>
                             </div>
                         </div>
 
-                        {/* Names - Editorial feature style */}
+                        {/* LAYER 5: Large "2026" (Desktop only) */}
                         <div
-                            className={`space-y-3 transition-all duration-700 delay-500 ${textVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
+                            className={`absolute top-1/2 -right-20 text-[150px] font-light text-warm-cream/5 select-none pointer-events-none hidden lg:block transition-all duration-700 delay-600 ${textVisible ? 'opacity-100' : 'opacity-0'
                                 }`}
+                            style={{
+                                transform: `translateY(${textParallax * 0.4}px)`,
+                                zIndex: 3
+                            }}
+                        >
+                            2026
+                        </div>
+
+                        {/* LAYER 6: Names */}
+                        <div
+                            className={`space-y-4 sm:space-y-5 lg:space-y-3 transition-all duration-700 delay-500 ${textVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
+                                }`}
+                            style={{
+                                transform: `translateY(${-textParallax * 0.5}px)`,
+                                zIndex: 20
+                            }}
                         >
                             <div className="inline-block">
                                 <p className="text-5xl sm:text-6xl md:text-7xl font-luxury text-warm-cream leading-tight">
@@ -149,21 +339,25 @@ export default function HeroSectionBohoChic() {
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-4 pl-8 sm:pl-12">
-                                <span className="text-3xl sm:text-4xl text-wedding-burgundy/80">&</span>
+                            <div className="flex items-center gap-3 sm:gap-4 pl-6 sm:pl-12">
+                                <span className="text-2xl sm:text-4xl text-wedding-burgundy/80">&</span>
                                 <p className="text-5xl sm:text-6xl md:text-7xl font-luxury text-warm-cream">
                                     Javier
                                 </p>
                             </div>
                         </div>
 
-                        {/* Date & Location - Responsive: card on desktop, simple text on mobile */}
+                        {/* LAYER 7: Date card */}
                         <div
                             className={`max-w-md transition-all duration-700 delay-700 ${textVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
                                 }`}
+                            style={{
+                                transform: `translateY(${-textParallax * 0.7}px)`,
+                                zIndex: 25
+                            }}
                         >
-                            {/* Mobile version - no blur, simpler */}
-                            <div className="sm:hidden space-y-4">
+                            {/* Mobile version */}
+                            <div className="sm:hidden space-y-3">
                                 <div className="flex items-baseline gap-3">
                                     <span className="text-5xl font-light text-warm-cream tabular-nums">06</span>
                                     <div className="space-y-0.5">
@@ -172,13 +366,13 @@ export default function HeroSectionBohoChic() {
                                     </div>
                                 </div>
 
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-px bg-wedding-burgundy/40"></div>
+                                <div className="flex items-center gap-2">
+                                    <div className="w-10 h-px bg-wedding-burgundy/40"></div>
                                     <p className="text-base text-warm-cream">Puebla, México</p>
                                 </div>
                             </div>
 
-                            {/* Desktop version - with blur card */}
+                            {/* Desktop version */}
                             <div className="hidden sm:block bg-warm-cream/10 backdrop-blur-md border border-warm-cream/20 rounded-2xl p-6 sm:p-8">
                                 <div className="space-y-4">
                                     <div className="flex items-baseline gap-4">
@@ -201,28 +395,35 @@ export default function HeroSectionBohoChic() {
 
                     </div>
 
-                    {/* ==================== RIGHT COLUMN: Floating Elements ==================== */}
+                    {/* RIGHT COLUMN (Desktop only) */}
                     <div className="hidden lg:flex lg:col-span-6 items-center justify-center relative h-full">
 
-                        {/* Geometric floating shapes - Boho editorial touch */}
                         <div
-                            className={`absolute top-1/4 right-1/4 w-32 h-32 transition-all duration-1000 delay-500 ${textVisible ? 'opacity-30 rotate-12' : 'opacity-0 rotate-0'
-                                }`}
+                            className={`absolute top-1/4 right-1/4 w-32 h-32 transition-all duration-1000 delay-500`}
+                            style={{
+                                opacity: shapeOpacity * 0.3,
+                                transform: `translateY(${decorativeParallax}px) rotate(${shapeRotation}deg)`
+                            }}
                         >
                             <div className="w-full h-full border-2 border-wedding-burgundy/40 rounded-full animate-float"></div>
                         </div>
 
                         <div
-                            className={`absolute bottom-1/3 right-1/3 w-24 h-24 transition-all duration-1000 delay-700 ${textVisible ? 'opacity-20 -rotate-12' : 'opacity-0 rotate-0'
-                                }`}
+                            className={`absolute bottom-1/3 right-1/3 w-24 h-24 transition-all duration-1000 delay-700`}
+                            style={{
+                                opacity: shapeOpacity * 0.2,
+                                transform: `translateY(${-decorativeParallax * 0.5}px) rotate(${-shapeRotation}deg)`
+                            }}
                         >
                             <div className="w-full h-full border border-warm-cream/60 rotate-45"></div>
                         </div>
 
-                        {/* Vertical text - Editorial magazine style */}
                         <div
-                            className={`absolute right-12 top-1/2 -translate-y-1/2 transition-all duration-1000 delay-900 ${textVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'
-                                }`}
+                            className={`absolute right-12 top-1/2 -translate-y-1/2 transition-all duration-1000 delay-900`}
+                            style={{
+                                opacity: textVisible ? shapeOpacity : 0,
+                                transform: `translateY(${-decorativeParallax * 0.3}px) translateX(${textVisible ? 0 : 8}px)`
+                            }}
                         >
                             <p
                                 className="text-xs tracking-[0.5em] uppercase text-warm-cream/50"
@@ -236,15 +437,17 @@ export default function HeroSectionBohoChic() {
                 </div>
             </div>
 
-            {/* ==================== SCROLL INDICATOR - FIXED ==================== */}
+            {/* ==================== SCROLL INDICATOR ==================== */}
             <button
                 onClick={handleScrollToHistoria}
-                className={`absolute bottom-8 sm:bottom-12 left-1/2 -translate-x-1/2 group transition-all duration-700 delay-1000 hover:scale-110 cursor-pointer z-20 ${textVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                className={`absolute bottom-8 sm:bottom-12 left-1/2 -translate-x-1/2 group transition-all duration-700 delay-1000 hover:scale-110 cursor-pointer z-30 ${textVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                     }`}
+                style={{
+                    transform: `translateX(-50%) translateY(${-textParallax * 0.2}px)`
+                }}
                 aria-label="Scroll to next section"
             >
                 <div className="flex flex-col items-center gap-2 px-6 py-4 rounded-full hover:bg-warm-cream/10 transition-colors">
-                    {/* Animated chevron icon */}
                     <svg
                         className="w-8 h-8 text-warm-cream animate-fade-pulse group-hover:text-wedding-burgundy transition-colors"
                         fill="none"
@@ -255,33 +458,36 @@ export default function HeroSectionBohoChic() {
                         <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                     </svg>
 
-                    {/* Desktop only text */}
                     <span className="hidden sm:block text-[10px] uppercase tracking-[0.3em] text-warm-cream/70 font-light group-hover:text-warm-cream transition-colors">
                         Scroll
                     </span>
                 </div>
             </button>
 
-            {/* ==================== DECORATIVE CORNER ELEMENTS ==================== */}
-            {/* Top left corner */}
+            {/* ==================== DECORATIVE CORNERS ==================== */}
             <div
-                className={`absolute top-8 left-8 transition-all duration-1000 delay-200 ${textVisible ? 'opacity-100 translate-x-0 translate-y-0' : 'opacity-0 -translate-x-4 -translate-y-4'
+                className={`absolute top-8 left-8 transition-all duration-1000 delay-200 z-20 ${textVisible ? 'opacity-100 translate-x-0 translate-y-0' : 'opacity-0 -translate-x-4 -translate-y-4'
                     }`}
+                style={{
+                    transform: `translateY(${decorativeParallax * 0.3}px)`
+                }}
             >
                 <div className="flex flex-col gap-2">
-                    <div className="w-12 h-px bg-warm-cream/40"></div>
-                    <div className="w-8 h-px bg-warm-cream/40"></div>
+                    <div className="w-8 sm:w-12 h-px bg-warm-cream/40"></div>
+                    <div className="w-6 sm:w-8 h-px bg-warm-cream/40"></div>
                 </div>
             </div>
 
-            {/* Bottom right corner */}
             <div
-                className={`absolute bottom-8 right-8 transition-all duration-1000 delay-400 ${textVisible ? 'opacity-100 translate-x-0 translate-y-0' : 'opacity-0 translate-x-4 translate-y-4'
+                className={`absolute bottom-8 right-8 transition-all duration-1000 delay-400 z-20 ${textVisible ? 'opacity-100 translate-x-0 translate-y-0' : 'opacity-0 translate-x-4 translate-y-4'
                     }`}
+                style={{
+                    transform: `translateY(${-decorativeParallax * 0.3}px)`
+                }}
             >
                 <div className="flex flex-col items-end gap-2">
-                    <div className="w-12 h-px bg-warm-cream/40"></div>
-                    <div className="w-8 h-px bg-warm-cream/40"></div>
+                    <div className="w-8 sm:w-12 h-px bg-warm-cream/40"></div>
+                    <div className="w-6 sm:w-8 h-px bg-warm-cream/40"></div>
                 </div>
             </div>
 

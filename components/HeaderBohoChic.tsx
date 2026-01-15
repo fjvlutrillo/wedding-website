@@ -58,7 +58,7 @@ export default function HeaderBohoChic() {
                         <span className="text-base sm:text-lg font-light tracking-[0.15em] uppercase text-wedding-burgundy group-hover:text-wedding-burgundy-light transition-colors duration-300">
                             Susana <span className="text-wedding-rose font-luxury text-xl">&</span> Javier
                         </span>
-                        <span className="text-[9px] sm:text-[10px] tracking-[0.3em] uppercase text-wedding-rose/70 mt-0.5">
+                        <span className="text-[11px] sm:text-[12px] tracking-[0.3em] uppercase text-wedding-rose/70 mt-0.5">
                             06 · Junio · 2026
                         </span>
                     </Link>
