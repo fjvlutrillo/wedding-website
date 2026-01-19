@@ -319,11 +319,8 @@ export default function RSVPFormBohoChic() {
                                                 </svg>
                                             </div>
                                             <div className="flex-1 space-y-2">
-                                                <h4 className="text-base font-medium text-wedding-burgundy">
-                                                    Celebración solo para adultos
-                                                </h4>
                                                 <p className="text-sm text-stone-600 leading-relaxed">
-                                                    Para que todos puedan disfrutar plenamente de la celebración, hemos diseñado este evento pensando en nuestros invitados adultos.
+                                                    Hemos diseñado este evento pensando en nuestros invitados adultos.
                                                     Agradecemos tu comprensión y esperamos que esta noche sea una oportunidad para relajarte y divertirte con nosotros.
                                                 </p>
                                                 <p className="text-xs text-stone-500 italic mt-2">
