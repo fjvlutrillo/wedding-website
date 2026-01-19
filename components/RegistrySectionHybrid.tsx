@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * REGISTRY SECTION - BOHO-CHIC MAGAZINE STYLE
+ * REGISTRY SECTION - BOHO-CHIC MAGAZINE STYLE (SPACING FIXED)
  * 
  * Updates:
  * - Only Zola registry + Cash deposits (removed Amazon & Liverpool)
@@ -10,6 +10,7 @@
  * - Burgundy color theme throughout
  * - Decorative geometric elements
  * - Elegant hover animations
+ * - REDUCED PADDING to fix bottom spacing issue
  * 
  * Features:
  * - Links to external Zola registry
@@ -102,6 +103,7 @@ const RegistryCard = ({
 
 /**
  * Main Registry Section - Hybrid Approach with Boho-Chic Styling
+ * SPACING FIXED: Reduced from py-24 to py-16 sm:py-20
  */
 export default function RegistrySectionHybrid() {
   // Registry link - Only Zola
@@ -117,13 +119,13 @@ export default function RegistrySectionHybrid() {
   return (
     <section
       id="registry"
-      className="relative py-24 px-4 bg-gradient-to-b from-stone-50 to-white"
+      className="relative py-16 sm:py-20 px-4 bg-gradient-to-b from-stone-50 to-white"
     >
       <div className="max-w-7xl mx-auto">
-        {/* Section Header */}
-        <div className="text-center mb-16 space-y-4">
+        {/* Section Header - REDUCED mb-16 to mb-12 */}
+        <div className="text-center mb-12 space-y-4">
           <span className="text-xs uppercase tracking-[0.3em] text-wedding-rose font-light">
-            Capítulo 05
+            Capítulo 06
           </span>
           <h2 className="text-5xl sm:text-6xl font-light text-charcoal">
             Mesa de
@@ -135,15 +137,15 @@ export default function RegistrySectionHybrid() {
           </p>
         </div>
 
-        {/* Registry Card - Centered single card for Zola */}
-        <div className="max-w-2xl mx-auto mb-16">
+        {/* Registry Card - Centered single card for Zola - REDUCED mb-16 to mb-10 */}
+        <div className="max-w-2xl mx-auto mb-10">
           {registries.map((registry, idx) => (
             <RegistryCard key={idx} {...registry} />
           ))}
         </div>
 
-        {/* Alternative Gift Option - Cash deposits with boho-chic styling */}
-        <div className="max-w-2xl mx-auto mt-12">
+        {/* Alternative Gift Option - Cash deposits with boho-chic styling - REDUCED mt-12 to mt-8 */}
+        <div className="max-w-2xl mx-auto mt-8">
           <div className="relative bg-gradient-to-br from-warm-cream to-white rounded-3xl p-8 sm:p-10 border-2 border-wedding-burgundy/20 shadow-wedding-lg overflow-hidden">
 
             {/* Decorative corner accents */}
@@ -217,8 +219,8 @@ export default function RegistrySectionHybrid() {
           </div>
         </div>
 
-        {/* Help Text - Updated with burgundy theme */}
-        <div className="text-center mt-8">
+        {/* Help Text - Updated with burgundy theme - REDUCED mt-8 to mt-6 */}
+        <div className="text-center mt-6">
           <p className="text-sm text-stone-500">
             ¿Tienes problemas accediendo a la mesa de regalos?{' '}
             <a

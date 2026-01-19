@@ -23,6 +23,7 @@ export default function GuestUploadPage() {
         phone_number: '',
         email: '',
         whoInvites: 'Susana', // default value
+        dietary_restrictions: '',
     })
 
     // ---- Filter state ----
@@ -77,7 +78,7 @@ export default function GuestUploadPage() {
 
         if (!error) {
             await fetchGuests()
-            setManualGuest({ name: '', guest_count: 1, phone_number: '', email: '', whoInvites: 'Susana' })
+            setManualGuest({ name: '', guest_count: 1, phone_number: '', email: '', whoInvites: 'Susana', dietary_restrictions: '' })
             alert(`✅ Invitado "${manualGuest.name}" agregado correctamente`)
         } else {
             alert('❌ Error al agregar: ' + error.message)
@@ -116,6 +117,7 @@ export default function GuestUploadPage() {
                     // 🔧 FIX: Handle phone with AND without accent
                     phone_number: findColumnValue(g, ['Teléfono', 'Telefono', 'teléfono', 'telefono', 'Phone', 'phone', 'Celular', 'celular', 'WhatsApp', 'whatsapp']),
                     email: findColumnValue(g, ['Email', 'email', 'Correo', 'correo', 'E-mail', 'e-mail']),
+                    dietary_restrictions: findColumnValue(g, ['Restricciones', 'restricciones', 'Dietary', 'dietary', 'Dieta', 'dieta']),
                     whoInvites: findColumnValue(g, ['Invita', 'invita', 'QuienInvita', 'quien_invita']) || 'Susana',
                     invite_token: uuidv4(),
                     number_confirmations: 0,
@@ -184,6 +186,7 @@ export default function GuestUploadPage() {
             guest_count: parseInt(editForm.guest_count) || 0,
             phone_number: editForm.phone_number || '',
             email: editForm.email || '',
+            dietary_restrictions: editForm.dietary_restrictions || '',
             table_number: editForm.table_number ? parseInt(editForm.table_number) : null,
             number_confirmations: parseInt(editForm.number_confirmations) || 0,
             did_confirm: editForm.did_confirm === null ? null : editForm.did_confirm,
@@ -356,6 +359,13 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}
                     onChange={(e) => setManualGuest({ ...manualGuest, email: e.target.value })}
                     className="w-full border px-3 py-2 rounded"
                 />
+                <textarea
+                    placeholder="Restricciones dietéticas (opcional)"
+                    value={manualGuest.dietary_restrictions}
+                    onChange={(e) => setManualGuest({ ...manualGuest, dietary_restrictions: e.target.value })}
+                    className="w-full border px-3 py-2 rounded"
+                    rows={2}
+                />
                 <select
                     value={manualGuest.whoInvites}
                     onChange={(e) => setManualGuest({ ...manualGuest, whoInvites: e.target.value })}
@@ -386,6 +396,7 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}
                         <li>• Nombre: "Invitado" o "Nombre"</li>
                         <li>• Cantidad: "Invitados" o "Numero"</li>
                         <li>• Teléfono: "Telefono" (con o sin acento)</li>
+                        <li>• Restricciones: "Restricciones" o "Dietary"</li>
                         <li>• Invita: "Invita" → debe ser "Susana" o "Javier"</li>
                     </ul>
                 </div>
@@ -479,6 +490,7 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}
                             <th className="px-4 py-2">Invitados</th>
                             <th className="px-4 py-2">Teléfono</th>
                             <th className="px-4 py-2">Email</th>
+                            <th className="px-4 py-2">Restricciones Dietéticas</th>
                             <th className="px-4 py-2">Confirmados</th>
                             <th className="px-4 py-2">¿Confirmó?</th>
                             <th className="px-4 py-2">Mesa</th>
@@ -543,6 +555,15 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}
                                                 />
                                             </td>
                                             <td className="px-4 py-2">
+                                                <textarea
+                                                    value={editForm.dietary_restrictions ?? ''}
+                                                    onChange={(e) => updateEditField('dietary_restrictions', e.target.value)}
+                                                    className="border px-2 py-1 rounded w-full"
+                                                    rows={2}
+                                                    placeholder="Sin restricciones"
+                                                />
+                                            </td>
+                                            <td className="px-4 py-2">
                                                 <input
                                                     type="number"
                                                     value={editForm.number_confirmations ?? 0}
@@ -603,6 +624,17 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}
                                             <td className="px-4 py-2">{guest.guest_count}</td>
                                             <td className="px-4 py-2">{guest.phone_number}</td>
                                             <td className="px-4 py-2">{guest.email}</td>
+                                            <td className="px-4 py-2">
+                                                <div className="max-w-xs">
+                                                    {guest.dietary_restrictions ? (
+                                                        <span className="text-xs bg-amber-50 border border-amber-200 px-2 py-1 rounded inline-block">
+                                                            {guest.dietary_restrictions}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-gray-400 text-xs">Sin restricciones</span>
+                                                    )}
+                                                </div>
+                                            </td>
                                             <td className="px-4 py-2">{guest.number_confirmations}</td>
                                             <td className="px-4 py-2">
                                                 {guest.did_confirm === null ? '-' : guest.did_confirm ? 'Sí' : 'No'}
@@ -679,7 +711,7 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}
                         <tr className="font-bold bg-[#F7E7D6]">
                             <td className="px-4 py-2 text-right" colSpan={2}>Totales (filtrados)</td>
                             <td className="px-4 py-2">{totals.invited}</td>
-                            <td colSpan={2}></td>
+                            <td colSpan={3}></td>
                             <td className="px-4 py-2">{totals.confirmed}</td>
                             <td colSpan={5}></td>
                         </tr>

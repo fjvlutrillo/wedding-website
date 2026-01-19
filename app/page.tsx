@@ -8,7 +8,7 @@
  * 2. Historia Section (existing)
  * 3. Events Section (NEW - ceremony + reception)
  * 4. Dress Code Section (NEW)
- * 5. Timeline Section (NEW)
+ * 5. Timeline Section (HIDDEN - will reveal later)
  * 6. Countdown (existing)
  * 7. Gallery (existing)
  * 8. Registry (NEW - choose Hybrid or Custom)
@@ -161,7 +161,7 @@ function MainPageContent() {
             chapter="01"
             title="Nuestra"
             subtitle="Historia"
-            description="Conoce cómo comenzó nuestra aventura juntos"
+            description="Conoce un poco de nuestra aventura juntos..."
             align="center"
           />
 
@@ -198,16 +198,16 @@ function MainPageContent() {
                   <p className="text-base sm:text-lg lg:text-xl leading-relaxed text-stone-700 
                     lg:first-letter:text-8xl lg:first-letter:font-light lg:first-letter:text-wedding-burgundy 
                     lg:first-letter:float-left lg:first-letter:mr-4 lg:first-letter:leading-none lg:first-letter:mt-2">
-                    Todo comenzó en una tarde de otoño cuando nuestros caminos se cruzaron de la manera más inesperada. Lo que empezó como una amistad se convirtió en algo mucho más profundo.
+                    Nuestra historia empezó hace 12 años cuando nos conocimos sin imaginar todo lo que vendría después. Compartimos momentos, crecimos, tomamos caminos distintos y aprendimos mucho en el proceso. El tiempo hizo su parte y cuando volvimos a encontrarnos, supimos que esta vez sería para siempre.
                   </p>
 
                   {/* Second paragraph */}
                   <p className="text-sm sm:text-base lg:text-lg leading-relaxed text-stone-600">
-                    Con cada día que pasaba, descubríamos más razones para sonreír juntos. Las conversaciones se volvieron más largas, las risas más frecuentes, y los silencios más cómodos.
+                    Desde entonces hemos construido una vida juntos basada en el apoyo, la complicidad y la seguridad que te dá caminar a lado de tu mejor amigo. Hoy no solo celebramos el amor, sino el camino que nos trajo hasta aquí.
                   </p>
 
                   {/* Decorative terracotta dots */}
-                  <div className="hidden sm:flex items-center gap-2 pt-2 sm:pt-4">
+                  <div className="flex items-center gap-2 pt-2 sm:pt-4">
                     <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-wedding-terracotta" />
                     <div className="w-2 h-2 rounded-full bg-wedding-burgundy" />
                     <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-wedding-terracotta" />
@@ -222,7 +222,7 @@ function MainPageContent() {
               {/* Secondary photo - responsive heights */}
               <div className="relative h-[240px] sm:h-[280px] md:h-[320px] rounded-xl sm:rounded-2xl overflow-hidden shadow-lg sm:shadow-xl group">
                 <Image
-                  src="/historia/2.jpg"
+                  src="/historia/2.jpeg"
                   alt="Momento especial"
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -239,14 +239,14 @@ function MainPageContent() {
                 {/* Quote text - responsive */}
                 <div className="relative z-10">
                   <p className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light leading-tight mb-4 sm:mb-6">
-                    ¡Nos casamos!
+                    She said yes!
                   </p>
 
                   {/* Date with terracotta accent */}
                   <div className="flex items-center gap-2 sm:gap-3">
                     <div className="w-8 sm:w-10 lg:w-12 h-0.5 sm:h-1 bg-wedding-terracotta" />
                     <p className="text-xs sm:text-sm lg:text-base uppercase tracking-widest text-wedding-terracotta font-medium">
-                      6 de Junio, 2026
+                      3 de Mayo, 2025
                     </p>
                   </div>
                 </div>
@@ -280,7 +280,7 @@ function MainPageContent() {
               {/* Final text snippet - responsive */}
               <div className="bg-white rounded-lg sm:rounded-xl p-4 sm:p-6 shadow-md sm:shadow-lg border-l-4 border-wedding-terracotta">
                 <p className="text-sm sm:text-base lg:text-lg leading-relaxed text-stone-700 italic">
-                  Ahora, después de compartir tantos momentos inolvidables, estamos listos para escribir el siguiente capítulo.
+                  "Ahora damos el siguiente paso comenzando esta nueva etapa juntos."
                 </p>
               </div>
             </div>
@@ -291,11 +291,13 @@ function MainPageContent() {
       {/* ==================== NEW SECTIONS ==================== */}
       <EventsSection />
       <DressCodeSection />
-      <TimelineSection />
+
+      {/* Timeline Section - Hidden until we have more information */}
+      {/* <TimelineSection /> */}
 
       {/* ==================== COUNTDOWN - BOLD GRAPHIC DESIGN ==================== */}
-      <section className="relative py-24 lg:py-32 px-4 bg-wedding-terracotta overflow-hidden">
-        
+      {/* REDUCED TOP PADDING since Timeline is hidden */}
+      <section className="relative py-16 sm:py-20 lg:py-24 px-4 bg-wedding-terracotta overflow-hidden">
 
         {/* Large background numbers */}
         <div className="absolute inset-0 pointer-events-none opacity-10 select-none overflow-hidden">
@@ -305,9 +307,9 @@ function MainPageContent() {
 
         <div className="max-w-6xl mx-auto relative">
 
-          {/* Bold centered title */}
+          {/* Bold centered title - Updated chapter number */}
           <SectionHeader
-            chapter="05"
+            chapter="04"
             title="Cuenta"
             subtitle="Regresiva"
             align="center"
@@ -345,12 +347,13 @@ function MainPageContent() {
 
 
       {/* ==================== GALLERY SECTION ==================== */}
-      <section id="galeria" className="relative py-24 px-4 bg-gradient-to-b from-white to-stone-50">
+      {/* REDUCED TOP PADDING for better flow */}
+      <section id="galeria" className="relative py-16 sm:py-20 px-4 bg-gradient-to-b from-white to-stone-50">
         <div className="max-w-6xl mx-auto">
-          
-          {/* NEW: Editorial Section Header - No description for gallery */}
+
+          {/* Editorial Section Header - Updated chapter number */}
           <SectionHeader
-            chapter="06"
+            chapter="05"
             title=""
             subtitle="Galería"
             align="center"
@@ -414,9 +417,9 @@ function MainPageContent() {
         <section className="relative py-24 px-4">
           <div className="max-w-2xl mx-auto">
 
-            {/* Editorial Section Header */}
+            {/* Editorial Section Header - Updated chapter number */}
             <SectionHeader
-              chapter="08"
+              chapter="07"
               title="¿Nos"
               subtitle="Acompañas?"
               description="Tu presencia es el mejor regalo. Por favor, haznos saber si podrás acompañarnos en este día tan especial."

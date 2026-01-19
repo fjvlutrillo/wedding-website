@@ -1,11 +1,12 @@
 'use client'
 
 /**
- * BOHO-CHIC EDITORIAL RSVP FORM - WITH DIETARY RESTRICTIONS
+ * BOHO-CHIC EDITORIAL RSVP FORM - WITH DIETARY RESTRICTIONS & ADULTS-ONLY NOTE
  * 
  * Features:
  * - Guest count selector
  * - Dietary restrictions text area
+ * - Kind adults-only event notice
  * - All previous functionality maintained
  * - Saves to Supabase guests table
  */
@@ -14,7 +15,7 @@ import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 
-export default function RSVPFormWithDietary() {
+export default function RSVPFormBohoChic() {
     const searchParams = useSearchParams()
     const token = searchParams.get('token')
 
@@ -304,6 +305,32 @@ export default function RSVPFormWithDietary() {
                                             </svg>
                                             <span>Queremos asegurarnos de que disfrutes el menú. Por favor, indícanos si tienes alguna restricción alimentaria.</span>
                                         </p>
+                                    </div>
+
+                                    {/* Adults-Only Event Note */}
+                                    <div className="relative bg-gradient-to-br from-amber-50 to-warm-cream rounded-2xl p-6 border-2 border-amber-200/50 shadow-wedding overflow-hidden">
+                                        {/* Decorative corner accent */}
+                                        <div className="absolute top-0 right-0 w-20 h-20 bg-amber-100/30 rounded-bl-[60px] -mr-10 -mt-10"></div>
+
+                                        <div className="relative flex items-start gap-4">
+                                            <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+                                                <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            </div>
+                                            <div className="flex-1 space-y-2">
+                                                <h4 className="text-base font-medium text-wedding-burgundy">
+                                                    Celebración solo para adultos
+                                                </h4>
+                                                <p className="text-sm text-stone-600 leading-relaxed">
+                                                    Para que todos puedan disfrutar plenamente de la celebración, hemos diseñado este evento pensando en nuestros invitados adultos.
+                                                    Agradecemos tu comprensión y esperamos que esta noche sea una oportunidad para relajarte y divertirte con nosotros.
+                                                </p>
+                                                <p className="text-xs text-stone-500 italic mt-2">
+                                                    Con cariño, Susana & Javier
+                                                </p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 

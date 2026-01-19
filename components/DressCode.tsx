@@ -16,27 +16,27 @@ export default function DressCode() {
   const dressCodeOptions: DressCodeOption[] = [
     {
       gender: 'Hombres',
-      title: 'Formal Elegante',
+      title: 'Formal',
       description: 'Traje',
       colors: ['Tonos oscuros', 'Azul marino', 'Gris', 'Negro'],
-      examples: ['Traje de 2 o 3 piezas', 'Corbata', 'Sin tenis'],
+      examples: ['Traje de 2 o 3 piezas', 'Corbata', 'SIN TENIS'],
       icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'
     },
     {
       gender: 'Mujeres',
-      title: 'Largo',
-      description: 'Vestido formal de largo',
-      colors: ['Colores vibrantes', 'Tonos pasteles', 'Evitar blanco y beige'],
-      examples: ['Vestido largo'],
+      title: 'Formal',
+      description: 'Vestido largo',
+      colors: ['Evitar blanco y beige'],
+      examples: ['Vestido largo', 'El evento será en jardín, considera calzado cómodo apropiado para pasto'],
       icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'
     }
   ]
 
   return (
-    <section className="relative py-24 px-4 bg-gradient-to-b from-white to-stone-50">
+    <section className="relative py-16 sm:py-20 px-4 bg-gradient-to-b from-white to-stone-50">
       <div className="max-w-6xl mx-auto">
         {/* Section Header */}
-        
+
         <SectionHeader
           chapter="03"
           title="Código de"
@@ -46,7 +46,7 @@ export default function DressCode() {
         />
 
         {/* Dress Code Cards */}
-        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-12">
+        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-8">
           {dressCodeOptions.map((option, index) => (
             <div
               key={index}
@@ -76,7 +76,7 @@ export default function DressCode() {
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                     </svg>
-                    Colores sugeridos
+                    Colores
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {option.colors.map((color, idx) => (
@@ -126,15 +126,7 @@ export default function DressCode() {
                 <ul className="space-y-2 text-sm text-stone-600">
                   <li className="flex items-start gap-2">
                     <span className="text-amber-500 mt-0.5">•</span>
-                    <span>Por favor evita usar blanco, beige o colores muy claros</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-amber-500 mt-0.5">•</span>
-                    <span>El evento será en jardín, considera calzado cómodo apropiado para pasto</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-amber-500 mt-0.5">•</span>
-                    <span>Habrá momentos al aire libre y bajo techo, te recomendamos traer un saco ligero</span>
+                    <span>La temperatura puede bajar, considera traer un abrigo.</span>
                   </li>
                 </ul>
               </div>
