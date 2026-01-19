@@ -1,40 +1,34 @@
 'use client'
 
 /**
- * UPDATED MAIN PAGE - Wedding Invitation
+ * MAIN WEDDING INVITATION PAGE
  *
  * Structure:
- * 1. Hero Section (existing)
- * 2. Historia Section (existing)
- * 3. Events Section (NEW - ceremony + reception)
- * 4. Dress Code Section (NEW)
- * 5. Timeline Section (HIDDEN - will reveal later)
- * 6. Countdown (existing)
- * 7. Gallery (existing)
- * 8. Registry (NEW - choose Hybrid or Custom)
- * 9. RSVP (existing)
+ * 1. Hero Section
+ * 2. Historia Section
+ * 3. Events Section (ceremony + reception)
+ * 4. Dress Code Section
+ * 5. Countdown
+ * 6. Gallery
+ * 7. Registry
+ * 8. RSVP (when token is present)
  */
 
 import { useEffect, useState } from 'react'
-import Header from '@/components/Header'
 import Link from 'next/link'
 import { useKeenSlider } from 'keen-slider/react'
 import 'keen-slider/keen-slider.min.css'
 import Image from 'next/image'
-import RedirectWrapper from '@/components/RedirectWrapper'
 
-// Import new components
+// Import components
 import HeaderBohoChic from '@/components/HeaderBohoChic'
 import SectionHeader from '@/components/SectionHeader'
 import HeroSectionBohoChic from '@/components/HeroSectionBohoChic'
 import EventsSection from '@/components/EventDetails'
 import DressCodeSection from '@/components/DressCode'
-import TimelineSection from '@/components/Timeline'
-// Choose ONE of these:
-import RegistrySection from '@/components/RegistrySectionHybrid' // OR RegistrySectionCustom
-import RegistrySection2 from '@/components/RegistrySectionCustom'
+import RegistrySection from '@/components/RegistrySectionHybrid'
 
-function MainPageContent() {
+export default function Home() {
   const [showRSVP, setShowRSVP] = useState(false)
   const [token, setToken] = useState('')
   const [imageLoaded, setImageLoaded] = useState(false)
@@ -118,22 +112,6 @@ function MainPageContent() {
       }
     }
   }, [])
-
-  // ==================== REDIRECT GATE (ONLY CHANGE) ====================
-  // Redirect everyone to /save-the-date unless you add ?dev=1 to the URL
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-
-    const urlParams = new URLSearchParams(window.location.search)
-    const devAllowed = urlParams.get('dev') === '1'
-    if (devAllowed) return
-
-    // Prevent redirect loop if you're already on the save-the-date route
-    if (window.location.pathname !== '/save-the-date') {
-      window.location.replace('/save-the-date')
-    }
-  }, [])
-  // ====================================================================
 
   const isEventDay = countdown.startsWith('¡Hoy es')
   const [days, hours, minutes] = !isEventDay ? countdown.split(/\s+/) : []
@@ -288,15 +266,11 @@ function MainPageContent() {
         </div>
       </section>
 
-      {/* ==================== NEW SECTIONS ==================== */}
+      {/* ==================== EVENT SECTIONS ==================== */}
       <EventsSection />
       <DressCodeSection />
 
-      {/* Timeline Section - Hidden until we have more information */}
-      {/* <TimelineSection /> */}
-
       {/* ==================== COUNTDOWN - BOLD GRAPHIC DESIGN ==================== */}
-      {/* REDUCED TOP PADDING since Timeline is hidden */}
       <section className="relative py-16 sm:py-20 lg:py-24 px-4 bg-wedding-terracotta overflow-hidden">
 
         {/* Large background numbers */}
@@ -307,7 +281,7 @@ function MainPageContent() {
 
         <div className="max-w-6xl mx-auto relative">
 
-          {/* Bold centered title - Updated chapter number */}
+          {/* Bold centered title */}
           <SectionHeader
             chapter="04"
             title="Cuenta"
@@ -347,11 +321,10 @@ function MainPageContent() {
 
 
       {/* ==================== GALLERY SECTION ==================== */}
-      {/* REDUCED TOP PADDING for better flow */}
       <section id="galeria" className="relative py-16 sm:py-20 px-4 bg-gradient-to-b from-white to-stone-50">
         <div className="max-w-6xl mx-auto">
 
-          {/* Editorial Section Header - Updated chapter number */}
+          {/* Editorial Section Header */}
           <SectionHeader
             chapter="05"
             title=""
@@ -417,7 +390,7 @@ function MainPageContent() {
         <section className="relative py-24 px-4">
           <div className="max-w-2xl mx-auto">
 
-            {/* Editorial Section Header - Updated chapter number */}
+            {/* Editorial Section Header */}
             <SectionHeader
               chapter="07"
               title="¿Nos"
@@ -441,14 +414,5 @@ function MainPageContent() {
         </section>
       )}
     </main>
-  )
-}
-
-// Export the wrapped version
-export default function Home() {
-  return (
-    <RedirectWrapper>
-      <MainPageContent />
-    </RedirectWrapper>
   )
 }

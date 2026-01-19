@@ -20,12 +20,67 @@ const bodoni = Bodoni_Moda({
   variable: '--font-bodoni',
 })
 
+/**
+ * ROOT LAYOUT - SPANISH VERSION (Default)
+ * 
+ * This handles the Spanish version at https://bodasusanayjavier.com
+ * 
+ * For bilingual setup:
+ * - Spanish (this file): https://bodasusanayjavier.com
+ * - English: https://bodasusanayjavier.com/en (needs separate metadata)
+ * 
+ * Open Graph tags ensure the hero photo shows when sharing on:
+ * WhatsApp, iMessage, Facebook, Twitter, LinkedIn, etc.
+ */
 export const metadata = {
-  title: 'Boda Susana & Javier',
-  description: 'Nuestra invitación de boda',
+  // Basic metadata
+  title: 'Boda Susana & Javier | 6 de Junio, 2026',
+  description: 'Te invitamos a celebrar nuestra boda el 6 de Junio, 2026 en Hacienda San Juan Bautista Amalucan, Puebla, México. Por favor confirma tu asistencia.',
+
+  // Favicon
   icons: {
     icon: '/favicon.ico',
-  }
+    apple: '/apple-touch-icon.png', // Optional: for iOS home screen
+  },
+
+  // 🌍 OPEN GRAPH TAGS - Spanish Version
+  // These control how links appear when shared on social media
+  openGraph: {
+    title: 'Boda Susana & Javier',
+    description: 'Te invitamos a celebrar nuestra boda el 6 de Junio, 2026 en Puebla, México',
+    url: 'https://bodasusanayjavier.com',
+    siteName: 'Boda Susana & Javier',
+    images: [
+      {
+        url: 'https://bodasusanayjavier.com/hero.jpg', // 🎯 YOUR HERO IMAGE
+        width: 1200,
+        height: 630,
+        alt: 'Susana y Javier - 6 de Junio, 2026 - Puebla, México',
+      },
+    ],
+    locale: 'es_MX',  // Spanish (Mexico)
+    type: 'website',
+  },
+
+  // 🐦 TWITTER CARD TAGS - Spanish Version
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Boda Susana & Javier',
+    description: 'Te invitamos a celebrar nuestra boda el 6 de Junio, 2026 en Puebla, México',
+    images: ['https://bodasusanayjavier.com/hero.jpg'], // 🎯 YOUR HERO IMAGE
+  },
+
+  // Additional SEO
+  keywords: 'boda, wedding, Susana, Javier, Puebla, México, 2026, Hacienda San Juan Bautista Amalucan',
+  authors: [{ name: 'Susana & Javier' }],
+
+  // 🔒 Optional: Prevent search engine indexing for privacy
+  // Uncomment these lines if you want the wedding site to be private:
+  // robots: {
+  //   index: false,
+  //   follow: false,
+  //   nocache: true,
+  // },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

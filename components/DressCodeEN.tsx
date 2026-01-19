@@ -33,7 +33,7 @@ export default function DressCode() {
   ]
 
   return (
-    <section className="relative py-16 sm:py-20 px-4 bg-gradient-to-b from-white to-stone-50">
+    <section id="dresscode" className="relative py-16 sm:py-20 px-4 bg-gradient-to-b from-white to-stone-50">
       <div className="max-w-6xl mx-auto">
         {/* Section Header */}
 

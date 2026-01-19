@@ -1,20 +1,19 @@
 'use client'
 
 /**
- * TRAVEL GUIDE COMPONENT - ENGLISH VERSION ONLY
+ * TRAVEL GUIDE COMPONENT - ENGLISH VERSION ONLY (FIXED)
  * 
- * Boho-chic editorial style guide for international guests
- * Includes:
- * - Flight recommendations
- * - Airport shuttle information
- * - Restaurant recommendations
- * - Puebla attractions
- * - Travel tips
+ * FIXES APPLIED:
+ * ✅ Actual Image components instead of placeholders
+ * ✅ Adjusted grid layout for fewer restaurants (4 items)
+ * ✅ Adjusted grid layout for fewer attractions (7 items)
+ * ✅ Better mobile responsiveness
+ * ✅ No awkward white space on desktop
  * 
  * Features:
  * - Magazine-style layout
  * - Expandable sections
- * - Image placeholders for later
+ * - Real images with Next.js optimization
  * - Burgundy/terracotta color scheme
  */
 
@@ -28,7 +27,7 @@ interface Restaurant {
     description: string
     priceRange: string
     mustTry: string
-    imagePlaceholder: string // We'll add actual images later
+    imagePlaceholder: string
 }
 
 interface Attraction {
@@ -56,7 +55,7 @@ export default function TravelGuide() {
         contact: "Contact us via WhatsApp for shuttle coordination"
     }
 
-    // Flight Recommendations (placeholder - customize based on your guests)
+    // Flight Recommendations
     const flightRecommendations: FlightInfo[] = [
         {
             from: "United States",
@@ -75,7 +74,7 @@ export default function TravelGuide() {
         }
     ]
 
-    // Restaurant Recommendations
+    // Restaurant Recommendations (4 restaurants - adjusted grid)
     const restaurants: Restaurant[] = [
         {
             name: "La Noria",
@@ -111,7 +110,7 @@ export default function TravelGuide() {
         }
     ]
 
-    // Puebla Attractions
+    // Puebla Attractions (7 attractions - adjusted grid)
     const attractions: Attraction[] = [
         {
             name: "Historic Center (Zócalo)",
@@ -161,7 +160,7 @@ export default function TravelGuide() {
             description: "Visit traditional pottery workshops to see master artisans creating the famous Puebla tiles and ceramics.",
             duration: "2 hours",
             imagePlaceholder: "/travel/talavera.jpg"
-        },
+        }
     ]
 
     return (
@@ -190,12 +189,12 @@ export default function TravelGuide() {
                                 key={tab.id}
                                 onClick={() => setActiveSection(tab.id as any)}
                                 className={`
-                  flex items-center gap-2 px-4 sm:px-6 py-2.5 rounded-full text-xs sm:text-sm font-light tracking-wide uppercase transition-all duration-300
-                  ${activeSection === tab.id
+                                    flex items-center gap-2 px-4 sm:px-6 py-2.5 rounded-full text-xs sm:text-sm font-light tracking-wide uppercase transition-all duration-300
+                                    ${activeSection === tab.id
                                         ? 'bg-wedding-burgundy text-white shadow-wedding-lg'
                                         : 'text-stone-600 hover:text-wedding-burgundy hover:bg-wedding-blush/30'
                                     }
-                `}
+                                `}
                             >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" d={tab.icon} />
@@ -211,21 +210,20 @@ export default function TravelGuide() {
                     <div className="max-w-5xl mx-auto animate-fade-in-up">
                         {/* Hero Banner */}
                         <div className="relative h-64 sm:h-80 rounded-3xl overflow-hidden shadow-xl mb-12 border border-wedding-blush">
-                            {/* PLACEHOLDER IMAGE - Add your shuttle/airport photo later */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-wedding-burgundy to-wedding-burgundy-light flex items-center justify-center">
-                                <div className="text-center text-white space-y-2">
-                                    <svg className="w-16 h-16 mx-auto opacity-50" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
-                                    </svg>
-                                    <p className="text-sm uppercase tracking-wider opacity-75">Add shuttle image here</p>
-                                    <p className="text-xs opacity-50">/travel/shuttle.jpg</p>
-                                </div>
-                            </div>
+                            {/* ACTUAL SHUTTLE IMAGE */}
+                            <Image
+                                src="/travel/shuttle.jpg"
+                                alt="Airport shuttle service"
+                                fill
+                                sizes="(max-width: 1280px) 100vw, 1280px"
+                                className="object-cover"
+                                priority
+                            />
 
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
 
                             {/* Overlay text */}
-                            <div className="absolute bottom-8 left-8 right-8">
+                            <div className="absolute bottom-8 left-8 right-8 z-10">
                                 <h3 className="text-3xl sm:text-4xl font-light text-white mb-2">
                                     Complimentary Airport Shuttle
                                 </h3>
@@ -406,22 +404,23 @@ export default function TravelGuide() {
                             </p>
                         </div>
 
-                        {/* Restaurant Grid */}
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {/* Restaurant Grid - ADJUSTED FOR 4 ITEMS */}
+                        {/* Mobile: 1 column, Tablet: 2 columns, Desktop: 2 columns (centered with max-width) */}
+                        <div className="grid sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
                             {restaurants.map((restaurant, idx) => (
                                 <div key={idx} className="bg-white rounded-2xl overflow-hidden shadow-wedding border border-wedding-blush hover:shadow-wedding-lg transition-all duration-300 group">
-                                    {/* IMAGE PLACEHOLDER - Add restaurant photos later */}
-                                    <div className="relative h-48 bg-gradient-to-br from-stone-100 to-stone-200 flex items-center justify-center overflow-hidden">
-                                        <div className="text-center text-stone-400 space-y-1">
-                                            <svg className="w-12 h-12 mx-auto opacity-30" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-                                            </svg>
-                                            <p className="text-xs">Add photo</p>
-                                            <p className="text-[10px] opacity-50">{restaurant.imagePlaceholder}</p>
-                                        </div>
+                                    {/* ACTUAL IMAGE - NOT PLACEHOLDER */}
+                                    <div className="relative h-48 overflow-hidden bg-gradient-to-br from-stone-100 to-stone-200">
+                                        <Image
+                                            src={restaurant.imagePlaceholder}
+                                            alt={`${restaurant.name} restaurant`}
+                                            fill
+                                            sizes="(max-width: 640px) 100vw, 50vw"
+                                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                        />
 
                                         {/* Price range badge */}
-                                        <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium text-wedding-burgundy shadow-wedding">
+                                        <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium text-wedding-burgundy shadow-wedding z-10">
                                             {restaurant.priceRange}
                                         </div>
                                     </div>
@@ -455,7 +454,7 @@ export default function TravelGuide() {
                         </div>
 
                         {/* Cuisine Note */}
-                        <div className="mt-12 bg-gradient-to-br from-wedding-burgundy/5 to-wedding-rose/5 rounded-2xl p-8 border border-wedding-blush">
+                        <div className="mt-12 bg-gradient-to-br from-wedding-burgundy/5 to-wedding-rose/5 rounded-2xl p-8 border border-wedding-blush max-w-4xl mx-auto">
                             <div className="flex items-start gap-4">
                                 <div className="w-10 h-10 rounded-full bg-wedding-burgundy/10 flex items-center justify-center flex-shrink-0">
                                     <svg className="w-5 h-5 text-wedding-burgundy" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -486,22 +485,24 @@ export default function TravelGuide() {
                             </p>
                         </div>
 
-                        {/* Attractions Grid */}
+                        {/* Attractions Grid - ADJUSTED FOR 7 ITEMS */}
+                        {/* Mobile: 1 column, Desktop: 2 columns */}
                         <div className="grid md:grid-cols-2 gap-6">
                             {attractions.map((attraction, idx) => (
                                 <div key={idx} className="bg-white rounded-2xl overflow-hidden shadow-wedding border border-wedding-blush hover:shadow-wedding-lg transition-all duration-300 group">
                                     <div className="md:flex">
-                                        {/* IMAGE PLACEHOLDER */}
-                                        <div className="relative md:w-48 h-48 bg-gradient-to-br from-stone-100 to-stone-200 flex items-center justify-center flex-shrink-0">
-                                            <div className="text-center text-stone-400 space-y-1">
-                                                <svg className="w-10 h-10 mx-auto opacity-30" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-                                                </svg>
-                                                <p className="text-[10px] px-2">{attraction.imagePlaceholder}</p>
-                                            </div>
+                                        {/* ACTUAL IMAGE - NOT PLACEHOLDER */}
+                                        <div className="relative md:w-48 h-48 flex-shrink-0 overflow-hidden bg-gradient-to-br from-stone-100 to-stone-200">
+                                            <Image
+                                                src={attraction.imagePlaceholder}
+                                                alt={attraction.name}
+                                                fill
+                                                sizes="(max-width: 768px) 100vw, 192px"
+                                                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                            />
 
                                             {/* Category badge */}
-                                            <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full text-xs text-wedding-burgundy shadow-wedding">
+                                            <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full text-xs text-wedding-burgundy shadow-wedding z-10">
                                                 {attraction.category}
                                             </div>
                                         </div>

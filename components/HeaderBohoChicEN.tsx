@@ -124,6 +124,8 @@ export default function HeaderBohoChicEN() {
                             { href: '/en#home', label: 'Home' },
                             { href: '/en#story', label: 'Our Story' },
                             { href: '/en#event', label: 'The Event' },
+                            { href: '/en#travel-guide', label: 'Travel Guide' }, 
+                            { href: '/en#dresscode', label: 'Dress Code' },
                             { href: '/en#gallery', label: 'Gallery' },
                             { href: '/en#registry', label: 'Registry' },
                         ].map((item, idx) => (
