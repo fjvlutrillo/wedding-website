@@ -38,7 +38,7 @@ export default function DressCode() {
         {/* Section Header */}
 
         <SectionHeader
-          chapter="03"
+          chapter="04"
           title="Dress"
           subtitle="Code"
             description="We want you to feel both comfortable and elegant as you celebrate with us."

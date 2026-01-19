@@ -21,6 +21,7 @@ import 'keen-slider/keen-slider.min.css'
 import Image from 'next/image'
 
 // Import components (we'll create English versions)
+import TravelGuide from '@/components/TravelGuide'
 import HeaderBohoChic from '@/components/HeaderBohoChicEN'
 import SectionHeader from '@/components/SectionHeader'
 import HeroSectionBohoChic from '@/components/HeroSectionBohoChicEn'
@@ -264,6 +265,7 @@ function MainPageContentEN() {
 
             {/* ==================== NEW SECTIONS ==================== */}
             <EventsSection />
+            <TravelGuide />
             <DressCodeSection />
 
             {/* ==================== COUNTDOWN ==================== */}
@@ -278,7 +280,7 @@ function MainPageContentEN() {
                 <div className="max-w-6xl mx-auto relative">
 
                     <SectionHeader
-                        chapter="04"
+                        chapter="05"
                         title="Count"
                         subtitle="Down"
                         align="center"
@@ -319,7 +321,7 @@ function MainPageContentEN() {
                 <div className="max-w-6xl mx-auto">
 
                     <SectionHeader
-                        chapter="05"
+                        chapter="06"
                         title=""
                         subtitle="Gallery"
                         align="center"
