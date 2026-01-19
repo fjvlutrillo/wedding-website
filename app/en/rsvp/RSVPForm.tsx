@@ -244,7 +244,7 @@ export default function RSVPFormBohoChic() {
                                         Great!
                                     </h2>
                                     <p className="text-stone-600">
-                                        Please complete the following details
+                                        Please complete the following details:
                                     </p>
                                 </div>
 
@@ -266,7 +266,7 @@ export default function RSVPFormBohoChic() {
                                             >
                                                 {[...Array(maxGuests)].map((_, idx) => (
                                                     <option key={idx + 1} value={idx + 1}>
-                                                        {idx + 1} {idx + 1 === 1 ? 'persona' : 'personas'}
+                                                        {idx + 1} {idx + 1 === 1 ? 'guest' : 'guests'}
                                                     </option>
                                                 ))}
                                             </select>
@@ -278,7 +278,7 @@ export default function RSVPFormBohoChic() {
                                             </div>
                                         </div>
                                         <p className="text-xs text-stone-500">
-                                            Maximum  {maxGuests} {maxGuests === 1 ? 'persona' : 'personas'} guest(s) per your invitation
+                                            Maximum  {maxGuests} {maxGuests === 1 ? 'guest' : 'guests'} guest(s) per your invitation
                                         </p>
                                     </div>
 
@@ -293,7 +293,7 @@ export default function RSVPFormBohoChic() {
                                             value={dietaryRestrictions}
                                             onChange={e => setDietaryRestrictions(e.target.value)}
                                             rows={3}
-                                            placeholder="Example:Vegetarian, nut allergy, shellfish allergy, gluten-free..."
+                                            placeholder="Example: Vegetarian, nut allergy, shellfish allergy, gluten-free..."
                                             className="w-full px-6 py-4 bg-white border-2 border-wedding-blush rounded-2xl text-stone-700 placeholder:text-stone-400 hover:border-wedding-burgundy focus:border-wedding-burgundy focus:ring-2 focus:ring-wedding-burgundy/20 transition-all duration-300 resize-none"
                                         />
                                         <p className="text-xs text-stone-500 flex items-start gap-2">

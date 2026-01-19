@@ -395,7 +395,7 @@ function MainPageContentEN() {
 
                         {/* CTA Button */}
                         <div className="flex justify-center mt-12">
-                            <Link href={`/rsvp?token=${token}`}>
+                            <Link href={`/en/rsvp?token=${token}`}>
                                 <button className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-wedding-burgundy to-wedding-burgundy-light hover:opacity-90 text-white text-sm tracking-wide uppercase transition-all duration-300 rounded-full shadow-wedding-lg hover:shadow-wedding-xl hover:-translate-y-0.5">
                                     Confirm attendance
                                     <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
