@@ -69,7 +69,7 @@ export default function TravelGuide() {
         },
         {
             from: "Other International",
-            airline: "Connect through Mexico City or Houston",
+            airline: "Connect through IAH, DFW or ATL",
             notes: "Allow extra time for connections and customs"
         }
     ]
