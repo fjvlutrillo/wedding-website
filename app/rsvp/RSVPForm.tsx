@@ -296,7 +296,7 @@ export default function RSVPFormBohoChic() {
                                             value={dietaryRestrictions}
                                             onChange={e => setDietaryRestrictions(e.target.value)}
                                             rows={3}
-                                            placeholder="Ej: Vegetariano, alérgico a nueces, sin gluten..."
+                                            placeholder="Ej: Vegetariano, alérgico a nueces, alérgico a mariscos, sin gluten..."
                                             className="w-full px-6 py-4 bg-white border-2 border-wedding-blush rounded-2xl text-stone-700 placeholder:text-stone-400 hover:border-wedding-burgundy focus:border-wedding-burgundy focus:ring-2 focus:ring-wedding-burgundy/20 transition-all duration-300 resize-none"
                                         />
                                         <p className="text-xs text-stone-500 flex items-start gap-2">
