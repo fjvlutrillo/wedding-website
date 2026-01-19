@@ -400,7 +400,7 @@ export default function TravelGuide() {
                         <div className="text-center mb-12">
                             <h3 className="text-3xl sm:text-4xl font-light text-wedding-burgundy mb-4">Where to Eat</h3>
                             <p className="text-stone-600 max-w-2xl mx-auto">
-                                Puebla is Mexico's culinary capital. From traditional mole to contemporary fusion, here are our favorite spots.
+                                Puebla is one of main Mexico's culinary capitals. From traditional mole to contemporary fusion, here are our favorite spots.
                             </p>
                         </div>
 
