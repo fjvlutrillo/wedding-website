@@ -126,7 +126,7 @@ export default function DressCode() {
                 <ul className="space-y-2 text-sm text-stone-600">
                   <li className="flex items-start gap-2">
                     <span className="text-amber-500 mt-0.5">•</span>
-                        <span>Temperatures may drop in the evening, so we recommend bringing a light jacket or coat.</span>
+                        <span>Consider Puebla's high altitude despite summer time. Temperatures may drop in the evening, so we recommend bringing a light jacket or coat.</span>
                   </li>
                 </ul>
               </div>
