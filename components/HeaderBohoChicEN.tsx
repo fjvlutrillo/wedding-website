@@ -48,7 +48,7 @@ export default function HeaderBohoChicEN() {
                         </span>
                     </Link>
 
-                    {/* Language Switcher - NEW! */}
+                    {/* Language Switcher - NEW! 
                     <div className="flex items-center gap-4">
                         <Link
                             href="/"
@@ -61,7 +61,7 @@ export default function HeaderBohoChicEN() {
                             EN
                         </span>
                     </div>
-
+                    */}
                     {/* Menu Button */}
                     <button
                         onClick={() => setMenuOpen(true)}
