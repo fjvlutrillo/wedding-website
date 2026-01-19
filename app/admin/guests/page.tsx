@@ -211,7 +211,7 @@ Susana & Javier 💑🥳🍾`
 
 We're excited to share our wedding details with you. Please RSVP here:
 
-https://bodasusanayjavier.com/?token=${token}
+https://bodasusanayjavier.com/en?token=${token}
 
 With love,
 Susana & Javier 💑🥳🍾`
