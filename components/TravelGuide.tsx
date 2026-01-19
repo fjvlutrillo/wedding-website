@@ -60,7 +60,7 @@ export default function TravelGuide() {
         {
             from: "United States",
             airline: "Direct flights available from major cities",
-            notes: "Houston, Dallas, Atlanta and JFK Airport offer the most frequent connections to Mexico City"
+            notes: "Houston, Dallas, Atlanta and NYC offer the most frequent connections to Mexico City"
         },
         {
             from: "Mexico City (MEX)",
