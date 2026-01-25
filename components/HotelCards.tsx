@@ -26,6 +26,7 @@ interface Hotel {
         email?: string           // Primary email for reservations
         emailCC?: string[]       // CC emails (for City Express)
         whatsapp?: string        // WhatsApp number (for Banyan Tree)
+        extension?: string 
         reservationMethod: 'phone-only' | 'email-whatsapp' | 'email-phone' | 'online'
     }
     image: string
@@ -82,6 +83,23 @@ export default function HotelCards() {
                 reservationMethod: 'email-phone'
             },
             image: "/hotels/city-express.jpg"
+        },
+        {
+            name: "Hotel Cartesiano",
+            description: "Hotel boutique de lujo destacado por combinar arquitectura histórica con toques modernos en el centro de Puebla.",
+            type: "host",
+            amenities: ["WiFi", "Spa", "Estacionamiento", "Gym", "Restaurante"], // Replace with actual amenities
+            distance: "20 min de la hacienda", // Replace with actual distance
+            reservationInfo: {
+                code: "BODA SUSANA & JAVIER",
+                phone: "+52 222 478 6900 ext. 8014", // Replace with actual phone
+                extension: "8014",
+                website: "https://www.cartesiano360.com", // Replace with actual website
+                email: "reservaciones@cartesiano360.com", // 👈 REQUIRED for email button
+                //emailCC: ["front@yourhotel.com"], // 👈 OPTIONAL - remove line if not needed
+                reservationMethod: 'email-phone' // ✅ Don't change this - it enables both buttons
+            },
+            image: "/hotels/cartesiano.jpg" // Replace with your image filename
         }
     ]
 
@@ -186,6 +204,7 @@ export default function HotelCards() {
                                         </p>
                                         <p className="text-sm text-stone-600">
                                             <span className="font-medium text-wedding-burgundy">Teléfono:</span> {hotel.reservationInfo.phone}
+                                            {hotel.reservationInfo.extension && ` ext. ${hotel.reservationInfo.extension}`}
                                         </p>
                                         {hotel.reservationInfo.email && (
                                             <p className="text-sm text-stone-600">
@@ -304,6 +323,10 @@ export default function HotelCards() {
                                 <li className="flex items-start gap-2">
                                     <span className="text-wedding-burgundy mt-0.5">•</span>
                                     <span><span className="font-medium">City Express:</span> Reservar por email o llamada mencionando el código</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="text-wedding-burgundy mt-0.5">•</span>
+                                    <span><span className="font-medium">Cartesiano:</span> Tarifa válida hasta el 24 de abril. Reservar por email o llamada mencionando el código</span>
                                 </li>
                             </ul>
                         </div>

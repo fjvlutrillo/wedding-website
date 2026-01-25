@@ -185,7 +185,7 @@ export default function Home() {
                   </p>
 
                   {/* Decorative terracotta dots */}
-                  <div className="flex items-center gap-2 pt-2 sm:pt-4">
+                  <div className="hidden sm:flex items-center gap-2 pt-2 sm:pt-4">
                     <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-wedding-terracotta" />
                     <div className="w-2 h-2 rounded-full bg-wedding-burgundy" />
                     <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-wedding-terracotta" />

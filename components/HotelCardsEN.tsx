@@ -26,6 +26,7 @@ interface Hotel {
         email?: string           // Primary email for reservations
         emailCC?: string[]       // CC emails (for City Express)
         whatsapp?: string        // WhatsApp number (for Banyan Tree)
+        extension?: string 
         reservationMethod: 'phone-only' | 'email-whatsapp' | 'email-phone' | 'online'
     }
     image: string
@@ -38,7 +39,7 @@ export default function HotelCards() {
             description: "Boutique hotel located in the historic center of Puebla. To obtain the special rate, it is necessary to call the hotel directly and mention the reservation code.",
             type: "host",
             amenities: ["Shuttle to Hacienda", "Spa", "Restaurant", "Parking", "WiFi", "Gym"],
-            distance: "25 minutes from the hacienda",
+            distance: "20 minutes from the hacienda",
             reservationInfo: {
                 code: "BODA SUSANA & JAVIER",
                 phone: "+52 222 232 0032",
@@ -52,7 +53,7 @@ export default function HotelCards() {
             description: "Boutique hotel featuring colonial charm and personalized luxury services. To reserve using the special code, please contact the hotel directly by phone, email, or WhatsApp.",
             type: "host",
             amenities: ["Shuttle to Hacienda", "WiFi", "Room service", "Restaurants", "Pool", "Spa", "Gym"],
-            distance: "25 minutes from the hacienda",
+            distance: "20 minutes from the hacienda",
             reservationInfo: {
                 code: "BODA SUSANA & JAVIER",
                 phone: "+52 222 122 2310",
@@ -68,7 +69,7 @@ export default function HotelCards() {
             description: "Practical, comfortable, and affordable option with excellent value for money. To obtain the special rate, it is necessary to book by email or phone call mentioning the code.",
             type: "host",
             amenities: ["Shuttle to Hacienda", "Breakfast Included", "WiFi", "Parking"],
-            distance: "25 min de la hacienda",
+            distance: "20 min from the hacienda",
             reservationInfo: {
                 code: "SUYJA",
                 phone: "+52 222 324 1062",
@@ -82,6 +83,23 @@ export default function HotelCards() {
                 reservationMethod: 'email-phone'
             },
             image: "/hotels/city-express.jpg"
+        },
+        {
+            name: "Hotel Cartesiano",
+            description: "A luxury boutique hotel that blends historic architecture with modern touches in the heart of Puebla.",
+            type: "host",
+            amenities: ["WiFi", "Spa", "Parking", "Gym", "Restaurant"], // Replace with actual amenities
+            distance: "20 min from the hacienda", // Replace with actual distance
+            reservationInfo: {
+                code: "BODA SUSANA & JAVIER",
+                phone: "+52 222 478 6900", // Replace with actual phone
+                extension: "8014",
+                website: "https://www.cartesiano360.com", // Replace with actual website
+                email: "reservaciones@cartesiano360.com", // 👈 REQUIRED for email button
+                //emailCC: ["front@yourhotel.com"], // 👈 OPTIONAL - remove line if not needed
+                reservationMethod: 'email-phone' // ✅ Don't change this - it enables both buttons
+            },
+            image: "/hotels/cartesiano.jpg" // Replace with your image filename
         }
     ]
 
@@ -186,6 +204,7 @@ export default function HotelCards() {
                                         </p>
                                         <p className="text-sm text-stone-600">
                                             <span className="font-medium text-wedding-burgundy">Phone number:</span> {hotel.reservationInfo.phone}
+                                            {hotel.reservationInfo.extension && ` ext. ${hotel.reservationInfo.extension}`}
                                         </p>
                                         {hotel.reservationInfo.email && (
                                             <p className="text-sm text-stone-600">
@@ -304,6 +323,10 @@ export default function HotelCards() {
                                 <li className="flex items-start gap-2">
                                     <span className="text-wedding-burgundy mt-0.5">•</span>
                                     <span><span className="font-medium">City Express:</span> Please book by phone or email and reference the code.</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="text-wedding-burgundy mt-0.5">•</span>
+                                    <span><span className="font-medium">Cartesiano:</span> Rate valid until April 24th, 2026. Please book by phone or email and reference the code.</span>
                                 </li>
                             </ul>
                         </div>
