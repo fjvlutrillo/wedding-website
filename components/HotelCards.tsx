@@ -39,7 +39,7 @@ export default function HotelCards() {
             description: "Hotel boutique ubicado en el centro histórico de Puebla. Para obtener la tarifa especial, es necesario llamar directamente al hotel y mencionar el código de reserva.",
             type: "host",
             amenities: ["Transporte a la hacienda", "Spa", "Restaurante", "Estacionamiento", "WiFi", "Gym"],
-            distance: "25 min de la hacienda",
+            distance: "20 min de la hacienda",
             reservationInfo: {
                 code: "BODA SUSANA & JAVIER",
                 phone: "+52 222 232 0032",
@@ -53,7 +53,7 @@ export default function HotelCards() {
             description: "Hotel boutique con encanto colonial y servicios personalizados de lujo. Para reservar con el código especial, es necesario llamar o contactar vía email o WhatsApp.",
             type: "host",
             amenities: ["Transporte a la hacienda", "WiFi", "Room service", "Restaurantes", "Alberca", "Spa", "Gym"],
-            distance: "25 min de la hacienda",
+            distance: "20 min de la hacienda",
             reservationInfo: {
                 code: "BODA SUSANA & JAVIER",
                 phone: "+52 222 122 2310",
@@ -69,7 +69,7 @@ export default function HotelCards() {
             description: "Opción práctica, confortable y económica con excelente relación calidad-precio. Para obtener la tarifa especial, es necesario reservar por email o llamada telefónica mencionando el código.",
             type: "host",
             amenities: ["Transporte a la hacienda", "Desayuno", "WiFi", "Estacionamiento"],
-            distance: "25 min de la hacienda",
+            distance: "20 min de la hacienda",
             reservationInfo: {
                 code: "SUYJA",
                 phone: "+52 222 324 1062",

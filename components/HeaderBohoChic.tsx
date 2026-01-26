@@ -9,6 +9,7 @@
  * - Smooth burgundy accents
  * - Magazine-style slide-out menu
  * - Elegant animations
+ * - RSVP FIRST with burgundy highlight
  */
 
 import { useState, useEffect } from 'react'
@@ -123,6 +124,47 @@ export default function HeaderBohoChic() {
 
                     {/* Navigation - Editorial list style */}
                     <nav className="flex-1 p-8 space-y-2 overflow-y-auto">
+                        {/* 🎯 RSVP BUTTON - FIRST & HIGHLIGHTED IN BURGUNDY */}
+                        {showRSVP && (
+                            <Link
+                                href={`/rsvp?token=${token}`}
+                                onClick={() => setMenuOpen(false)}
+                                className="group block mb-6 p-6 bg-gradient-to-br from-wedding-burgundy to-wedding-burgundy-light rounded-2xl hover:shadow-wedding-lg transition-all duration-300 relative overflow-hidden"
+                            >
+                                {/* Decorative background element */}
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16"></div>
+
+                                <div className="relative space-y-3">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                                            <svg
+                                                className="w-4 h-4 text-white"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </div>
+                                        <span className="text-[10px] uppercase tracking-[0.3em] text-white/70">
+                                            RSVP
+                                        </span>
+                                    </div>
+                                    <p className="text-xl font-light text-white">
+                                        Confirmar Asistencia
+                                    </p>
+                                    <div className="flex items-center gap-2 text-white/80 group-hover:text-white transition-colors">
+                                        <span className="text-sm">Responder ahora</span>
+                                        <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </Link>
+                        )}
+
+                        {/* Regular Menu Items */}
                         {[
                             { href: '/#inicio', label: 'Inicio' },
                             { href: '/#historia', label: 'Nuestra Historia' },
@@ -161,46 +203,6 @@ export default function HeaderBohoChic() {
                                 </div>
                             </Link>
                         ))}
-
-                        {/* RSVP Button - Featured editorial style */}
-                        {showRSVP && (
-                            <Link
-                                href={`/rsvp?token=${token}`}
-                                onClick={() => setMenuOpen(false)}
-                                className="group block mt-8 p-6 bg-gradient-to-br from-wedding-burgundy to-wedding-burgundy-light rounded-2xl hover:shadow-wedding-lg transition-all duration-300 relative overflow-hidden"
-                            >
-                                {/* Decorative background element */}
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16"></div>
-
-                                <div className="relative space-y-3">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                                            <svg
-                                                className="w-4 h-4 text-white"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="2"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                        </div>
-                                        <span className="text-[10px] uppercase tracking-[0.3em] text-white/70">
-                                            RSVP
-                                        </span>
-                                    </div>
-                                    <p className="text-xl font-light text-white">
-                                        Confirmar Asistencia
-                                    </p>
-                                    <div className="flex items-center gap-2 text-white/80 group-hover:text-white transition-colors">
-                                        <span className="text-sm">Responder ahora</span>
-                                        <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                        </svg>
-                                    </div>
-                                </div>
-                            </Link>
-                        )}
                     </nav>
 
                     {/* Footer - Wedding details */}

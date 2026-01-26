@@ -125,9 +125,9 @@ export default function RegistrySectionHybrid() {
                     <span className="text-xs uppercase tracking-[0.3em] text-wedding-rose font-light">
                         Chapter 06
                     </span>
-                    <h2 className="text-5xl sm:text-6xl font-light text-charcoal">
+                    <h2 className="text-4xl sm:text-5xl font-light text-charcoal">
                         Gift
-                        <span className="block font-luxury text-6xl sm:text-7xl mt-2 text-wedding-burgundy">Registry</span>
+                        <span className="block font-luxury text-5xl sm:text-6xl mt-2 text-wedding-burgundy">Registry</span>
                     </h2>
                     <p className="text-stone-600 max-w-2xl mx-auto leading-relaxed">
                         Your presence is the greatest gift of all. If you’d still like to celebrate with us in another way,

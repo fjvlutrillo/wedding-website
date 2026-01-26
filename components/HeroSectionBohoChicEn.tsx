@@ -259,7 +259,7 @@ export default function HeroSectionBohoChicEN() {
                                 zIndex: 10
                             }}
                         >
-                            <h2 className="text-xs sm:text-base font-light tracking-[0.25em] sm:tracking-[0.3em] uppercase text-warm-cream/90">
+                            <h2 className="text-sm sm:text-lg font-light tracking-[0.25em] sm:tracking-[0.3em] uppercase text-warm-cream/90">
                                 Save The
                             </h2>
                         </div>
@@ -273,7 +273,7 @@ export default function HeroSectionBohoChicEN() {
                                 zIndex: 15
                             }}
                         >
-                            <h1 className="text-7xl sm:text-8xl md:text-9xl font-light tracking-tight text-warm-cream leading-none">
+                            <h1 className="text-5xl sm:text-6xl md:text-7xl font-light tracking-tight text-warm-cream leading-none">
                                 DATE
                             </h1>
 

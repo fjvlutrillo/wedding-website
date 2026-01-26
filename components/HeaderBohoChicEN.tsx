@@ -1,5 +1,17 @@
 'use client'
 
+/**
+ * BOHO-CHIC EDITORIAL HEADER
+ * 
+ * Updated to match the fashion magazine aesthetic:
+ * - Minimalist clean design
+ * - Editorial typography
+ * - Smooth burgundy accents
+ * - Magazine-style slide-out menu
+ * - Elegant animations
+ * - RSVP FIRST with burgundy highlight
+ */
+
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
@@ -20,6 +32,7 @@ export default function HeaderBohoChicEN() {
         }
     }, [])
 
+    // Track scroll for header background
     useEffect(() => {
         const handleScroll = () => {
             setScrolled(window.scrollY > 50)
@@ -38,8 +51,11 @@ export default function HeaderBohoChicEN() {
             >
                 <div className="relative flex justify-between items-center px-6 sm:px-8 w-full max-w-7xl mx-auto">
 
-                    {/* Logo */}
-                    <Link href="/en" className="group flex flex-col">
+                    {/* Left: Editorial Logo */}
+                    <Link
+                        href="/"
+                        className="group flex flex-col"
+                    >
                         <span className="text-base sm:text-lg font-light tracking-[0.15em] uppercase text-wedding-burgundy group-hover:text-wedding-burgundy-light transition-colors duration-300">
                             Susana <span className="text-wedding-rose font-luxury text-xl">&</span> Javier
                         </span>
@@ -48,21 +64,7 @@ export default function HeaderBohoChicEN() {
                         </span>
                     </Link>
 
-                    {/* Language Switcher - NEW! 
-                    <div className="flex items-center gap-4">
-                        <Link
-                            href="/"
-                            className="text-xs uppercase tracking-wider text-stone-400 hover:text-wedding-burgundy transition-colors"
-                        >
-                            ES
-                        </Link>
-                        <span className="text-wedding-rose/30">|</span>
-                        <span className="text-xs uppercase tracking-wider text-wedding-burgundy font-medium">
-                            EN
-                        </span>
-                    </div>
-                    */}
-                    {/* Menu Button */}
+                    {/* Right: Menu Button - Editorial style */}
                     <button
                         onClick={() => setMenuOpen(true)}
                         className="group flex items-center gap-3 hover:gap-4 transition-all duration-300"
@@ -80,19 +82,20 @@ export default function HeaderBohoChicEN() {
                 </div>
             </header>
 
-            {/* Slide-out Menu */}
+            {/* Editorial Slide-out Menu */}
             <div
                 className={`fixed top-0 right-0 h-full w-full sm:w-[480px] bg-warm-cream shadow-2xl z-50 transform transition-transform duration-700 ease-out ${menuOpen ? 'translate-x-0' : 'translate-x-full'
                     }`}
             >
                 <div className="h-full flex flex-col">
 
-                    {/* Header */}
+                    {/* Header - Magazine masthead style */}
                     <div className="relative p-8 border-b border-wedding-blush/50">
+                        {/* Close button - top right */}
                         <button
                             onClick={() => setMenuOpen(false)}
                             className="absolute top-8 right-8 w-12 h-12 flex items-center justify-center rounded-full hover:bg-wedding-blush/30 transition-all duration-300 group"
-                            aria-label="Close menu"
+                            aria-label="Cerrar menú"
                         >
                             <svg
                                 className="w-6 h-6 text-wedding-burgundy group-hover:rotate-90 transition-transform duration-300"
@@ -105,6 +108,7 @@ export default function HeaderBohoChicEN() {
                             </svg>
                         </button>
 
+                        {/* Menu title - editorial style */}
                         <div className="space-y-2">
                             <div className="flex items-center gap-3">
                                 <div className="w-8 h-px bg-wedding-burgundy/30"></div>
@@ -118,16 +122,56 @@ export default function HeaderBohoChicEN() {
                         </div>
                     </div>
 
-                    {/* Navigation */}
+                    {/* Navigation - Editorial list style */}
                     <nav className="flex-1 p-8 space-y-2 overflow-y-auto">
+                        {/* 🎯 RSVP BUTTON - FIRST & HIGHLIGHTED IN BURGUNDY */}
+                        {showRSVP && (
+                            <Link
+                                href={`/rsvp?token=${token}`}
+                                onClick={() => setMenuOpen(false)}
+                                className="group block mb-6 p-6 bg-gradient-to-br from-wedding-burgundy to-wedding-burgundy-light rounded-2xl hover:shadow-wedding-lg transition-all duration-300 relative overflow-hidden"
+                            >
+                                {/* Decorative background element */}
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16"></div>
+
+                                <div className="relative space-y-3">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                                            <svg
+                                                className="w-4 h-4 text-white"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </div>
+                                        <span className="text-[10px] uppercase tracking-[0.3em] text-white/70">
+                                            RSVP
+                                        </span>
+                                    </div>
+                                    <p className="text-xl font-light text-white">
+                                        Confirm attendance
+                                    </p>
+                                    <div className="flex items-center gap-2 text-white/80 group-hover:text-white transition-colors">
+                                        <span className="text-sm">Responder ahora</span>
+                                        <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </Link>
+                        )}
+
+                        {/* Regular Menu Items */}
                         {[
-                            { href: '/en#home', label: 'Home' },
-                            { href: '/en#story', label: 'Our Story' },
-                            { href: '/en#event', label: 'The Event' },
-                            { href: '/en#travel-guide', label: 'Travel Guide' }, 
-                            { href: '/en#dresscode', label: 'Dress Code' },
-                            { href: '/en#gallery', label: 'Gallery' },
-                            { href: '/en#registry', label: 'Registry' },
+                            { href: '/#inicio', label: 'Home' },
+                            { href: '/#historia', label: 'Our Story' },
+                            { href: '/#evento', label: 'The Event' },
+                            { href: '/#dresscode', label: 'Dresscode' },
+                            { href: '/#galeria', label: 'Gallery' },
+                            { href: '/#registry', label: 'Gift Registry' },
                         ].map((item, idx) => (
                             <Link
                                 key={item.href}
@@ -159,70 +203,33 @@ export default function HeaderBohoChicEN() {
                                 </div>
                             </Link>
                         ))}
-
-                        {/* RSVP Button */}
-                        {showRSVP && (
-                            <Link
-                                href={`/rsvp?token=${token}`}
-                                onClick={() => setMenuOpen(false)}
-                                className="group block mt-8 p-6 bg-gradient-to-br from-wedding-burgundy to-wedding-burgundy-light rounded-2xl hover:shadow-wedding-lg transition-all duration-300 relative overflow-hidden"
-                            >
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16"></div>
-
-                                <div className="relative space-y-3">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                                            <svg
-                                                className="w-4 h-4 text-white"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="2"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                        </div>
-                                        <span className="text-[10px] uppercase tracking-[0.3em] text-white/70">
-                                            RSVP
-                                        </span>
-                                    </div>
-                                    <p className="text-xl font-light text-white">
-                                        Confirm Attendance
-                                    </p>
-                                    <div className="flex items-center gap-2 text-white/80 group-hover:text-white transition-colors">
-                                        <span className="text-sm">Respond now</span>
-                                        <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                        </svg>
-                                    </div>
-                                </div>
-                            </Link>
-                        )}
                     </nav>
 
-                    {/* Footer */}
+                    {/* Footer - Wedding details */}
                     <div className="p-8 border-t border-wedding-blush/50 bg-warm-cream/50">
                         <div className="space-y-4">
+                            {/* Date block */}
                             <div className="flex items-baseline gap-3">
                                 <span className="text-5xl font-light text-wedding-burgundy tabular-nums">06</span>
                                 <div>
-                                    <p className="text-lg font-light text-charcoal">June</p>
+                                    <p className="text-lg font-light text-charcoal">Junio</p>
                                     <p className="text-3xl font-light text-wedding-burgundy tabular-nums">2026</p>
                                 </div>
                             </div>
 
+                            {/* Location */}
                             <div className="flex items-center gap-2 text-stone-600">
                                 <svg className="w-4 h-4 text-wedding-rose" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                                 </svg>
-                                <span className="text-sm uppercase tracking-wider">Puebla, Mexico</span>
+                                <span className="text-sm uppercase tracking-wider">Puebla, México</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Overlay */}
+            {/* Overlay - Subtle burgundy tint */}
             {menuOpen && (
                 <div
                     className="fixed inset-0 bg-wedding-burgundy/10 backdrop-blur-sm z-40 transition-opacity duration-500"
@@ -232,3 +239,4 @@ export default function HeaderBohoChicEN() {
         </>
     )
 }
+

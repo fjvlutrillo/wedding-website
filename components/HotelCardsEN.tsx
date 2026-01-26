@@ -94,7 +94,7 @@ export default function HotelCards() {
                 code: "BODA SUSANA & JAVIER",
                 phone: "+52 222 478 6900", // Replace with actual phone
                 extension: "8014",
-                website: "https://www.cartesiano360.com", // Replace with actual website
+                website: "https://www.cartesiano360.com/en/home", // Replace with actual website
                 email: "reservaciones@cartesiano360.com", // 👈 REQUIRED for email button
                 //emailCC: ["front@yourhotel.com"], // 👈 OPTIONAL - remove line if not needed
                 reservationMethod: 'email-phone' // ✅ Don't change this - it enables both buttons
