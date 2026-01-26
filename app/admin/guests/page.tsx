@@ -198,7 +198,7 @@ export default function GuestUploadPage() {
     const getFormalInviteMessageES = (guestName: string, token: string) => {
         return `¡Hola ${guestName}! 
 
-Te compartimos los detalles de nuestra boda. Por favor confirma tu asistencia aquí:
+Te compartimos los detalles de nuestra boda. Por favor confirma tu asistencia al final de la invitación:
 
 https://bodasusanayjavier.com/?token=${token}
 
@@ -222,7 +222,7 @@ Susana & Javier 💑🥳🍾`
 
 Solo como recordatorio 😊. ¿Podrías confirmar tu asistencia cuando tengas un momento?
 
-Confirma aquí: https://bodasusanayjavier.com/?token=${token}
+Confirma aquí: https://bodasusanayjavier.com/rsvp?token=${token}
 
 ¡Gracias! ❤️`
     }
