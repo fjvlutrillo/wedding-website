@@ -351,7 +351,7 @@ export default function RSVPFormBohoChic() {
                 {/* Back to site link */}
                 <div className="text-center mt-8">
                     <a
-                        href="/"
+                        href={token ? `/?token=${token}` : '/'} 
                         className="inline-flex items-center gap-2 text-sm text-stone-600 hover:text-wedding-burgundy transition-colors"
                     >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">

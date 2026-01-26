@@ -12,6 +12,7 @@
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/auth-helpers-react": "^0.5.0",
     "@supabase/supabase-js": "^2.49.8",
+    "@vercel/analytics": "^1.6.1",
     "canvas-confetti": "^1.9.3",
     "keen-slider": "^6.8.6",
     "konva": "^9.3.22",

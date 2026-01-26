@@ -1,6 +1,7 @@
 import './globals.css'
 import { Italianno, Bodoni_Moda, Luxurious_Script } from 'next/font/google'
 import BodyWrapper from '@/components/BodyWrapper'
+import { Analytics } from "@vercel/analytics/next"
 
 const italianno = Italianno({
   weight: '400',
@@ -88,7 +89,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es">
       <BodyWrapper fontClasses={`${bodoni.variable} ${italianno.variable} ${luxury.variable}`}>
         {children}
-
+        <Analytics />
         <footer className="bg-gradient-to-b from-stone-50 to-white border-t border-stone-200 text-stone-600 text-center py-4 w-full">
           <div className="max-w-4xl mx-auto px-4 space-y-2">
             <div className="flex items-center justify-center gap-3">
@@ -107,3 +108,5 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   )
 }
+
+
