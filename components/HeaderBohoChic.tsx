@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * BOHO-CHIC EDITORIAL HEADER
+ * BOHO-CHIC EDITORIAL HEADER - SECURED VERSION
  * 
  * Updated to match the fashion magazine aesthetic:
  * - Minimalist clean design
@@ -10,6 +10,7 @@
  * - Magazine-style slide-out menu
  * - Elegant animations
  * - RSVP FIRST with burgundy highlight
+ * - 🔒 SECURED MENU ITEMS (only show with token)
  */
 
 import { useState, useEffect } from 'react'
@@ -41,6 +42,21 @@ export default function HeaderBohoChic() {
         return () => window.removeEventListener('scroll', handleScroll)
     }, [])
 
+    // 🔒 DEFINE MENU ITEMS - Some are secured (only visible with token)
+    const allMenuItems = [
+        { href: '/#inicio', label: 'Inicio', secured: false },
+        { href: '/#historia', label: 'Nuestra Historia', secured: false },
+        { href: '/#evento', label: 'El Evento', secured: true }, // 🔒 SECURED
+        { href: '/#dresscode', label: 'Código de Vestimenta', secured: true }, // 🔒 SECURED
+        { href: '/#galeria', label: 'Galería', secured: false },
+        { href: '/#registry', label: 'Mesa de Regalos', secured: false },
+    ]
+
+    // Filter menu items - only show secured items if user has token
+    const visibleMenuItems = allMenuItems.filter(item =>
+        !item.secured || (item.secured && showRSVP)
+    )
+
     return (
         <>
             <header
@@ -51,9 +67,9 @@ export default function HeaderBohoChic() {
             >
                 <div className="relative flex justify-between items-center px-6 sm:px-8 w-full max-w-7xl mx-auto">
 
-                    {/* Left: Editorial Logo */}
+                    {/* Left: Editorial Logo - Preserves token in link */}
                     <Link
-                        href="/"
+                        href={showRSVP ? `/?token=${token}` : '/'}
                         className="group flex flex-col"
                     >
                         <span className="text-base sm:text-lg font-light tracking-[0.15em] uppercase text-wedding-burgundy group-hover:text-wedding-burgundy-light transition-colors duration-300">
@@ -124,7 +140,7 @@ export default function HeaderBohoChic() {
 
                     {/* Navigation - Editorial list style */}
                     <nav className="flex-1 p-8 space-y-2 overflow-y-auto">
-                        {/* 🎯 RSVP BUTTON - FIRST & HIGHLIGHTED IN BURGUNDY */}
+                        {/* 🎯 RSVP BUTTON - FIRST & HIGHLIGHTED IN BURGUNDY (only with token) */}
                         {showRSVP && (
                             <Link
                                 href={`/rsvp?token=${token}`}
@@ -164,18 +180,11 @@ export default function HeaderBohoChic() {
                             </Link>
                         )}
 
-                        {/* Regular Menu Items */}
-                        {[
-                            { href: '/#inicio', label: 'Inicio' },
-                            { href: '/#historia', label: 'Nuestra Historia' },
-                            { href: '/#evento', label: 'El Evento' },
-                            { href: '/#dresscode', label: 'Código de Vestimenta' },
-                            { href: '/#galeria', label: 'Galería' },
-                            { href: '/#registry', label: 'Mesa de Regalos' },
-                        ].map((item, idx) => (
+                        {/* Regular Menu Items - FILTERED (secured items hidden without token) */}
+                        {visibleMenuItems.map((item, idx) => (
                             <Link
                                 key={item.href}
-                                href={item.href}
+                                href={showRSVP ? `${item.href.split('#')[0]}?token=${token}#${item.href.split('#')[1]}` : item.href}
                                 onClick={() => setMenuOpen(false)}
                                 className="group block py-4 border-b border-wedding-blush/30 hover:border-wedding-burgundy/30 transition-all duration-300"
                             >

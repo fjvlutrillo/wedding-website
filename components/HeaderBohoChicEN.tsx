@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * BOHO-CHIC EDITORIAL HEADER
+ * BOHO-CHIC EDITORIAL HEADER - ENGLISH VERSION - SECURED
  * 
  * Updated to match the fashion magazine aesthetic:
  * - Minimalist clean design
@@ -10,6 +10,7 @@
  * - Magazine-style slide-out menu
  * - Elegant animations
  * - RSVP FIRST with burgundy highlight
+ * - 🔒 SECURED MENU ITEMS (only show with token)
  */
 
 import { useState, useEffect } from 'react'
@@ -41,6 +42,22 @@ export default function HeaderBohoChicEN() {
         return () => window.removeEventListener('scroll', handleScroll)
     }, [])
 
+    // 🔒 DEFINE MENU ITEMS - Some are secured (only visible with token)
+    const allMenuItems = [
+        { href: '/en#inicio', label: 'Home', secured: false },
+        { href: '/en#story', label: 'Our Story', secured: false },
+        { href: '/en#evento', label: 'The Event', secured: true }, // 🔒 SECURED
+        { href: '/en#travel', label: 'Travel Guide', secured: true }, // 🔒 SECURED
+        { href: '/en#dresscode', label: 'Dress Code', secured: true }, // 🔒 SECURED
+        { href: '/en#gallery', label: 'Gallery', secured: false },
+        { href: '/en#registry', label: 'Gift Registry', secured: false },
+    ]
+
+    // Filter menu items - only show secured items if user has token
+    const visibleMenuItems = allMenuItems.filter(item =>
+        !item.secured || (item.secured && showRSVP)
+    )
+
     return (
         <>
             <header
@@ -51,9 +68,9 @@ export default function HeaderBohoChicEN() {
             >
                 <div className="relative flex justify-between items-center px-6 sm:px-8 w-full max-w-7xl mx-auto">
 
-                    {/* Left: Editorial Logo */}
+                    {/* Left: Editorial Logo - Preserves token in link */}
                     <Link
-                        href="/"
+                        href={showRSVP ? `/en?token=${token}` : '/en'}
                         className="group flex flex-col"
                     >
                         <span className="text-base sm:text-lg font-light tracking-[0.15em] uppercase text-wedding-burgundy group-hover:text-wedding-burgundy-light transition-colors duration-300">
@@ -95,7 +112,7 @@ export default function HeaderBohoChicEN() {
                         <button
                             onClick={() => setMenuOpen(false)}
                             className="absolute top-8 right-8 w-12 h-12 flex items-center justify-center rounded-full hover:bg-wedding-blush/30 transition-all duration-300 group"
-                            aria-label="Cerrar menú"
+                            aria-label="Close menu"
                         >
                             <svg
                                 className="w-6 h-6 text-wedding-burgundy group-hover:rotate-90 transition-transform duration-300"
@@ -124,7 +141,7 @@ export default function HeaderBohoChicEN() {
 
                     {/* Navigation - Editorial list style */}
                     <nav className="flex-1 p-8 space-y-2 overflow-y-auto">
-                        {/* 🎯 RSVP BUTTON - FIRST & HIGHLIGHTED IN BURGUNDY */}
+                        {/* 🎯 RSVP BUTTON - FIRST & HIGHLIGHTED IN BURGUNDY (only with token) */}
                         {showRSVP && (
                             <Link
                                 href={`/rsvp?token=${token}`}
@@ -152,10 +169,10 @@ export default function HeaderBohoChicEN() {
                                         </span>
                                     </div>
                                     <p className="text-xl font-light text-white">
-                                        Confirm attendance
+                                        Confirm Attendance
                                     </p>
                                     <div className="flex items-center gap-2 text-white/80 group-hover:text-white transition-colors">
-                                        <span className="text-sm">Responder ahora</span>
+                                        <span className="text-sm">Respond now</span>
                                         <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                         </svg>
@@ -164,18 +181,11 @@ export default function HeaderBohoChicEN() {
                             </Link>
                         )}
 
-                        {/* Regular Menu Items */}
-                        {[
-                            { href: '/#inicio', label: 'Home' },
-                            { href: '/#historia', label: 'Our Story' },
-                            { href: '/#evento', label: 'The Event' },
-                            { href: '/#dresscode', label: 'Dresscode' },
-                            { href: '/#galeria', label: 'Gallery' },
-                            { href: '/#registry', label: 'Gift Registry' },
-                        ].map((item, idx) => (
+                        {/* Regular Menu Items - FILTERED (secured items hidden without token) */}
+                        {visibleMenuItems.map((item, idx) => (
                             <Link
                                 key={item.href}
-                                href={item.href}
+                                href={showRSVP ? `${item.href.split('#')[0]}?token=${token}#${item.href.split('#')[1]}` : item.href}
                                 onClick={() => setMenuOpen(false)}
                                 className="group block py-4 border-b border-wedding-blush/30 hover:border-wedding-burgundy/30 transition-all duration-300"
                             >
@@ -212,7 +222,7 @@ export default function HeaderBohoChicEN() {
                             <div className="flex items-baseline gap-3">
                                 <span className="text-5xl font-light text-wedding-burgundy tabular-nums">06</span>
                                 <div>
-                                    <p className="text-lg font-light text-charcoal">Junio</p>
+                                    <p className="text-lg font-light text-charcoal">June</p>
                                     <p className="text-3xl font-light text-wedding-burgundy tabular-nums">2026</p>
                                 </div>
                             </div>
@@ -239,4 +249,3 @@ export default function HeaderBohoChicEN() {
         </>
     )
 }
-
