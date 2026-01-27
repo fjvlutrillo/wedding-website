@@ -266,9 +266,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ==================== EVENT SECTIONS ==================== */}
-      <EventsSection />
-      <DressCodeSection />
+      {/* ==================== 🔒 SECURED SECTIONS - ONLY WITH TOKEN ==================== */}
+      {showRSVP && (
+        <>
+          <EventsSection />
+          <DressCodeSection />
+        </>
+      )}
 
       {/* ==================== COUNTDOWN - BOLD GRAPHIC DESIGN ==================== */}
       <section className="relative py-16 sm:py-20 lg:py-24 px-4 bg-wedding-terracotta overflow-hidden">

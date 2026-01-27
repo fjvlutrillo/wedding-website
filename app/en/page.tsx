@@ -263,10 +263,15 @@ function MainPageContentEN() {
                 </div>
             </section>
 
-            {/* ==================== NEW SECTIONS ==================== */}
-            <EventsSection />
-            <TravelGuide />
-            <DressCodeSection />
+
+            {/* ==================== 🔒 SECURED SECTIONS - ONLY WITH TOKEN ==================== */}
+            {showRSVP && (
+                <>
+                    <EventsSection />
+                    <TravelGuide />
+                    <DressCodeSection />
+                </>
+            )}
 
             {/* ==================== COUNTDOWN ==================== */}
             <section className="relative py-16 sm:py-20 lg:py-24 px-4 bg-wedding-terracotta overflow-hidden">
