@@ -22,11 +22,11 @@ export default function GuestUploadPage() {
         guest_count: 1,
         phone_number: '',
         email: '',
-        whoInvites: 'Susana',
+        whoInvites: 'Susana', // default value
         dietary_restrictions: '',
     })
 
-    // Filter state
+    // ---- Filter state ----
     const [q, setQ] = useState('')
     const [confirmFilter, setConfirmFilter] = useState<ConfirmFilter>('all')
     const [tableFilter, setTableFilter] = useState<string>('')
@@ -44,6 +44,7 @@ export default function GuestUploadPage() {
             }
         }
         getSession()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const fetchGuests = async () => {
@@ -54,6 +55,7 @@ export default function GuestUploadPage() {
     const handleManualAdd = async () => {
         if (!session) return
 
+        // Basic validation
         if (!manualGuest.name.trim()) {
             alert('❌ Por favor ingresa el nombre del invitado')
             return
@@ -83,6 +85,8 @@ export default function GuestUploadPage() {
         }
     }
 
+    // 🔧 FIX #1: Flexible column name matching for Excel uploads
+    // This handles variations in column names (with/without accents, different cases)
     const findColumnValue = (row: any, possibleNames: string[]): string => {
         for (const name of possibleNames) {
             if (row[name] !== undefined && row[name] !== null) {
@@ -102,29 +106,45 @@ export default function GuestUploadPage() {
             const worksheet = workbook.Sheets[workbook.SheetNames[0]]
             const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet)
 
-            const mapped = jsonData.map((g: any) => ({
-                name: findColumnValue(g, ['Invitado', 'invitado', 'Nombre', 'nombre', 'Name', 'name']),
-                guest_count: parseInt(findColumnValue(g, ['Invitados', 'invitados', 'Numero', 'numero', 'Number', 'number', 'Número', 'número'])) || 1,
-                phone_number: findColumnValue(g, ['Teléfono', 'Telefono', 'teléfono', 'telefono', 'Phone', 'phone', 'Celular', 'celular', 'WhatsApp', 'whatsapp']),
-                email: findColumnValue(g, ['Email', 'email', 'Correo', 'correo', 'E-mail', 'e-mail']),
-                dietary_restrictions: findColumnValue(g, ['Restricciones', 'restricciones', 'Dietary', 'dietary', 'Dieta', 'dieta']),
-                whoInvites: findColumnValue(g, ['Invita', 'invita', 'QuienInvita', 'quien_invita']) || 'Susana',
-                invite_token: uuidv4(),
-                number_confirmations: 0,
-                table_number: null,
-                created_by: session.user.id,
-                did_confirm: null,
-            }))
+            console.log('📊 Excel columns detected:', Object.keys(jsonData[0] || {}))
+            console.log('📊 First row sample:', jsonData[0])
+
+            const mapped = jsonData.map((g: any) => {
+                // 🔧 FIX: Try multiple column name variations
+                const guestData = {
+                    name: findColumnValue(g, ['Invitado', 'invitado', 'Nombre', 'nombre', 'Name', 'name']),
+                    guest_count: parseInt(findColumnValue(g, ['Invitados', 'invitados', 'Numero', 'numero', 'Number', 'number', 'Número', 'número'])) || 1,
+                    // 🔧 FIX: Handle phone with AND without accent
+                    phone_number: findColumnValue(g, ['Teléfono', 'Telefono', 'teléfono', 'telefono', 'Phone', 'phone', 'Celular', 'celular', 'WhatsApp', 'whatsapp']),
+                    email: findColumnValue(g, ['Email', 'email', 'Correo', 'correo', 'E-mail', 'e-mail']),
+                    dietary_restrictions: findColumnValue(g, ['Restricciones', 'restricciones', 'Dietary', 'dietary', 'Dieta', 'dieta']),
+                    whoInvites: findColumnValue(g, ['Invita', 'invita', 'QuienInvita', 'quien_invita']) || 'Susana',
+                    invite_token: uuidv4(),
+                    number_confirmations: 0,
+                    table_number: null,
+                    created_by: session.user.id,
+                    did_confirm: null,
+                }
+
+                console.log('✅ Mapped guest:', guestData)
+                return guestData
+            })
+
+            console.log(`📤 Uploading ${mapped.length} guests to Supabase...`)
 
             const { error, data: insertedData } = await supabase.from('guests').insert(mapped).select()
 
             if (!error) {
                 await fetchGuests()
-                alert(`✅ ${mapped.length} invitados importados correctamente\n\nNombres: ${mapped.map(g => g.name).join(', ')}`)
+                console.log('✅ Upload successful!', insertedData)
+                alert(`✅ ${mapped.length} invitados importados correctamente\n\n` +
+                    `Nombres: ${mapped.map(g => g.name).join(', ')}`)
             } else {
+                console.error('❌ Upload error:', error)
                 alert('❌ Error al importar: ' + error.message)
             }
         } catch (err) {
+            console.error('❌ File processing error:', err)
             alert('❌ Error al procesar el archivo: ' + err)
         }
     }
@@ -132,6 +152,8 @@ export default function GuestUploadPage() {
     const startEdit = (index: number, guest: any) => {
         setEditingIndex(index)
         setEditForm({ ...guest })
+        console.log('🔧 Editing guest:', guest)
+        console.log('🔧 whoInvites value:', guest.whoInvites)
     }
 
     const cancelEdit = () => {
@@ -140,10 +162,12 @@ export default function GuestUploadPage() {
     }
 
     const updateEditField = (field: string, value: any) => {
+        console.log(`🔧 Updating field "${field}" to:`, value)
         setEditForm((prev: any) => ({ ...prev, [field]: value }))
     }
 
     const saveEdit = async (id: string) => {
+        // Validation
         if (!editForm.name?.trim()) {
             alert('❌ El nombre no puede estar vacío')
             return
@@ -154,6 +178,7 @@ export default function GuestUploadPage() {
             return
         }
 
+        // 🔧 FIX #2: Always include all fields in update, don't skip if undefined
         const updateData: any = {
             name: editForm.name,
             guest_count: parseInt(editForm.guest_count) || 0,
@@ -166,6 +191,9 @@ export default function GuestUploadPage() {
             whoInvites: editForm.whoInvites || 'Susana',
         }
 
+        console.log('💾 Saving to Supabase:', updateData)
+        console.log('💾 Guest ID:', id)
+
         const { error, data } = await supabase
             .from('guests')
             .update(updateData)
@@ -173,10 +201,12 @@ export default function GuestUploadPage() {
             .select()
 
         if (!error) {
+            console.log('✅ Supabase update successful:', data)
             await fetchGuests()
             cancelEdit()
             alert('✅ Cambios guardados correctamente')
         } else {
+            console.error('❌ Supabase update error:', error)
             alert('❌ Error al guardar: ' + error.message)
         }
     }
@@ -193,41 +223,68 @@ export default function GuestUploadPage() {
         }
     }
 
-    // ---- Message Templates ----
+    // ---- WhatsApp Message Templates ----
 
-    const getFormalInviteMessageES = (guestName: string, token: string) => {
-        return `¡Hola ${guestName}! 
+    const getSaveTheDateMessageES = (guestName: string) => {
+        return `¡Hola ${guestName}! 👋
 
-Te compartimos los detalles de nuestra boda. Por favor confirma tu asistencia al final de la invitación:
+Queremos compartir contigo una noticia muy especial: ¡Nos casamos! 💍
+
+Save the date
+📅 6 de Junio, 2026
+📍 Puebla, México
+
+¡Pronto recibirás la invitación formal!
+
+https://bodasusanayjavier.com/save-the-date
+
+Con cariño,
+Susana & Javier ❤️`
+    }
+
+    const getSaveTheDateMessageEN = (guestName: string) => {
+        return `Hi ${guestName}! 👋
+
+We want to share some very special news with you: We're getting married! 💍
+
+Save the date
+📅 June 6, 2026
+📍 Puebla, Mexico
+
+You'll receive the formal invitation soon!
+
+https://bodasusanayjavier.com/en
+
+With love,
+Susana & Javier ❤️`
+    }
+
+    const getFormalInviteMessage = (guestName: string, token: string, guestCount: number) => {
+        return `Hola ${guestName}, 
+
+Te compartimos los detalles de nuestra boda. Por favor confirma tu asistencia aquí:
 
 https://bodasusanayjavier.com/?token=${token}
+
+Número de boletos: ${guestCount} ${guestCount === 1 ? 'boleto' : 'boletos'}
 
 Con cariño,
 Susana & Javier 💑🥳🍾`
     }
 
-    const getFormalInviteMessageEN = (guestName: string, token: string) => {
-        return `Hi ${guestName}!
-
-We're excited to share our wedding details with you. Please RSVP here:
-
-https://bodasusanayjavier.com/en?token=${token}
-
-With love,
-Susana & Javier 💑🥳🍾`
-    }
-
-    const getReminderMessage = (guestName: string, token: string) => {
+    const getReminderMessage = (guestName: string, token: string, guestCount: number) => {
         return `Hola ${guestName},
 
 Solo como recordatorio 😊. ¿Podrías confirmar tu asistencia cuando tengas un momento?
 
-Confirma aquí: https://bodasusanayjavier.com/rsvp?token=${token}
+Confirma aquí: https://bodasusanayjavier.com/?token=${token}
+
+Número de boletos: ${guestCount} ${guestCount === 1 ? 'boleto' : 'boletos'}
 
 ¡Gracias! ❤️`
     }
 
-    // Filtered guests
+    // ---- Computed filtered list + totals ----
     const filteredGuests = useMemo(() => {
         const ql = q.trim().toLowerCase()
         return guests.filter((g) => {
@@ -584,41 +641,39 @@ Confirma aquí: https://bodasusanayjavier.com/rsvp?token=${token}
                                             <td className="px-4 py-2">
                                                 {guest.phone_number && guest.invite_token ? (
                                                     <div className="flex flex-col gap-2">
-                                                        {/* iMessage - English */}
                                                         <a
-                                                            href={`sms:${guest.phone_number.replace(/[^\d]/g, '')}&body=${encodeURIComponent(getFormalInviteMessageEN(guest.name, guest.invite_token))}`}
+                                                            href={`https://wa.me/${guest.phone_number.replace(/[^\d]/g, '')}?text=${encodeURIComponent(getSaveTheDateMessageES(guest.name))}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="px-3 py-1.5 bg-pink-500 hover:bg-pink-600 text-white rounded text-xs transition text-center"
+                                                            title="Save the Date - Español"
+                                                        >
+                                                            📅 Save the Date 🇲🇽
+                                                        </a>
+
+                                                        <a
+                                                            href={`https://wa.me/${guest.phone_number.replace(/[^\d]/g, '')}?text=${encodeURIComponent(getSaveTheDateMessageEN(guest.name))}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
                                                             className="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded text-xs transition text-center"
-                                                            title="Send via iMessage - English"
+                                                            title="Save the Date - English"
                                                         >
-                                                            💬 iMessage 🇺🇸
+                                                            📅 Save the Date 🇺🇸
                                                         </a>
 
-                                                        {/* WhatsApp - English */}
                                                         <a
-                                                            href={`https://wa.me/${guest.phone_number.replace(/[^\d]/g, '')}?text=${encodeURIComponent(getFormalInviteMessageEN(guest.name, guest.invite_token))}`}
+                                                            href={`https://wa.me/${guest.phone_number.replace(/[^\d]/g, '')}?text=${encodeURIComponent(getFormalInviteMessage(guest.name, guest.invite_token, guest.guest_count))}`}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
                                                             className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded text-xs transition text-center"
-                                                            title="WhatsApp - English"
+                                                            title="Invitación Formal con RSVP"
                                                         >
-                                                            💌 WhatsApp 🇺🇸
+                                                            💌 Invitación
                                                         </a>
 
-                                                        {/* WhatsApp - Spanish */}
-                                                        <a
-                                                            href={`https://wa.me/${guest.phone_number.replace(/[^\d]/g, '')}?text=${encodeURIComponent(getFormalInviteMessageES(guest.name, guest.invite_token))}`}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded text-xs transition text-center"
-                                                            title="WhatsApp - Español"
-                                                        >
-                                                            💌 WhatsApp 🇲🇽
-                                                        </a>
-
-                                                        {/* Reminder - only show if not confirmed */}
                                                         {guest.did_confirm !== true && (
                                                             <a
-                                                                href={`https://wa.me/${guest.phone_number.replace(/[^\d]/g, '')}?text=${encodeURIComponent(getReminderMessage(guest.name, guest.invite_token))}`}
+                                                                href={`https://wa.me/${guest.phone_number.replace(/[^\d]/g, '')}?text=${encodeURIComponent(getReminderMessage(guest.name, guest.invite_token, guest.guest_count))}`}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
                                                                 className="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded text-xs transition text-center"
