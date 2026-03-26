@@ -22,7 +22,7 @@ export default function GuestUploadPage() {
         guest_count: 1,
         phone_number: '',
         email: '',
-        whoInvites: 'Susana', // default value
+        whoInvites: 'Susana',
         dietary_restrictions: '',
     })
 
@@ -55,7 +55,6 @@ export default function GuestUploadPage() {
     const handleManualAdd = async () => {
         if (!session) return
 
-        // Basic validation
         if (!manualGuest.name.trim()) {
             alert('❌ Por favor ingresa el nombre del invitado')
             return
@@ -85,8 +84,6 @@ export default function GuestUploadPage() {
         }
     }
 
-    // 🔧 FIX #1: Flexible column name matching for Excel uploads
-    // This handles variations in column names (with/without accents, different cases)
     const findColumnValue = (row: any, possibleNames: string[]): string => {
         for (const name of possibleNames) {
             if (row[name] !== undefined && row[name] !== null) {
@@ -110,11 +107,9 @@ export default function GuestUploadPage() {
             console.log('📊 First row sample:', jsonData[0])
 
             const mapped = jsonData.map((g: any) => {
-                // 🔧 FIX: Try multiple column name variations
                 const guestData = {
                     name: findColumnValue(g, ['Invitado', 'invitado', 'Nombre', 'nombre', 'Name', 'name']),
                     guest_count: parseInt(findColumnValue(g, ['Invitados', 'invitados', 'Numero', 'numero', 'Number', 'number', 'Número', 'número'])) || 1,
-                    // 🔧 FIX: Handle phone with AND without accent
                     phone_number: findColumnValue(g, ['Teléfono', 'Telefono', 'teléfono', 'telefono', 'Phone', 'phone', 'Celular', 'celular', 'WhatsApp', 'whatsapp']),
                     email: findColumnValue(g, ['Email', 'email', 'Correo', 'correo', 'E-mail', 'e-mail']),
                     dietary_restrictions: findColumnValue(g, ['Restricciones', 'restricciones', 'Dietary', 'dietary', 'Dieta', 'dieta']),
@@ -125,7 +120,6 @@ export default function GuestUploadPage() {
                     created_by: session.user.id,
                     did_confirm: null,
                 }
-
                 console.log('✅ Mapped guest:', guestData)
                 return guestData
             })
@@ -137,8 +131,7 @@ export default function GuestUploadPage() {
             if (!error) {
                 await fetchGuests()
                 console.log('✅ Upload successful!', insertedData)
-                alert(`✅ ${mapped.length} invitados importados correctamente\n\n` +
-                    `Nombres: ${mapped.map(g => g.name).join(', ')}`)
+                alert(`✅ ${mapped.length} invitados importados correctamente\n\nNombres: ${mapped.map(g => g.name).join(', ')}`)
             } else {
                 console.error('❌ Upload error:', error)
                 alert('❌ Error al importar: ' + error.message)
@@ -167,7 +160,6 @@ export default function GuestUploadPage() {
     }
 
     const saveEdit = async (id: string) => {
-        // Validation
         if (!editForm.name?.trim()) {
             alert('❌ El nombre no puede estar vacío')
             return
@@ -178,7 +170,6 @@ export default function GuestUploadPage() {
             return
         }
 
-        // 🔧 FIX #2: Always include all fields in update, don't skip if undefined
         const updateData: any = {
             name: editForm.name,
             guest_count: parseInt(editForm.guest_count) || 0,
@@ -324,13 +315,7 @@ Número de boletos: ${guestCount} ${guestCount === 1 ? 'boleto' : 'boletos'}
         }
     }, [filteredGuests])
 
-    // ---- RSVP color helpers ----
-    const rsvpRowClass = (did_confirm: boolean | null) => {
-        if (did_confirm === true) return 'border-b bg-green-50 hover:bg-green-100'
-        if (did_confirm === false) return 'border-b bg-red-50 hover:bg-red-100'
-        return 'border-b bg-yellow-50 hover:bg-yellow-100'
-    }
-
+    // ---- RSVP badge helper ----
     const rsvpBadge = (did_confirm: boolean | null) => {
         if (did_confirm === true)
             return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-green-200 text-green-800">✅ Sí</span>
@@ -339,172 +324,207 @@ Número de boletos: ${guestCount} ${guestCount === 1 ? 'boleto' : 'boletos'}
         return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-yellow-200 text-yellow-800">⏳ Pendiente</span>
     }
 
-    // ---- RSVP summary counts ----
+    // ---- Stats summary (computed from filteredGuests so other filters still apply) ----
     const rsvpSummary = useMemo(() => {
         const yes = filteredGuests.filter(g => g.did_confirm === true)
         const no = filteredGuests.filter(g => g.did_confirm === false)
         const pending = filteredGuests.filter(g => g.did_confirm === null)
+
+        const yesTickets = yes.reduce((s, g) => s + (parseInt(g.guest_count) || 0), 0)
+        const noTickets = no.reduce((s, g) => s + (parseInt(g.guest_count) || 0), 0)
+        const pendingTickets = pending.reduce((s, g) => s + (parseInt(g.guest_count) || 0), 0)
+        const totalTickets = yesTickets + noTickets + pendingTickets
+
+        // Confirmed tickets ÷ total allocated tickets
+        const confirmationRate = totalTickets > 0
+            ? Math.round((yesTickets / totalTickets) * 100)
+            : 0
+
         return {
-            yesCount: yes.length,
-            yesTickets: yes.reduce((s, g) => s + (parseInt(g.guest_count) || 0), 0),
-            noCount: no.length,
-            noTickets: no.reduce((s, g) => s + (parseInt(g.guest_count) || 0), 0),
-            pendingCount: pending.length,
-            pendingTickets: pending.reduce((s, g) => s + (parseInt(g.guest_count) || 0), 0),
+            yesCount: yes.length, yesTickets,
+            noCount: no.length, noTickets,
+            pendingCount: pending.length, pendingTickets,
+            totalGroups: filteredGuests.length,
+            totalTickets,
+            confirmationRate,
         }
     }, [filteredGuests])
 
     if (!session) return <p className="p-8">Verificando acceso...</p>
 
+    // ---- KPI card definitions ----
+    const pct = (n: number, d: number) => Math.round((n / (d || 1)) * 100)
+    const totalGroups = rsvpSummary.totalGroups || 1
+    const totalTickets = rsvpSummary.totalTickets || 1
+
+    const kpiCards = [
+        {
+            label: 'Confirmados',
+            sublabel: 'Asistirán',
+            tickets: rsvpSummary.yesTickets,
+            groups: rsvpSummary.yesCount,
+            pctTickets: pct(rsvpSummary.yesTickets, totalTickets),
+            pctGroups: pct(rsvpSummary.yesCount, totalGroups),
+            filter: 'yes' as ConfirmFilter,
+            accent: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0',
+            bar: '#4ade80', textPrimary: '#14532d', textSecondary: '#15803d',
+            icon: '✅',
+        },
+        {
+            label: 'No Asisten',
+            sublabel: 'Declinaron',
+            tickets: rsvpSummary.noTickets,
+            groups: rsvpSummary.noCount,
+            pctTickets: pct(rsvpSummary.noTickets, totalTickets),
+            pctGroups: pct(rsvpSummary.noCount, totalGroups),
+            filter: 'no' as ConfirmFilter,
+            accent: '#dc2626', bg: '#fff1f2', border: '#fecdd3',
+            bar: '#f87171', textPrimary: '#7f1d1d', textSecondary: '#b91c1c',
+            icon: '❌',
+        },
+        {
+            label: 'Pendientes',
+            sublabel: 'Sin respuesta',
+            tickets: rsvpSummary.pendingTickets,
+            groups: rsvpSummary.pendingCount,
+            pctTickets: pct(rsvpSummary.pendingTickets, totalTickets),
+            pctGroups: pct(rsvpSummary.pendingCount, totalGroups),
+            filter: 'pending' as ConfirmFilter,
+            accent: '#ca8a04', bg: '#fefce8', border: '#fef08a',
+            bar: '#facc15', textPrimary: '#713f12', textSecondary: '#a16207',
+            icon: '⏳',
+        },
+    ]
+
+    // Confirmation rate banner color (red → yellow → green)
+    const rate = rsvpSummary.confirmationRate
+    const rateColor = rate >= 70 ? '#16a34a' : rate >= 40 ? '#ca8a04' : '#dc2626'
+    const rateBg = rate >= 70 ? '#f0fdf4' : rate >= 40 ? '#fefce8' : '#fff1f2'
+    const rateText = rate >= 70 ? '#14532d' : rate >= 40 ? '#713f12' : '#7f1d1d'
+
     return (
         <main className="min-h-screen bg-paper text-wine p-8">
             <h1 className="text-3xl font-bold mb-6">Gestión de invitados</h1>
 
-            {/* ── RSVP KPI Cards (Power BI style) ── */}
-            {(() => {
-                const total = rsvpSummary.yesCount + rsvpSummary.noCount + rsvpSummary.pendingCount || 1
-                const totalTickets = rsvpSummary.yesTickets + rsvpSummary.noTickets + rsvpSummary.pendingTickets || 1
-                const pct = (n: number, d: number) => Math.round((n / d) * 100)
+            {/* ── KPI Cards ──
+                Big number = boletos (tickets) — the operationally meaningful count.
+                Small text = grupos — how many invite entries that represents.
+                Two progress bars show each as a % of the filtered total.
+                Clicking a card toggles that confirmFilter in the table below.
+            */}
+            <div className="mb-4 grid grid-cols-1 sm:grid-cols-3 gap-5">
+                {kpiCards.map((c) => {
+                    const isActive = confirmFilter === c.filter
+                    return (
+                        <button
+                            key={c.filter}
+                            onClick={() => setConfirmFilter(isActive ? 'all' : c.filter)}
+                            style={{
+                                background: c.bg,
+                                borderColor: isActive ? c.accent : c.border,
+                                borderWidth: isActive ? '2px' : '1px',
+                                borderStyle: 'solid',
+                                boxShadow: isActive
+                                    ? `0 0 0 3px ${c.accent}33`
+                                    : '0 1px 3px rgba(0,0,0,0.08)',
+                            }}
+                            className="relative overflow-hidden rounded-2xl p-5 text-left transition-all duration-200 hover:scale-[1.02] hover:shadow-md cursor-pointer"
+                        >
+                            {/* Left accent bar */}
+                            <div style={{ background: c.accent }} className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-2xl" />
 
-                const cards = [
-                    {
-                        label: 'Confirmados',
-                        sublabel: 'Asistirán',
-                        count: rsvpSummary.yesCount,
-                        tickets: rsvpSummary.yesTickets,
-                        pctGuests: pct(rsvpSummary.yesCount, total),
-                        pctTickets: pct(rsvpSummary.yesTickets, totalTickets),
-                        filter: 'yes' as ConfirmFilter,
-                        accent: '#16a34a',       // green-600
-                        bg: '#f0fdf4',           // green-50
-                        border: '#bbf7d0',       // green-200
-                        bar: '#4ade80',          // green-400
-                        textPrimary: '#14532d',  // green-900
-                        textSecondary: '#15803d',// green-700
-                        icon: '✅',
-                    },
-                    {
-                        label: 'No Asisten',
-                        sublabel: 'Declinaron',
-                        count: rsvpSummary.noCount,
-                        tickets: rsvpSummary.noTickets,
-                        pctGuests: pct(rsvpSummary.noCount, total),
-                        pctTickets: pct(rsvpSummary.noTickets, totalTickets),
-                        filter: 'no' as ConfirmFilter,
-                        accent: '#dc2626',
-                        bg: '#fff1f2',
-                        border: '#fecdd3',
-                        bar: '#f87171',
-                        textPrimary: '#7f1d1d',
-                        textSecondary: '#b91c1c',
-                        icon: '❌',
-                    },
-                    {
-                        label: 'Pendientes',
-                        sublabel: 'Sin respuesta',
-                        count: rsvpSummary.pendingCount,
-                        tickets: rsvpSummary.pendingTickets,
-                        pctGuests: pct(rsvpSummary.pendingCount, total),
-                        pctTickets: pct(rsvpSummary.pendingTickets, totalTickets),
-                        filter: 'pending' as ConfirmFilter,
-                        accent: '#ca8a04',
-                        bg: '#fefce8',
-                        border: '#fef08a',
-                        bar: '#facc15',
-                        textPrimary: '#713f12',
-                        textSecondary: '#a16207',
-                        icon: '⏳',
-                    },
-                ]
-
-                return (
-                    <div className="mb-8 grid grid-cols-1 sm:grid-cols-3 gap-5">
-                        {cards.map((c) => {
-                            const isActive = confirmFilter === c.filter
-                            return (
-                                <button
-                                    key={c.filter}
-                                    onClick={() => setConfirmFilter(isActive ? 'all' : c.filter)}
-                                    style={{
-                                        background: c.bg,
-                                        borderColor: isActive ? c.accent : c.border,
-                                        borderWidth: isActive ? '2px' : '1px',
-                                        borderStyle: 'solid',
-                                        boxShadow: isActive
-                                            ? `0 0 0 3px ${c.accent}33`
-                                            : '0 1px 3px rgba(0,0,0,0.08)',
-                                    }}
-                                    className="relative overflow-hidden rounded-2xl p-5 text-left transition-all duration-200 hover:scale-[1.02] hover:shadow-md cursor-pointer"
-                                >
-                                    {/* Left accent bar */}
-                                    <div
-                                        style={{ background: c.accent }}
-                                        className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-2xl"
-                                    />
-
-                                    <div className="pl-2">
-                                        {/* Header row */}
-                                        <div className="flex items-start justify-between mb-3">
-                                            <div>
-                                                <p style={{ color: c.textSecondary }} className="text-xs font-bold uppercase tracking-widest">
-                                                    {c.label}
-                                                </p>
-                                                <p style={{ color: c.accent }} className="text-xs mt-0.5 opacity-75">
-                                                    {c.sublabel}
-                                                </p>
-                                            </div>
-                                            <span className="text-2xl leading-none">{c.icon}</span>
-                                        </div>
-
-                                        {/* Big number */}
-                                        <p style={{ color: c.textPrimary }} className="text-5xl font-extrabold leading-none tracking-tight mb-1">
-                                            {c.count}
-                                        </p>
-                                        <p style={{ color: c.textSecondary }} className="text-sm font-medium mb-4">
-                                            {c.count === 1 ? 'familia' : 'familias'} · {c.tickets} {c.tickets === 1 ? 'boleto' : 'boletos'}
-                                        </p>
-
-                                        {/* Progress bar — guests */}
-                                        <div className="mb-2">
-                                            <div className="flex justify-between text-xs mb-1" style={{ color: c.textSecondary }}>
-                                                <span>Familias</span>
-                                                <span className="font-semibold">{c.pctGuests}%</span>
-                                            </div>
-                                            <div className="h-2 rounded-full bg-white/60 overflow-hidden">
-                                                <div
-                                                    style={{ width: `${c.pctGuests}%`, background: c.bar }}
-                                                    className="h-full rounded-full transition-all duration-500"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        {/* Progress bar — tickets */}
-                                        <div>
-                                            <div className="flex justify-between text-xs mb-1" style={{ color: c.textSecondary }}>
-                                                <span>Boletos</span>
-                                                <span className="font-semibold">{c.pctTickets}%</span>
-                                            </div>
-                                            <div className="h-2 rounded-full bg-white/60 overflow-hidden">
-                                                <div
-                                                    style={{ width: `${c.pctTickets}%`, background: c.bar }}
-                                                    className="h-full rounded-full transition-all duration-500"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        {/* Active filter hint */}
-                                        {isActive && (
-                                            <p style={{ color: c.accent }} className="text-xs font-semibold mt-3 text-right">
-                                                Filtrando tabla ✕
-                                            </p>
-                                        )}
+                            <div className="pl-2">
+                                {/* Header */}
+                                <div className="flex items-start justify-between mb-3">
+                                    <div>
+                                        <p style={{ color: c.textSecondary }} className="text-xs font-bold uppercase tracking-widest">{c.label}</p>
+                                        <p style={{ color: c.accent }} className="text-xs mt-0.5 opacity-75">{c.sublabel}</p>
                                     </div>
-                                </button>
-                            )
-                        })}
+                                    <span className="text-2xl leading-none">{c.icon}</span>
+                                </div>
+
+                                {/* Primary metric: boletos */}
+                                <p style={{ color: c.textPrimary }} className="text-5xl font-extrabold leading-none tracking-tight">
+                                    {c.tickets}
+                                </p>
+                                <p style={{ color: c.textSecondary }} className="text-sm font-semibold mb-1">
+                                    {c.tickets === 1 ? 'boleto' : 'boletos'}
+                                </p>
+
+                                {/* Secondary metric: grupos */}
+                                <p style={{ color: c.textSecondary }} className="text-xs opacity-60 mb-4">
+                                    {c.groups} {c.groups === 1 ? 'grupo' : 'grupos'}
+                                </p>
+
+                                {/* Progress: Boletos % */}
+                                <div className="mb-2">
+                                    <div className="flex justify-between text-xs mb-1" style={{ color: c.textSecondary }}>
+                                        <span>Boletos</span>
+                                        <span className="font-semibold">{c.pctTickets}%</span>
+                                    </div>
+                                    <div className="h-2 rounded-full bg-white/60 overflow-hidden">
+                                        <div style={{ width: `${c.pctTickets}%`, background: c.bar }} className="h-full rounded-full transition-all duration-500" />
+                                    </div>
+                                </div>
+
+                                {/* Progress: Grupos % */}
+                                <div>
+                                    <div className="flex justify-between text-xs mb-1" style={{ color: c.textSecondary }}>
+                                        <span>Grupos</span>
+                                        <span className="font-semibold">{c.pctGroups}%</span>
+                                    </div>
+                                    <div className="h-2 rounded-full bg-white/60 overflow-hidden">
+                                        <div style={{ width: `${c.pctGroups}%`, background: c.bar }} className="h-full rounded-full transition-all duration-500" />
+                                    </div>
+                                </div>
+
+                                {isActive && (
+                                    <p style={{ color: c.accent }} className="text-xs font-semibold mt-3 text-right">
+                                        Filtrando tabla ✕
+                                    </p>
+                                )}
+                            </div>
+                        </button>
+                    )
+                })}
+            </div>
+
+            {/* ── Confirmation Rate Banner ──
+                Shows confirmed boletos / total boletos as a single % with a progress bar.
+                Color is red below 40%, yellow 40–69%, green 70%+.
+            */}
+            <div
+                style={{ background: rateBg, border: `1px solid ${rateColor}33` }}
+                className="mb-8 rounded-xl px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-3"
+            >
+                <div className="flex-1">
+                    <p style={{ color: rateText }} className="text-sm font-bold uppercase tracking-widest mb-1">
+                        🎟️ Tasa de confirmación de boletos
+                    </p>
+                    <p style={{ color: rateText }} className="text-xs opacity-70">
+                        {rsvpSummary.yesTickets} confirmados
+                        {' · '}
+                        {rsvpSummary.pendingTickets} pendientes
+                        {' · '}
+                        {rsvpSummary.noTickets} declinados
+                        {' · '}
+                        {rsvpSummary.totalTickets} total
+                    </p>
+                </div>
+                <div className="flex items-center gap-4 sm:w-64">
+                    <div className="flex-1">
+                        <div className="h-3 rounded-full bg-white/70 overflow-hidden">
+                            <div
+                                style={{ width: `${rate}%`, background: rateColor }}
+                                className="h-full rounded-full transition-all duration-700"
+                            />
+                        </div>
                     </div>
-                )
-            })()}
+                    <p style={{ color: rateColor }} className="text-3xl font-extrabold tracking-tight w-16 text-right">
+                        {rate}%
+                    </p>
+                </div>
+            </div>
 
             {/* Manual Add Form */}
             <div className="mb-8 space-y-2 bg-[#C6B89E] p-4 rounded shadow max-w-xl">
@@ -518,7 +538,7 @@ Número de boletos: ${guestCount} ${guestCount === 1 ? 'boleto' : 'boletos'}
                 />
                 <input
                     type="number"
-                    placeholder="Número de invitados"
+                    placeholder="Número de boletos"
                     value={manualGuest.guest_count}
                     onChange={(e) => setManualGuest({ ...manualGuest, guest_count: parseInt(e.target.value) })}
                     className="w-full border px-3 py-2 rounded"
@@ -654,7 +674,7 @@ Número de boletos: ${guestCount} ${guestCount === 1 ? 'boleto' : 'boletos'}
                 </div>
 
                 <div className="mt-3 text-sm text-[#173039]">
-                    Mostrando <b>{filteredGuests.length}</b> de <b>{guests.length}</b> invitados
+                    Mostrando <b>{filteredGuests.length}</b> de <b>{guests.length}</b> grupos
                 </div>
             </div>
 
@@ -665,11 +685,11 @@ Número de boletos: ${guestCount} ${guestCount === 1 ? 'boleto' : 'boletos'}
                         <tr>
                             <th className="px-4 py-2">Invitado</th>
                             <th className="px-4 py-2">Invita</th>
-                            <th className="px-4 py-2">Invitados</th>
+                            <th className="px-4 py-2">🎟️ Boletos</th>
                             <th className="px-4 py-2">Teléfono</th>
                             <th className="px-4 py-2">Email</th>
                             <th className="px-4 py-2">Restricciones Dietéticas</th>
-                            <th className="px-4 py-2">Confirmados</th>
+                            <th className="px-4 py-2">✅ Confirmados</th>
                             <th className="px-4 py-2">¿Confirmó?</th>
                             <th className="px-4 py-2">Mesa</th>
                             <th className="px-4 py-2">Token</th>
@@ -684,7 +704,7 @@ Número de boletos: ${guestCount} ${guestCount === 1 ? 'boleto' : 'boletos'}
                             const isEditing = editingIndex === globalIdx
 
                             return (
-                                <tr key={guest.id} className={rsvpRowClass(guest.did_confirm)}>
+                                <tr key={guest.id} className="border-b hover:bg-stone-50">
                                     {isEditing ? (
                                         <>
                                             <td className="px-4 py-2">
@@ -793,7 +813,7 @@ Número de boletos: ${guestCount} ${guestCount === 1 ? 'boleto' : 'boletos'}
                                                     {guest.whoInvites || '-'}
                                                 </span>
                                             </td>
-                                            <td className="px-4 py-2">{guest.guest_count}</td>
+                                            <td className="px-4 py-2 font-semibold">{guest.guest_count}</td>
                                             <td className="px-4 py-2">{guest.phone_number}</td>
                                             <td className="px-4 py-2">{guest.email}</td>
                                             <td className="px-4 py-2">
@@ -807,7 +827,7 @@ Número de boletos: ${guestCount} ${guestCount === 1 ? 'boleto' : 'boletos'}
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="px-4 py-2">{guest.number_confirmations}</td>
+                                            <td className="px-4 py-2 font-semibold">{guest.number_confirmations}</td>
                                             <td className="px-4 py-2">
                                                 {rsvpBadge(guest.did_confirm)}
                                             </td>
@@ -882,9 +902,9 @@ Número de boletos: ${guestCount} ${guestCount === 1 ? 'boleto' : 'boletos'}
                     <tfoot>
                         <tr className="font-bold bg-[#F7E7D6]">
                             <td className="px-4 py-2 text-right" colSpan={2}>Totales (filtrados)</td>
-                            <td className="px-4 py-2">{totals.invited}</td>
+                            <td className="px-4 py-2">{totals.invited} boletos</td>
                             <td colSpan={3}></td>
-                            <td className="px-4 py-2">{totals.confirmed}</td>
+                            <td className="px-4 py-2">{totals.confirmed} confirmados</td>
                             <td colSpan={5}></td>
                         </tr>
                     </tfoot>
