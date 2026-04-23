@@ -125,7 +125,7 @@ export default function RegistrySectionHybrid() {
         {/* Section Header - REDUCED mb-16 to mb-12 */}
         <div className="text-center mb-12 space-y-4">
           <span className="text-xs uppercase tracking-[0.3em] text-wedding-rose font-light">
-            Capítulo 06
+            Capítulo 07
           </span>
           <h2 className="text-4xl sm:text-5xl font-light text-charcoal">
             Mesa de

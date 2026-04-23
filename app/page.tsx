@@ -21,6 +21,7 @@ import 'keen-slider/keen-slider.min.css'
 import Image from 'next/image'
 
 // Import components
+import TravelGuide from '@/components/TravelGuideES'
 import HeaderBohoChic from '@/components/HeaderBohoChic'
 import SectionHeader from '@/components/SectionHeader'
 import HeroSectionBohoChic from '@/components/HeroSectionBohoChic'
@@ -271,6 +272,7 @@ export default function Home() {
         <>
           <EventsSection />
           <DressCodeSection />
+          <TravelGuide />
         </>
       )}
 
@@ -287,7 +289,7 @@ export default function Home() {
 
           {/* Bold centered title */}
           <SectionHeader
-            chapter="04"
+            chapter="05"
             title="Cuenta"
             subtitle="Regresiva"
             align="center"
@@ -330,7 +332,7 @@ export default function Home() {
 
           {/* Editorial Section Header */}
           <SectionHeader
-            chapter="05"
+            chapter="06"
             title=""
             subtitle="Galería"
             align="center"
@@ -396,7 +398,7 @@ export default function Home() {
 
             {/* Editorial Section Header */}
             <SectionHeader
-              chapter="07"
+              chapter="08"
               title="¿Nos"
               subtitle="Acompañas?"
               description="Tu presencia es el mejor regalo. Por favor, haznos saber si podrás acompañarnos en este día tan especial."

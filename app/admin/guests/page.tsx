@@ -22,8 +22,9 @@ export default function GuestUploadPage() {
         guest_count: 1,
         phone_number: '',
         email: '',
-        whoInvites: 'Susana',
+        whoInvites: 'Susana', // default value
         dietary_restrictions: '',
+        comments: '',
     })
 
     // ---- Filter state ----
@@ -55,6 +56,7 @@ export default function GuestUploadPage() {
     const handleManualAdd = async () => {
         if (!session) return
 
+        // Basic validation
         if (!manualGuest.name.trim()) {
             alert('❌ Por favor ingresa el nombre del invitado')
             return
@@ -77,13 +79,15 @@ export default function GuestUploadPage() {
 
         if (!error) {
             await fetchGuests()
-            setManualGuest({ name: '', guest_count: 1, phone_number: '', email: '', whoInvites: 'Susana', dietary_restrictions: '' })
+            setManualGuest({ name: '', guest_count: 1, phone_number: '', email: '', whoInvites: 'Susana', dietary_restrictions: '', comments: '' })
             alert(`✅ Invitado "${manualGuest.name}" agregado correctamente`)
         } else {
             alert('❌ Error al agregar: ' + error.message)
         }
     }
 
+    // 🔧 FIX #1: Flexible column name matching for Excel uploads
+    // This handles variations in column names (with/without accents, different cases)
     const findColumnValue = (row: any, possibleNames: string[]): string => {
         for (const name of possibleNames) {
             if (row[name] !== undefined && row[name] !== null) {
@@ -107,9 +111,11 @@ export default function GuestUploadPage() {
             console.log('📊 First row sample:', jsonData[0])
 
             const mapped = jsonData.map((g: any) => {
+                // 🔧 FIX: Try multiple column name variations
                 const guestData = {
                     name: findColumnValue(g, ['Invitado', 'invitado', 'Nombre', 'nombre', 'Name', 'name']),
                     guest_count: parseInt(findColumnValue(g, ['Invitados', 'invitados', 'Numero', 'numero', 'Number', 'number', 'Número', 'número'])) || 1,
+                    // 🔧 FIX: Handle phone with AND without accent
                     phone_number: findColumnValue(g, ['Teléfono', 'Telefono', 'teléfono', 'telefono', 'Phone', 'phone', 'Celular', 'celular', 'WhatsApp', 'whatsapp']),
                     email: findColumnValue(g, ['Email', 'email', 'Correo', 'correo', 'E-mail', 'e-mail']),
                     dietary_restrictions: findColumnValue(g, ['Restricciones', 'restricciones', 'Dietary', 'dietary', 'Dieta', 'dieta']),
@@ -120,6 +126,7 @@ export default function GuestUploadPage() {
                     created_by: session.user.id,
                     did_confirm: null,
                 }
+
                 console.log('✅ Mapped guest:', guestData)
                 return guestData
             })
@@ -131,7 +138,8 @@ export default function GuestUploadPage() {
             if (!error) {
                 await fetchGuests()
                 console.log('✅ Upload successful!', insertedData)
-                alert(`✅ ${mapped.length} invitados importados correctamente\n\nNombres: ${mapped.map(g => g.name).join(', ')}`)
+                alert(`✅ ${mapped.length} invitados importados correctamente\n\n` +
+                    `Nombres: ${mapped.map(g => g.name).join(', ')}`)
             } else {
                 console.error('❌ Upload error:', error)
                 alert('❌ Error al importar: ' + error.message)
@@ -160,6 +168,7 @@ export default function GuestUploadPage() {
     }
 
     const saveEdit = async (id: string) => {
+        // Validation
         if (!editForm.name?.trim()) {
             alert('❌ El nombre no puede estar vacío')
             return
@@ -170,16 +179,20 @@ export default function GuestUploadPage() {
             return
         }
 
+        // 🔧 FIX #2: Always include all fields in update, don't skip if undefined
+        // The problem was that if whoInvites was "Susana" and we're setting it to "Susana",
+        // it might not be in editForm properly
         const updateData: any = {
             name: editForm.name,
             guest_count: parseInt(editForm.guest_count) || 0,
             phone_number: editForm.phone_number || '',
             email: editForm.email || '',
             dietary_restrictions: editForm.dietary_restrictions || '',
+            comments: editForm.comments || '',
             table_number: editForm.table_number ? parseInt(editForm.table_number) : null,
             number_confirmations: parseInt(editForm.number_confirmations) || 0,
             did_confirm: editForm.did_confirm === null ? null : editForm.did_confirm,
-            whoInvites: editForm.whoInvites || 'Susana',
+            whoInvites: editForm.whoInvites || 'Susana', // 🔧 CRITICAL FIX: Always set this field
         }
 
         console.log('💾 Saving to Supabase:', updateData)
@@ -189,11 +202,11 @@ export default function GuestUploadPage() {
             .from('guests')
             .update(updateData)
             .eq('id', id)
-            .select()
+            .select() // 🔧 FIX: Add .select() to see what was actually saved
 
         if (!error) {
             console.log('✅ Supabase update successful:', data)
-            await fetchGuests()
+            await fetchGuests() // Refetch to ensure UI matches database
             cancelEdit()
             alert('✅ Cambios guardados correctamente')
         } else {
@@ -250,29 +263,76 @@ With love,
 Susana & Javier ❤️`
     }
 
-    const getFormalInviteMessage = (guestName: string, token: string, guestCount: number) => {
+    const getFormalInviteMessage = (guestName: string, token: string) => {
         return `Hola ${guestName}, 
 
 Te compartimos los detalles de nuestra boda. Por favor confirma tu asistencia aquí:
 
 https://bodasusanayjavier.com/?token=${token}
 
-Número de boletos: ${guestCount} ${guestCount === 1 ? 'boleto' : 'boletos'}
-
 Con cariño,
 Susana & Javier 💑🥳🍾`
     }
 
-    const getReminderMessage = (guestName: string, token: string, guestCount: number) => {
+    const getReminderMessage = (guestName: string, token: string, guestCount?: number) => {
+        const boletosLine = guestCount !== undefined
+            ? `\nNúmero de boletos: ${guestCount} ${guestCount === 1 ? 'boleto' : 'boletos'}`
+            : ''
         return `Hola ${guestName},
 
 Solo como recordatorio 😊. ¿Podrías confirmar tu asistencia cuando tengas un momento?
 
-Confirma aquí: https://bodasusanayjavier.com/?token=${token}
-
-Número de boletos: ${guestCount} ${guestCount === 1 ? 'boleto' : 'boletos'}
+Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
 
 ¡Gracias! ❤️`
+    }
+
+    // ---- Export to Excel ----
+    const exportToExcel = () => {
+        const rows = filteredGuests.map((g) => {
+            const phone = (g.phone_number || '').replace(/[^\d]/g, '')
+            const confirmLabel =
+                g.did_confirm === true ? 'Sí' :
+                    g.did_confirm === false ? 'No' : 'Pendiente'
+
+            // Build the same WhatsApp reminder URL used by the reminder button
+            const whatsappUrl = phone && g.invite_token
+                ? `https://wa.me/${phone}?text=${encodeURIComponent(getReminderMessage(g.name, g.invite_token, g.guest_count))}`
+                : ''
+
+            return {
+                'Nombre del Invitado': g.name || '',
+                'Boletos Asignados': g.guest_count || 0,
+                'Boletos Confirmados': g.number_confirmations || 0,
+                'Teléfono': g.phone_number || '',
+                'Invita': g.whoInvites || '',
+                '¿Confirmó?': confirmLabel,
+                'Restricciones Dietéticas': g.dietary_restrictions || '',
+                'Comentarios': g.comments || '',
+                'WhatsApp Recordatorio': whatsappUrl,
+            }
+        })
+
+        const ws = XLSX.utils.json_to_sheet(rows)
+
+        // Column widths for readability
+        ws['!cols'] = [
+            { wch: 30 }, // Nombre
+            { wch: 18 }, // Boletos Asignados
+            { wch: 20 }, // Boletos Confirmados
+            { wch: 18 }, // Teléfono
+            { wch: 12 }, // Invita
+            { wch: 14 }, // ¿Confirmó?
+            { wch: 30 }, // Restricciones
+            { wch: 30 }, // Comentarios
+            { wch: 80 }, // WhatsApp URL
+        ]
+
+        const wb = XLSX.utils.book_new()
+        XLSX.utils.book_append_sheet(wb, ws, 'Invitados')
+
+        const date = new Date().toISOString().slice(0, 10)
+        XLSX.writeFile(wb, `invitados_${date}.xlsx`)
     }
 
     // ---- Computed filtered list + totals ----
@@ -315,215 +375,20 @@ Número de boletos: ${guestCount} ${guestCount === 1 ? 'boleto' : 'boletos'}
         }
     }, [filteredGuests])
 
-    // ---- RSVP badge helper ----
-    const rsvpBadge = (did_confirm: boolean | null) => {
-        if (did_confirm === true)
-            return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-green-200 text-green-800">✅ Sí</span>
-        if (did_confirm === false)
-            return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-red-200 text-red-800">❌ No</span>
-        return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-yellow-200 text-yellow-800">⏳ Pendiente</span>
-    }
-
-    // ---- Stats summary (computed from filteredGuests so other filters still apply) ----
-    const rsvpSummary = useMemo(() => {
-        const yes = filteredGuests.filter(g => g.did_confirm === true)
-        const no = filteredGuests.filter(g => g.did_confirm === false)
-        const pending = filteredGuests.filter(g => g.did_confirm === null)
-
-        const yesTickets = yes.reduce((s, g) => s + (parseInt(g.guest_count) || 0), 0)
-        const noTickets = no.reduce((s, g) => s + (parseInt(g.guest_count) || 0), 0)
-        const pendingTickets = pending.reduce((s, g) => s + (parseInt(g.guest_count) || 0), 0)
-        const totalTickets = yesTickets + noTickets + pendingTickets
-
-        // Confirmed tickets ÷ total allocated tickets
-        const confirmationRate = totalTickets > 0
-            ? Math.round((yesTickets / totalTickets) * 100)
-            : 0
-
-        return {
-            yesCount: yes.length, yesTickets,
-            noCount: no.length, noTickets,
-            pendingCount: pending.length, pendingTickets,
-            totalGroups: filteredGuests.length,
-            totalTickets,
-            confirmationRate,
-        }
-    }, [filteredGuests])
-
     if (!session) return <p className="p-8">Verificando acceso...</p>
-
-    // ---- KPI card definitions ----
-    const pct = (n: number, d: number) => Math.round((n / (d || 1)) * 100)
-    const totalGroups = rsvpSummary.totalGroups || 1
-    const totalTickets = rsvpSummary.totalTickets || 1
-
-    const kpiCards = [
-        {
-            label: 'Confirmados',
-            sublabel: 'Asistirán',
-            tickets: rsvpSummary.yesTickets,
-            groups: rsvpSummary.yesCount,
-            pctTickets: pct(rsvpSummary.yesTickets, totalTickets),
-            pctGroups: pct(rsvpSummary.yesCount, totalGroups),
-            filter: 'yes' as ConfirmFilter,
-            accent: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0',
-            bar: '#4ade80', textPrimary: '#14532d', textSecondary: '#15803d',
-            icon: '✅',
-        },
-        {
-            label: 'No Asisten',
-            sublabel: 'Declinaron',
-            tickets: rsvpSummary.noTickets,
-            groups: rsvpSummary.noCount,
-            pctTickets: pct(rsvpSummary.noTickets, totalTickets),
-            pctGroups: pct(rsvpSummary.noCount, totalGroups),
-            filter: 'no' as ConfirmFilter,
-            accent: '#dc2626', bg: '#fff1f2', border: '#fecdd3',
-            bar: '#f87171', textPrimary: '#7f1d1d', textSecondary: '#b91c1c',
-            icon: '❌',
-        },
-        {
-            label: 'Pendientes',
-            sublabel: 'Sin respuesta',
-            tickets: rsvpSummary.pendingTickets,
-            groups: rsvpSummary.pendingCount,
-            pctTickets: pct(rsvpSummary.pendingTickets, totalTickets),
-            pctGroups: pct(rsvpSummary.pendingCount, totalGroups),
-            filter: 'pending' as ConfirmFilter,
-            accent: '#ca8a04', bg: '#fefce8', border: '#fef08a',
-            bar: '#facc15', textPrimary: '#713f12', textSecondary: '#a16207',
-            icon: '⏳',
-        },
-    ]
-
-    // Confirmation rate banner color (red → yellow → green)
-    const rate = rsvpSummary.confirmationRate
-    const rateColor = rate >= 70 ? '#16a34a' : rate >= 40 ? '#ca8a04' : '#dc2626'
-    const rateBg = rate >= 70 ? '#f0fdf4' : rate >= 40 ? '#fefce8' : '#fff1f2'
-    const rateText = rate >= 70 ? '#14532d' : rate >= 40 ? '#713f12' : '#7f1d1d'
 
     return (
         <main className="min-h-screen bg-paper text-wine p-8">
-            <h1 className="text-3xl font-bold mb-6">Gestión de invitados</h1>
-
-            {/* ── KPI Cards ──
-                Big number = boletos (tickets) — the operationally meaningful count.
-                Small text = grupos — how many invite entries that represents.
-                Two progress bars show each as a % of the filtered total.
-                Clicking a card toggles that confirmFilter in the table below.
-            */}
-            <div className="mb-4 grid grid-cols-1 sm:grid-cols-3 gap-5">
-                {kpiCards.map((c) => {
-                    const isActive = confirmFilter === c.filter
-                    return (
-                        <button
-                            key={c.filter}
-                            onClick={() => setConfirmFilter(isActive ? 'all' : c.filter)}
-                            style={{
-                                background: c.bg,
-                                borderColor: isActive ? c.accent : c.border,
-                                borderWidth: isActive ? '2px' : '1px',
-                                borderStyle: 'solid',
-                                boxShadow: isActive
-                                    ? `0 0 0 3px ${c.accent}33`
-                                    : '0 1px 3px rgba(0,0,0,0.08)',
-                            }}
-                            className="relative overflow-hidden rounded-2xl p-5 text-left transition-all duration-200 hover:scale-[1.02] hover:shadow-md cursor-pointer"
-                        >
-                            {/* Left accent bar */}
-                            <div style={{ background: c.accent }} className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-2xl" />
-
-                            <div className="pl-2">
-                                {/* Header */}
-                                <div className="flex items-start justify-between mb-3">
-                                    <div>
-                                        <p style={{ color: c.textSecondary }} className="text-xs font-bold uppercase tracking-widest">{c.label}</p>
-                                        <p style={{ color: c.accent }} className="text-xs mt-0.5 opacity-75">{c.sublabel}</p>
-                                    </div>
-                                    <span className="text-2xl leading-none">{c.icon}</span>
-                                </div>
-
-                                {/* Primary metric: boletos */}
-                                <p style={{ color: c.textPrimary }} className="text-5xl font-extrabold leading-none tracking-tight">
-                                    {c.tickets}
-                                </p>
-                                <p style={{ color: c.textSecondary }} className="text-sm font-semibold mb-1">
-                                    {c.tickets === 1 ? 'boleto' : 'boletos'}
-                                </p>
-
-                                {/* Secondary metric: grupos */}
-                                <p style={{ color: c.textSecondary }} className="text-xs opacity-60 mb-4">
-                                    {c.groups} {c.groups === 1 ? 'grupo' : 'grupos'}
-                                </p>
-
-                                {/* Progress: Boletos % */}
-                                <div className="mb-2">
-                                    <div className="flex justify-between text-xs mb-1" style={{ color: c.textSecondary }}>
-                                        <span>Boletos</span>
-                                        <span className="font-semibold">{c.pctTickets}%</span>
-                                    </div>
-                                    <div className="h-2 rounded-full bg-white/60 overflow-hidden">
-                                        <div style={{ width: `${c.pctTickets}%`, background: c.bar }} className="h-full rounded-full transition-all duration-500" />
-                                    </div>
-                                </div>
-
-                                {/* Progress: Grupos % */}
-                                <div>
-                                    <div className="flex justify-between text-xs mb-1" style={{ color: c.textSecondary }}>
-                                        <span>Grupos</span>
-                                        <span className="font-semibold">{c.pctGroups}%</span>
-                                    </div>
-                                    <div className="h-2 rounded-full bg-white/60 overflow-hidden">
-                                        <div style={{ width: `${c.pctGroups}%`, background: c.bar }} className="h-full rounded-full transition-all duration-500" />
-                                    </div>
-                                </div>
-
-                                {isActive && (
-                                    <p style={{ color: c.accent }} className="text-xs font-semibold mt-3 text-right">
-                                        Filtrando tabla ✕
-                                    </p>
-                                )}
-                            </div>
-                        </button>
-                    )
-                })}
-            </div>
-
-            {/* ── Confirmation Rate Banner ──
-                Shows confirmed boletos / total boletos as a single % with a progress bar.
-                Color is red below 40%, yellow 40–69%, green 70%+.
-            */}
-            <div
-                style={{ background: rateBg, border: `1px solid ${rateColor}33` }}
-                className="mb-8 rounded-xl px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-3"
-            >
-                <div className="flex-1">
-                    <p style={{ color: rateText }} className="text-sm font-bold uppercase tracking-widest mb-1">
-                        🎟️ Tasa de confirmación de boletos
-                    </p>
-                    <p style={{ color: rateText }} className="text-xs opacity-70">
-                        {rsvpSummary.yesTickets} confirmados
-                        {' · '}
-                        {rsvpSummary.pendingTickets} pendientes
-                        {' · '}
-                        {rsvpSummary.noTickets} declinados
-                        {' · '}
-                        {rsvpSummary.totalTickets} total
-                    </p>
-                </div>
-                <div className="flex items-center gap-4 sm:w-64">
-                    <div className="flex-1">
-                        <div className="h-3 rounded-full bg-white/70 overflow-hidden">
-                            <div
-                                style={{ width: `${rate}%`, background: rateColor }}
-                                className="h-full rounded-full transition-all duration-700"
-                            />
-                        </div>
-                    </div>
-                    <p style={{ color: rateColor }} className="text-3xl font-extrabold tracking-tight w-16 text-right">
-                        {rate}%
-                    </p>
-                </div>
+            <div className="flex items-center justify-between mb-6">
+                <h1 className="text-3xl font-bold">Gestión de invitados</h1>
+                <button
+                    onClick={exportToExcel}
+                    className="flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white font-medium px-5 py-2.5 rounded-lg shadow transition"
+                    title="Exporta la lista filtrada actual a Excel"
+                >
+                    📥 Exportar Excel
+                    <span className="text-xs opacity-75">({filteredGuests.length} invitados)</span>
+                </button>
             </div>
 
             {/* Manual Add Form */}
@@ -538,7 +403,7 @@ Número de boletos: ${guestCount} ${guestCount === 1 ? 'boleto' : 'boletos'}
                 />
                 <input
                     type="number"
-                    placeholder="Número de boletos"
+                    placeholder="Número de invitados"
                     value={manualGuest.guest_count}
                     onChange={(e) => setManualGuest({ ...manualGuest, guest_count: parseInt(e.target.value) })}
                     className="w-full border px-3 py-2 rounded"
@@ -561,6 +426,13 @@ Número de boletos: ${guestCount} ${guestCount === 1 ? 'boleto' : 'boletos'}
                     placeholder="Restricciones dietéticas (opcional)"
                     value={manualGuest.dietary_restrictions}
                     onChange={(e) => setManualGuest({ ...manualGuest, dietary_restrictions: e.target.value })}
+                    className="w-full border px-3 py-2 rounded"
+                    rows={2}
+                />
+                <textarea
+                    placeholder="Comentarios (opcional)"
+                    value={manualGuest.comments}
+                    onChange={(e) => setManualGuest({ ...manualGuest, comments: e.target.value })}
                     className="w-full border px-3 py-2 rounded"
                     rows={2}
                 />
@@ -674,7 +546,7 @@ Número de boletos: ${guestCount} ${guestCount === 1 ? 'boleto' : 'boletos'}
                 </div>
 
                 <div className="mt-3 text-sm text-[#173039]">
-                    Mostrando <b>{filteredGuests.length}</b> de <b>{guests.length}</b> grupos
+                    Mostrando <b>{filteredGuests.length}</b> de <b>{guests.length}</b> invitados
                 </div>
             </div>
 
@@ -685,15 +557,16 @@ Número de boletos: ${guestCount} ${guestCount === 1 ? 'boleto' : 'boletos'}
                         <tr>
                             <th className="px-4 py-2">Invitado</th>
                             <th className="px-4 py-2">Invita</th>
-                            <th className="px-4 py-2">🎟️ Boletos</th>
+                            <th className="px-4 py-2">Invitados</th>
                             <th className="px-4 py-2">Teléfono</th>
                             <th className="px-4 py-2">Email</th>
                             <th className="px-4 py-2">Restricciones Dietéticas</th>
-                            <th className="px-4 py-2">✅ Confirmados</th>
+                            <th className="px-4 py-2">Comentarios</th>
+                            <th className="px-4 py-2">Confirmados</th>
                             <th className="px-4 py-2">¿Confirmó?</th>
                             <th className="px-4 py-2">Mesa</th>
                             <th className="px-4 py-2">Token</th>
-                            <th className="px-4 py-2">Enviar Invitación</th>
+                            <th className="px-4 py-2">WhatsApp</th>
                             <th className="px-4 py-2">Acciones</th>
                         </tr>
                     </thead>
@@ -717,12 +590,18 @@ Número de boletos: ${guestCount} ${guestCount === 1 ? 'boleto' : 'boletos'}
                                             <td className="px-4 py-2">
                                                 <select
                                                     value={editForm.whoInvites ?? 'Susana'}
-                                                    onChange={(e) => updateEditField('whoInvites', e.target.value)}
+                                                    onChange={(e) => {
+                                                        console.log('🔧 Dropdown changed to:', e.target.value)
+                                                        updateEditField('whoInvites', e.target.value)
+                                                    }}
                                                     className="border px-2 py-1 rounded w-full bg-white"
                                                 >
                                                     <option value="Susana">Susana</option>
                                                     <option value="Javier">Javier</option>
                                                 </select>
+                                                <div className="text-xs text-gray-500 mt-1">
+                                                    Actual: {editForm.whoInvites}
+                                                </div>
                                             </td>
                                             <td className="px-4 py-2">
                                                 <input
@@ -753,6 +632,15 @@ Número de boletos: ${guestCount} ${guestCount === 1 ? 'boleto' : 'boletos'}
                                                     className="border px-2 py-1 rounded w-full"
                                                     rows={2}
                                                     placeholder="Sin restricciones"
+                                                />
+                                            </td>
+                                            <td className="px-4 py-2">
+                                                <textarea
+                                                    value={editForm.comments ?? ''}
+                                                    onChange={(e) => updateEditField('comments', e.target.value)}
+                                                    className="border px-2 py-1 rounded w-full"
+                                                    rows={2}
+                                                    placeholder="Sin comentarios"
                                                 />
                                             </td>
                                             <td className="px-4 py-2">
@@ -813,7 +701,7 @@ Número de boletos: ${guestCount} ${guestCount === 1 ? 'boleto' : 'boletos'}
                                                     {guest.whoInvites || '-'}
                                                 </span>
                                             </td>
-                                            <td className="px-4 py-2 font-semibold">{guest.guest_count}</td>
+                                            <td className="px-4 py-2">{guest.guest_count}</td>
                                             <td className="px-4 py-2">{guest.phone_number}</td>
                                             <td className="px-4 py-2">{guest.email}</td>
                                             <td className="px-4 py-2">
@@ -827,9 +715,20 @@ Número de boletos: ${guestCount} ${guestCount === 1 ? 'boleto' : 'boletos'}
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="px-4 py-2 font-semibold">{guest.number_confirmations}</td>
                                             <td className="px-4 py-2">
-                                                {rsvpBadge(guest.did_confirm)}
+                                                <div className="max-w-xs">
+                                                    {guest.comments ? (
+                                                        <span className="text-xs bg-blue-50 border border-blue-200 px-2 py-1 rounded inline-block">
+                                                            {guest.comments}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-gray-400 text-xs">—</span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="px-4 py-2">{guest.number_confirmations}</td>
+                                            <td className="px-4 py-2">
+                                                {guest.did_confirm === null ? '-' : guest.did_confirm ? 'Sí' : 'No'}
                                             </td>
                                             <td className="px-4 py-2">{guest.table_number}</td>
                                             <td className="px-4 py-2 font-mono text-xs break-all">{guest.invite_token}</td>
@@ -858,7 +757,7 @@ Número de boletos: ${guestCount} ${guestCount === 1 ? 'boleto' : 'boletos'}
                                                         </a>
 
                                                         <a
-                                                            href={`https://wa.me/${guest.phone_number.replace(/[^\d]/g, '')}?text=${encodeURIComponent(getFormalInviteMessage(guest.name, guest.invite_token, guest.guest_count))}`}
+                                                            href={`https://wa.me/${guest.phone_number.replace(/[^\d]/g, '')}?text=${encodeURIComponent(getFormalInviteMessage(guest.name, guest.invite_token))}`}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
                                                             className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded text-xs transition text-center"
@@ -869,7 +768,7 @@ Número de boletos: ${guestCount} ${guestCount === 1 ? 'boleto' : 'boletos'}
 
                                                         {guest.did_confirm !== true && (
                                                             <a
-                                                                href={`https://wa.me/${guest.phone_number.replace(/[^\d]/g, '')}?text=${encodeURIComponent(getReminderMessage(guest.name, guest.invite_token, guest.guest_count))}`}
+                                                                href={`https://wa.me/${guest.phone_number.replace(/[^\d]/g, '')}?text=${encodeURIComponent(getReminderMessage(guest.name, guest.invite_token))}`}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
                                                                 className="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded text-xs transition text-center"
@@ -903,7 +802,7 @@ Número de boletos: ${guestCount} ${guestCount === 1 ? 'boleto' : 'boletos'}
                         <tr className="font-bold bg-[#F7E7D6]">
                             <td className="px-4 py-2 text-right" colSpan={2}>Totales (filtrados)</td>
                             <td className="px-4 py-2">{totals.invited} boletos</td>
-                            <td colSpan={3}></td>
+                            <td colSpan={4}></td>
                             <td className="px-4 py-2">{totals.confirmed} confirmados</td>
                             <td colSpan={5}></td>
                         </tr>

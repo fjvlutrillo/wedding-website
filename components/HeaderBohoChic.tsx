@@ -45,11 +45,12 @@ export default function HeaderBohoChic() {
     // 🔒 DEFINE MENU ITEMS - Some are secured (only visible with token)
     const allMenuItems = [
         { href: '/#inicio', label: 'Inicio', secured: false },
-        { href: '/#historia', label: 'Nuestra Historia', secured: false },
-        { href: '/#evento', label: 'El Evento', secured: true }, // 🔒 SECURED
-        { href: '/#dresscode', label: 'Código de Vestimenta', secured: true }, // 🔒 SECURED
+        { href: '/#historia', label: 'Nuestra historia', secured: false },
+        { href: '/#evento', label: 'El evento', secured: true }, // 🔒 SECURED
+        { href: '/#dresscode', label: 'Código de vestimenta', secured: true }, // 🔒 SECURED
+        { href: '/#guia', label: 'Guía de viaje', secured: true }, // 🔒 SECURED
         { href: '/#galeria', label: 'Galería', secured: false },
-        { href: '/#registry', label: 'Mesa de Regalos', secured: false },
+        { href: '/#registry', label: 'Mesa de regalos', secured: false },
     ]
 
     // Filter menu items - only show secured items if user has token
