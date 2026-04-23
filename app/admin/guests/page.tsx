@@ -295,9 +295,11 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
                 g.did_confirm === true ? 'Sí' :
                     g.did_confirm === false ? 'No' : 'Pendiente'
 
-            // Build the same WhatsApp reminder URL used by the reminder button
+            // Minimal message for Excel hyperlink — keeps URL under 255 chars for HYPERLINK() formula
+            const count = g.guest_count || 1
+            const minimalMsg = `https://bodasusanayjavier.com/?token=${g.invite_token} Boletos: ${count}`
             const whatsappUrl = phone && g.invite_token
-                ? `https://wa.me/${phone}?text=${encodeURIComponent(getReminderMessage(g.name, g.invite_token, g.guest_count))}`
+                ? `https://wa.me/${phone}?text=${encodeURIComponent(minimalMsg)}`
                 : ''
 
             return {
