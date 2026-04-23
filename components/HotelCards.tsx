@@ -92,7 +92,7 @@ export default function HotelCards() {
             distance: "20 min de la hacienda", // Replace with actual distance
             reservationInfo: {
                 code: "BODA SUSANA & JAVIER",
-                phone: "+52 222 478 6900 ext. 8014", // Replace with actual phone
+                phone: "+52 222 478 6900", // Replace with actual phone
                 extension: "8014",
                 website: "https://www.cartesiano360.com", // Replace with actual website
                 email: "reservaciones@cartesiano360.com", // 👈 REQUIRED for email button
