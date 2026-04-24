@@ -379,6 +379,76 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
 
     if (!session) return <p className="p-8">Verificando acceso...</p>
 
+    // ---- RSVP badge helper ----
+    const rsvpBadge = (did_confirm: boolean | null) => {
+        if (did_confirm === true)
+            return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-green-200 text-green-800">✅ Sí</span>
+        if (did_confirm === false)
+            return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-red-200 text-red-800">❌ No</span>
+        return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-yellow-200 text-yellow-800">⏳ Pendiente</span>
+    }
+
+    // ---- Stats summary ----
+    const rsvpSummary = (() => {
+        const yes = filteredGuests.filter(g => g.did_confirm === true)
+        const no = filteredGuests.filter(g => g.did_confirm === false)
+        const pending = filteredGuests.filter(g => g.did_confirm === null)
+        const yesTickets = yes.reduce((s, g) => s + (parseInt(g.guest_count) || 0), 0)
+        const noTickets = no.reduce((s, g) => s + (parseInt(g.guest_count) || 0), 0)
+        const pendingTickets = pending.reduce((s, g) => s + (parseInt(g.guest_count) || 0), 0)
+        const totalTickets = yesTickets + noTickets + pendingTickets
+        const confirmationRate = totalTickets > 0 ? Math.round((yesTickets / totalTickets) * 100) : 0
+        return {
+            yesCount: yes.length, yesTickets,
+            noCount: no.length, noTickets,
+            pendingCount: pending.length, pendingTickets,
+            totalGroups: filteredGuests.length,
+            totalTickets,
+            confirmationRate,
+        }
+    })()
+
+    // ---- KPI card definitions ----
+    const pct = (n: number, d: number) => Math.round((n / (d || 1)) * 100)
+    const totalGroups = rsvpSummary.totalGroups || 1
+    const totalTickets = rsvpSummary.totalTickets || 1
+
+    const kpiCards = [
+        {
+            label: 'Confirmados', sublabel: 'Asistirán',
+            tickets: rsvpSummary.yesTickets, groups: rsvpSummary.yesCount,
+            pctTickets: pct(rsvpSummary.yesTickets, totalTickets),
+            pctGroups: pct(rsvpSummary.yesCount, totalGroups),
+            filter: 'yes' as ConfirmFilter,
+            accent: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0',
+            bar: '#4ade80', textPrimary: '#14532d', textSecondary: '#15803d', icon: '✅',
+        },
+        {
+            label: 'No Asisten', sublabel: 'Declinaron',
+            tickets: rsvpSummary.noTickets, groups: rsvpSummary.noCount,
+            pctTickets: pct(rsvpSummary.noTickets, totalTickets),
+            pctGroups: pct(rsvpSummary.noCount, totalGroups),
+            filter: 'no' as ConfirmFilter,
+            accent: '#dc2626', bg: '#fff1f2', border: '#fecdd3',
+            bar: '#f87171', textPrimary: '#7f1d1d', textSecondary: '#b91c1c', icon: '❌',
+        },
+        {
+            label: 'Pendientes', sublabel: 'Sin respuesta',
+            tickets: rsvpSummary.pendingTickets, groups: rsvpSummary.pendingCount,
+            pctTickets: pct(rsvpSummary.pendingTickets, totalTickets),
+            pctGroups: pct(rsvpSummary.pendingCount, totalGroups),
+            filter: 'pending' as ConfirmFilter,
+            accent: '#ca8a04', bg: '#fefce8', border: '#fef08a',
+            bar: '#facc15', textPrimary: '#713f12', textSecondary: '#a16207', icon: '⏳',
+        },
+    ]
+
+    // Confirmation rate banner color
+    const rate = rsvpSummary.confirmationRate
+    const rateColor = rate >= 70 ? '#16a34a' : rate >= 40 ? '#ca8a04' : '#dc2626'
+    const rateBg = rate >= 70 ? '#f0fdf4' : rate >= 40 ? '#fefce8' : '#fff1f2'
+    const rateText = rate >= 70 ? '#14532d' : rate >= 40 ? '#713f12' : '#7f1d1d'
+
     return (
         <main className="min-h-screen bg-paper text-wine p-8">
             <div className="flex items-center justify-between mb-6">
@@ -393,7 +463,105 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
                 </button>
             </div>
 
-            {/* Manual Add Form */}
+            {/* ── KPI Cards ── */}
+            <div className="mb-4 grid grid-cols-1 sm:grid-cols-3 gap-5">
+                {kpiCards.map((c) => {
+                    const isActive = confirmFilter === c.filter
+                    return (
+                        <button
+                            key={c.filter}
+                            onClick={() => setConfirmFilter(isActive ? 'all' : c.filter)}
+                            style={{
+                                background: c.bg,
+                                borderColor: isActive ? c.accent : c.border,
+                                borderWidth: isActive ? '2px' : '1px',
+                                borderStyle: 'solid',
+                                boxShadow: isActive
+                                    ? `0 0 0 3px ${c.accent}33`
+                                    : '0 1px 3px rgba(0,0,0,0.08)',
+                            }}
+                            className="relative overflow-hidden rounded-2xl p-5 text-left transition-all duration-200 hover:scale-[1.02] hover:shadow-md cursor-pointer"
+                        >
+                            <div style={{ background: c.accent }} className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-2xl" />
+                            <div className="pl-2">
+                                <div className="flex items-start justify-between mb-3">
+                                    <div>
+                                        <p style={{ color: c.textSecondary }} className="text-xs font-bold uppercase tracking-widest">{c.label}</p>
+                                        <p style={{ color: c.accent }} className="text-xs mt-0.5 opacity-75">{c.sublabel}</p>
+                                    </div>
+                                    <span className="text-2xl leading-none">{c.icon}</span>
+                                </div>
+                                <p style={{ color: c.textPrimary }} className="text-5xl font-extrabold leading-none tracking-tight">
+                                    {c.tickets}
+                                </p>
+                                <p style={{ color: c.textSecondary }} className="text-sm font-semibold mb-1">
+                                    {c.tickets === 1 ? 'boleto' : 'boletos'}
+                                </p>
+                                <p style={{ color: c.textSecondary }} className="text-xs opacity-60 mb-4">
+                                    {c.groups} {c.groups === 1 ? 'grupo' : 'grupos'}
+                                </p>
+                                <div className="mb-2">
+                                    <div className="flex justify-between text-xs mb-1" style={{ color: c.textSecondary }}>
+                                        <span>Boletos</span>
+                                        <span className="font-semibold">{c.pctTickets}%</span>
+                                    </div>
+                                    <div className="h-2 rounded-full bg-white/60 overflow-hidden">
+                                        <div style={{ width: `${c.pctTickets}%`, background: c.bar }} className="h-full rounded-full transition-all duration-500" />
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="flex justify-between text-xs mb-1" style={{ color: c.textSecondary }}>
+                                        <span>Grupos</span>
+                                        <span className="font-semibold">{c.pctGroups}%</span>
+                                    </div>
+                                    <div className="h-2 rounded-full bg-white/60 overflow-hidden">
+                                        <div style={{ width: `${c.pctGroups}%`, background: c.bar }} className="h-full rounded-full transition-all duration-500" />
+                                    </div>
+                                </div>
+                                {isActive && (
+                                    <p style={{ color: c.accent }} className="text-xs font-semibold mt-3 text-right">
+                                        Filtrando tabla ✕
+                                    </p>
+                                )}
+                            </div>
+                        </button>
+                    )
+                })}
+            </div>
+
+            {/* ── Confirmation Rate Banner ── */}
+            <div
+                style={{ background: rateBg, border: `1px solid ${rateColor}33` }}
+                className="mb-8 rounded-xl px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-3"
+            >
+                <div className="flex-1">
+                    <p style={{ color: rateText }} className="text-sm font-bold uppercase tracking-widest mb-1">
+                        🎟️ Tasa de confirmación de boletos
+                    </p>
+                    <p style={{ color: rateText }} className="text-xs opacity-70">
+                        {rsvpSummary.yesTickets} confirmados
+                        {' · '}
+                        {rsvpSummary.pendingTickets} pendientes
+                        {' · '}
+                        {rsvpSummary.noTickets} declinados
+                        {' · '}
+                        {rsvpSummary.totalTickets} total
+                    </p>
+                </div>
+                <div className="flex items-center gap-4 sm:w-64">
+                    <div className="flex-1">
+                        <div className="h-3 rounded-full bg-white/70 overflow-hidden">
+                            <div
+                                style={{ width: `${rate}%`, background: rateColor }}
+                                className="h-full rounded-full transition-all duration-700"
+                            />
+                        </div>
+                    </div>
+                    <p style={{ color: rateColor }} className="text-3xl font-extrabold tracking-tight w-16 text-right">
+                        {rate}%
+                    </p>
+                </div>
+            </div>
             <div className="mb-8 space-y-2 bg-[#C6B89E] p-4 rounded shadow max-w-xl">
                 <h2 className="text-xl font-semibold mb-2">Agregar invitado manualmente</h2>
                 <input
@@ -730,7 +898,7 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
                                             </td>
                                             <td className="px-4 py-2">{guest.number_confirmations}</td>
                                             <td className="px-4 py-2">
-                                                {guest.did_confirm === null ? '-' : guest.did_confirm ? 'Sí' : 'No'}
+                                                {rsvpBadge(guest.did_confirm)}
                                             </td>
                                             <td className="px-4 py-2">{guest.table_number}</td>
                                             <td className="px-4 py-2 font-mono text-xs break-all">{guest.invite_token}</td>
