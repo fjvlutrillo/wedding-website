@@ -80,7 +80,7 @@ export default function Home() {
 
   // Countdown timer logic
   useEffect(() => {
-    const weddingDate = new Date('2026-06-06T14:30:00')
+    const weddingDate = new Date('2026-06-06T14:00:00')
     const updateCountdown = () => {
       const now = new Date()
       const diff = weddingDate.getTime() - now.getTime()

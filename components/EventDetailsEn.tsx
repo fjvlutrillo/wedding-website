@@ -21,7 +21,7 @@ export default function EventDetailsEN() {
     const events: Record<'ceremony' | 'reception', Event> = {
         ceremony: {
             title: 'Religious Ceremony',
-            time: '1:00 PM',
+            time: '2:00 PM',
             location: 'Chapel at Hacienda San Juan Bautista Amalucan',
             address: 'Tecamachalco, Bosques Amaluca, Puebla',
             mapUrl: 'https://maps.google.com/?q=Hacienda+San+Juan+Bautista+Amalucan',
@@ -30,7 +30,7 @@ export default function EventDetailsEN() {
         },
         reception: {
             title: 'Reception',
-            time: '3:00 PM',
+            time: '4:00 PM',
             location: 'Hacienda gardens',
             address: 'Same location - Hacienda San Juan Bautista Amalucan',
             mapUrl: 'https://maps.google.com/?q=Hacienda+San+Juan+Bautista+Amalucan',
