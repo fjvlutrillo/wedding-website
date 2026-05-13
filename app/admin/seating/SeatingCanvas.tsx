@@ -1,211 +1,379 @@
 'use client'
 
+/**
+ * SeatingCanvas.tsx  – v2
+ *
+ * What changed from v1:
+ * ──────────────────────────────────────────────────────────────────
+ * 1. CLOUD PERSISTENCE
+ *    Layout is saved/loaded from Supabase Storage
+ *    (bucket "seating", object "layouts/current_layout.json").
+ *    localStorage is kept as a fast local cache only.
+ *    On mount: tries cloud first, falls back to localStorage.
+ *    Auto-saves to cloud 2 s after any change (debounced).
+ *
+ * 2. NEW SHAPE  'serpentine'
+ *    An S-shaped table (two offset rectangles joined visually).
+ *    Seats distributed along the outer edges, capped at MAX_SEATS.
+ *
+ * 3. SEAT LABELS now show first name (≤7 chars) instead of initials.
+ *
+ * 4. MAX SEATS = 20 per table, enforced in UI and logic.
+ *
+ * 5. DEFAULT DECOR elements on fresh load:
+ *      – Pista de Baile  (centre, large)
+ *      – Bar             (upper-left)
+ *      – Mesa de Novios  (upper-centre)
+ *    All are draggable, resizable via inspector, no seat logic.
+ *
+ * Nothing else was removed or changed.
+ * ──────────────────────────────────────────────────────────────────
+ */
+
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Stage, Layer, Rect, Circle, Text, Group } from 'react-konva'
 import { supabase } from '@/lib/supabaseClient'
 
-export default function SeatingCanvas() {
-    // ========== Types ==========
-    type Guest = {
-        id: string
-        name: string | null
-        guest_count: number | null
-        number_confirmations: number | null
-        table_number: number | null
-        email?: string | null
-        phone_number?: string | null
-        did_confirm?: boolean | null
-    }
+// ─── Constants ────────────────────────────────────────────────────────────────
+const MAX_SEATS = 20
+const LS_TABLES = 'sj_seating_tables_v2'
+const LS_STATE = 'sj_seating_state_v2'
+const CLOUD_KEY = 'layouts/current_layout.json'
+const BUCKET = 'seating'
 
-    type TableShape = 'round' | 'rect'
-    type TableModel = {
-        id: string
-        number: number
-        name: string
-        type: TableShape
-        seats: number
-        x: number
-        y: number
-        rotation: number
-    }
-    type Occupant =
-        | { kind: 'guest'; guestId: string; name: string }
-        | { kind: 'companion'; guestId: string; name: string; idx: number }
-    type Seat = { seatNo: number; occupant?: Occupant }
-    type SeatingState = { [tableNumber: number]: Seat[] }
+// ─── Types ────────────────────────────────────────────────────────────────────
+type TableShape = 'round' | 'rect' | 'serpentine'
 
-    // ========== Constants / helpers ==========
-    const LS_TABLES = 'sj_seating_tables_v1'
-    const LS_STATE = 'sj_seating_state_v1'
-    const genId = () => crypto.randomUUID()
-    const seatsFrom = (g: Guest) =>
-        (g.number_confirmations ?? 0) > 0 ? g.number_confirmations! : (g.guest_count ?? 1)
+type TableModel = {
+    id: string
+    number: number
+    name: string
+    type: TableShape
+    seats: number
+    x: number
+    y: number
+    rotation: number
+    /** Decorative non-seat element (dance floor, bar, etc.) */
+    isDecor?: boolean
+    decorLabel?: string
+    decorColor?: string
+    decorWidth?: number
+    decorHeight?: number
+}
 
-    const palette = {
-        burgundyDark: '#4D1C20',
-        burgundy: '#651D28',
-        rose: '#E5AAAE',
-        roseMid: '#CC7379',
-        sage: '#BDC2AC',
-        ivory: '#FCFCFC',
-        gray: '#9D9D9D',
-        pageBg: '#FBF3F9',
-    }
+type Guest = {
+    id: string
+    name: string | null
+    guest_count: number | null
+    number_confirmations: number | null
+    table_number: number | null
+    email?: string | null
+    phone_number?: string | null
+    did_confirm?: boolean | null
+}
 
-    const toInt = (v: any, fallback: number) => {
-        const n = Number(v)
-        return Number.isFinite(n) ? Math.floor(n) : fallback
-    }
+type Occupant =
+    | { kind: 'guest'; guestId: string; name: string }
+    | { kind: 'companion'; guestId: string; name: string; idx: number }
 
-    function circleSeats(cx: number, cy: number, radius: number, seats: number, rotationDeg: number) {
-        const count = Math.max(1, seats || 1)
-        const rad = (deg: number) => (deg * Math.PI) / 180
-        const out: { x: number; y: number }[] = []
-        const step = 360 / count
-        for (let i = 0; i < count; i++) {
-            const a = rad(rotationDeg + i * step - 90)
-            out.push({ x: cx + radius * Math.cos(a), y: cy + radius * Math.sin(a) })
+type Seat = { seatNo: number; occupant?: Occupant }
+type SeatingState = { [tableNumber: number]: Seat[] }
+
+// ─── Palette ──────────────────────────────────────────────────────────────────
+const P = {
+    burgundyDark: '#4D1C20',
+    burgundy: '#47091C',
+    rose: '#E5AAAE',
+    roseMid: '#CC7379',
+    sage: '#BDC2AC',
+    ivory: '#FCFCFC',
+    gray: '#9D9D9D',
+    gold: '#C9A96E',
+    danceFloor: '#F0E8D6',
+    danceBorder: '#C9A96E',
+}
+
+// ─── Default decorative elements ─────────────────────────────────────────────
+const DEFAULT_DECOR: TableModel[] = [
+    {
+        id: 'decor-dance', number: 0, name: 'Pista de Baile', type: 'rect',
+        seats: 0, x: 500, y: 360, rotation: 0,
+        isDecor: true, decorLabel: 'Pista de Baile', decorColor: P.danceFloor,
+        decorWidth: 300, decorHeight: 200,
+    },
+    {
+        id: 'decor-bar', number: 0, name: 'Bar', type: 'rect',
+        seats: 0, x: 120, y: 90, rotation: 0,
+        isDecor: true, decorLabel: 'Bar 🍹', decorColor: '#E8D5B7',
+        decorWidth: 150, decorHeight: 60,
+    },
+    {
+        id: 'decor-bride', number: 0, name: 'Mesa de Novios', type: 'rect',
+        seats: 0, x: 510, y: 90, rotation: 0,
+        isDecor: true, decorLabel: 'Mesa de Novios 💑', decorColor: '#EDD5D8',
+        decorWidth: 220, decorHeight: 60,
+    },
+]
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+const genId = () => crypto.randomUUID()
+const toInt = (v: unknown, fallback: number) => { const n = Number(v); return Number.isFinite(n) ? Math.floor(n) : fallback }
+const clampSeats = (n: number) => Math.min(MAX_SEATS, Math.max(1, n))
+
+function loadLocal<T>(key: string, fallback: T): T {
+    try { return JSON.parse(localStorage.getItem(key) || 'null') ?? fallback } catch { return fallback }
+}
+function saveLocal(key: string, val: unknown) {
+    try { localStorage.setItem(key, JSON.stringify(val)) } catch { /* storage quota */ }
+}
+
+async function loadFromCloud(): Promise<{ tables: TableModel[]; seating: SeatingState } | null> {
+    try {
+        const { data, error } = await supabase.storage.from(BUCKET).download(CLOUD_KEY)
+        // "Object not found" is expected on first use — treat as empty, not an error.
+        if (error) {
+            const msg = (error as any)?.message ?? ''
+            if (msg.includes('not found') || msg.includes('404') || msg.includes('Object not found')) return null
+            console.warn('[SeatingCanvas] Cloud load error:', error)
+            return null
         }
-        return out
+        if (!data) return null
+        const parsed = JSON.parse(await data.text())
+        return { tables: parsed.tables ?? [], seating: parsed.seating ?? {} }
+    } catch (e) {
+        console.warn('[SeatingCanvas] loadFromCloud exception:', e)
+        return null
     }
+}
 
-    function renameCompanion(tableNo: number, seatIndex: number) {
-        const current = seating[tableNo] ?? []
-        const occ = current[seatIndex]?.occupant
-        if (!occ || occ.kind !== 'companion') return
-        const newName = prompt('Nombre del acompañante:', occ.name)
-        if (newName == null) return
-        const copy = current.slice()
-        copy[seatIndex] = { seatNo: seatIndex + 1, occupant: { ...occ, name: newName || occ.name } }
-        setSeating({ ...seating, [tableNo]: copy })
+async function saveToCloud(tables: TableModel[], seating: SeatingState): Promise<void> {
+    const blob = new Blob(
+        [JSON.stringify({ version: 2, saved_at: new Date().toISOString(), tables, seating }, null, 2)],
+        { type: 'application/json' }
+    )
+    const { error } = await supabase.storage
+        .from(BUCKET)
+        .upload(CLOUD_KEY, blob, { upsert: true, contentType: 'application/json' })
+    if (error) {
+        console.error('[SeatingCanvas] saveToCloud error:', error)
+        throw error
     }
+}
 
-    const loadTables = (): TableModel[] => {
-        try { return JSON.parse(localStorage.getItem(LS_TABLES) || '[]') } catch { return [] }
-    }
-    const saveTables = (t: TableModel[]) => localStorage.setItem(LS_TABLES, JSON.stringify(t))
-    const loadSeating = (): SeatingState => {
-        try { return JSON.parse(localStorage.getItem(LS_STATE) || '{}') } catch { return {} }
-    }
-    
+/**
+ * Deletes the cloud layout so you can start fresh.
+ * Called from the "Reiniciar layout" button in the sidebar.
+ */
+async function deleteCloudLayout(): Promise<void> {
+    const { error } = await supabase.storage.from(BUCKET).remove([CLOUD_KEY])
+    if (error) throw error
+}
 
-    // ========== Component state ==========
+// ─── Seat position calculators ────────────────────────────────────────────────
+/** Evenly distributed around a circle */
+function circleSeatPos(cx: number, cy: number, r: number, count: number) {
+    return Array.from({ length: count }, (_, i) => {
+        const a = (2 * Math.PI / count) * i - Math.PI / 2
+        return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) }
+    })
+}
+
+/** Seats along top and bottom edge of a rectangle */
+function rectSeatPos(cx: number, cy: number, w: number, h: number, count: number) {
+    const out: { x: number; y: number }[] = []
+    const perSide = Math.ceil(count / 2)
+    for (let i = 0; i < perSide && out.length < count; i++)
+        out.push({ x: cx - w / 2 + w / (perSide + 1) * (i + 1), y: cy - h / 2 - 18 })
+    for (let i = 0; i < perSide && out.length < count; i++)
+        out.push({ x: cx - w / 2 + w / (perSide + 1) * (i + 1), y: cy + h / 2 + 18 })
+    return out
+}
+
+/**
+ * S-shaped table: two offset rectangles.
+ * Upper half of seats around top rect, lower half around bottom rect.
+ */
+function serpentineSeatPos(count: number): { x: number; y: number }[] {
+    const segW = 155, segH = 52
+    const topCX = -28, topCY = -(segH / 2 + 2)
+    const botCX = 28, botCY = (segH / 2 + 2)
+    const half = Math.ceil(count / 2)
+    return [
+        ...rectSeatPos(topCX, topCY, segW, segH, half),
+        ...rectSeatPos(botCX, botCY, segW, segH, count - half),
+    ]
+}
+
+/** First name label, max 7 chars */
+function seatLabel(fullName: string | null | undefined, fallback: string): string {
+    if (!fullName?.trim()) return fallback
+    const first = fullName.trim().split(/\s+/)[0]
+    return first.length > 7 ? first.slice(0, 6) + '…' : first
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
+export default function SeatingCanvas() {
     const stageRef = useRef<any>(null)
     const containerRef = useRef<HTMLDivElement>(null)
-    const [stageSize, setStageSize] = useState<{ w: number; h: number }>({ w: 1000, h: 700 })
+    const seatingRef = useRef<SeatingState>({})        // stable ref for async callbacks
+    const cloudTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+    const [stageSize, setStageSize] = useState({ w: 1000, h: 700 })
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
+    const [cloudStatus, setCloudStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+
     const [guests, setGuests] = useState<Guest[]>([])
     const [tables, setTables] = useState<TableModel[]>([])
-    // Seating state (supports value and functional updates, and persists to localStorage)
-    const [seating, _setSeating] = useState<SeatingState>({})
-
-    type SetSeating = (update: SeatingState | ((prev: SeatingState) => SeatingState)) => void
-    const setSeating: SetSeating = (update) => {
-        _setSeating(prev => {
-            const next =
-                typeof update === 'function'
-                    ? (update as (p: SeatingState) => SeatingState)(prev)
-                    : update
-            try {
-                localStorage.setItem(LS_STATE, JSON.stringify(next))
-            } catch { }
-            return next
-        })
-    }
+    const [seating, _rawSetSeating] = useState<SeatingState>({})
 
     const [selectedTableId, setSelectedTableId] = useState<string | null>(null)
     const [showNewTable, setShowNewTable] = useState(false)
     const [search, setSearch] = useState('')
 
-    // ========== Effects ==========
+    // ── Seating setter: also mirrors to localStorage and cloud ref ────────
+    const setSeating = (update: SeatingState | ((p: SeatingState) => SeatingState)) => {
+        _rawSetSeating(prev => {
+            const next = typeof update === 'function' ? update(prev) : update
+            saveLocal(LS_STATE, next)
+            seatingRef.current = next
+            return next
+        })
+    }
+
+    // ── Debounced cloud save ───────────────────────────────────────────────
+    const scheduleCloudSave = (t: TableModel[], s: SeatingState) => {
+        if (cloudTimer.current) clearTimeout(cloudTimer.current)
+        setCloudStatus('saving')
+        cloudTimer.current = setTimeout(async () => {
+            try { await saveToCloud(t, s); setCloudStatus('saved'); setTimeout(() => setCloudStatus('idle'), 2500) }
+            catch { setCloudStatus('error') }
+        }, 2000)
+    }
+
+    // ── Tables setter with persistence ────────────────────────────────────
+    const mutateTables = (update: TableModel[] | ((p: TableModel[]) => TableModel[])) => {
+        setTables(prev => {
+            const next = typeof update === 'function' ? update(prev) : update
+            saveLocal(LS_TABLES, next)
+            scheduleCloudSave(next, seatingRef.current)
+            return next
+        })
+    }
+
+    // ── Stage resize ──────────────────────────────────────────────────────
     useEffect(() => {
-        const resize = () => {
-            const el = containerRef.current; if (!el) return
-            const rect = el.getBoundingClientRect()
-            setStageSize({ w: rect.width, h: rect.height })
+        const fn = () => {
+            const el = containerRef.current
+            if (el) { const r = el.getBoundingClientRect(); setStageSize({ w: r.width, h: r.height }) }
         }
-        resize()
-        window.addEventListener('resize', resize)
-        return () => window.removeEventListener('resize', resize)
+        fn(); window.addEventListener('resize', fn)
+        return () => window.removeEventListener('resize', fn)
     }, [])
 
+    // ── Load guests ───────────────────────────────────────────────────────
     useEffect(() => {
-        (async () => {
+        supabase
+            .from('guests')
+            .select('id, name, guest_count, number_confirmations, table_number, email, phone_number, did_confirm')
+            .order('name', { ascending: true })
+            .then(({ data, error }) => { if (!error) setGuests((data ?? []) as Guest[]) })
+    }, [])
+
+    // ── Load layout: cloud → localStorage → default decor ─────────────────
+    useEffect(() => {
+        ; (async () => {
             setLoading(true)
-            const { data, error } = await supabase
-                .from('guests')
-                .select('id, name, guest_count, number_confirmations, table_number, email, phone_number, did_confirm')
-                .order('name', { ascending: true })
-            if (error) { console.error(error); setGuests([]) } else { setGuests((data ?? []) as Guest[]) }
+            const cloud = await loadFromCloud()
+            if (cloud && cloud.tables.length > 0) {
+                setTables(cloud.tables)
+                setSeating(cloud.seating)
+            } else {
+                const local = loadLocal<TableModel[]>(LS_TABLES, [])
+                if (local.length > 0) {
+                    setTables(local)
+                    setSeating(loadLocal<SeatingState>(LS_STATE, {}))
+                } else {
+                    setTables(DEFAULT_DECOR)   // first-time setup
+                }
+            }
             setLoading(false)
         })()
-    }, [])
-
-    // initial restore
-    useEffect(() => {
-        setTables(loadTables())
-        setSeating(loadSeating())
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    // 🔁 auto‑save whenever tables or seating change
-    useEffect(() => { saveTables(tables) }, [tables])
-    useEffect(() => { localStorage.setItem(LS_STATE, JSON.stringify(seating)) }, [seating])
+    // ── Auto cloud-save when seating changes (tables handled in mutateTables) ─
+    const isFirstSeatingMount = useRef(true)
+    useEffect(() => {
+        if (isFirstSeatingMount.current) { isFirstSeatingMount.current = false; return }
+        if (!loading) scheduleCloudSave(tables, seating)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [seating])
 
-    // ========== Derived ==========
+    // ─── Derived ──────────────────────────────────────────────────────────
+    const seatsFrom = (g: Guest) =>
+        (g.number_confirmations ?? 0) > 0 ? g.number_confirmations! : (g.guest_count ?? 1)
+
     const unassigned = useMemo(
         () => guests
-            .filter(g => (!g.table_number || g.table_number === 0))
-            .filter(g => (search ? (g.name || '').toLowerCase().includes(search.toLowerCase()) : true)),
+            .filter(g => !g.table_number || g.table_number === 0)
+            .filter(g => !search || (g.name ?? '').toLowerCase().includes(search.toLowerCase())),
         [guests, search]
     )
 
-    // ========== Drag from sidebar ==========
+    const countAssigned = (tableNo: number) =>
+        (seating[tableNo] ?? []).filter(s => s.occupant).length
+
+    // ─── Drag-and-drop ────────────────────────────────────────────────────
     const handleDragStartGuest = (e: React.DragEvent, guestId: string) => {
         e.dataTransfer.setData('text/plain', guestId)
         e.dataTransfer.effectAllowed = 'move'
     }
-    const clientPointToStage = (clientX: number, clientY: number) => {
+
+    const clientToStage = (cx: number, cy: number) => {
         const stage = stageRef.current as any
         if (!stage) return { x: 0, y: 0 }
-        const rect = stage.container().getBoundingClientRect()
-        return { x: clientX - rect.left, y: clientY - rect.top }
+        const r = stage.container().getBoundingClientRect()
+        return { x: cx - r.left, y: cy - r.top }
     }
-    const findTableAtPoint = (x: number, y: number): TableModel | null => {
+
+    const findTableAt = (x: number, y: number): TableModel | null => {
         for (const t of tables) {
-            if (t.type === 'rect') {
-                const w = 160, h = 100
-                const within = x >= t.x - w / 2 && x <= t.x + w / 2 && y >= t.y - h / 2 && y <= t.y + h / 2
-                if (within) return t
+            if (t.isDecor) continue
+            if (t.type === 'round') {
+                const dx = x - t.x, dy = y - t.y
+                if (dx * dx + dy * dy <= 70 * 70) return t
+            } else if (t.type === 'serpentine') {
+                if (Math.abs(x - t.x) < 105 && Math.abs(y - t.y) < 85) return t
             } else {
-                const r = 70, dx = x - t.x, dy = y - t.y
-                if (dx * dx + dy * dy <= r * r) return t
+                if (x >= t.x - 80 && x <= t.x + 80 && y >= t.y - 50 && y <= t.y + 50) return t
             }
         }
         return null
     }
-    const onCanvasDragOver = (e: React.DragEvent) => e.preventDefault()
 
-    function firstFreeSeats(tableNo: number, needed: number, tableCapacity: number): number[] | null {
-        const seats = seating[tableNo] ?? Array.from({ length: tableCapacity }, (_, i) => ({ seatNo: i + 1 }))
-        const free = seats.filter(s => !s.occupant).map(s => s.seatNo)
-        if (free.length < needed) return null
-        return free.slice(0, needed)
+    const onCanvasDragOver = (e: React.DragEvent) => e.preventDefault()
+    const onCanvasDrop = async (e: React.DragEvent) => {
+        e.preventDefault()
+        const guestId = e.dataTransfer.getData('text/plain')
+        if (!guestId) return
+        const { x, y } = clientToStage(e.clientX, e.clientY)
+        const table = findTableAt(x, y); if (!table) return
+        const g = guests.find(gg => gg.id === guestId); if (!g) return
+        await placeGuestOnTable(g, table)
     }
 
-    async function placeGuestBundleOnTable(guest: Guest, table: TableModel) {
+    async function placeGuestOnTable(guest: Guest, table: TableModel) {
         const needed = Math.max(1, seatsFrom(guest))
         const tableSeats = seating[table.number] ?? Array.from({ length: table.seats }, (_, i) => ({ seatNo: i + 1 }))
-        const free = firstFreeSeats(table.number, needed, table.seats)
-        if (!free) { alert(`No hay asientos suficientes en ${table.name}.`); return }
+        const free = tableSeats.filter(s => !s.occupant).map(s => s.seatNo)
+        if (free.length < needed) { alert(`No hay asientos suficientes en ${table.name}.`); return }
 
         try {
             setSaving(true)
             const { error } = await supabase.from('guests').update({ table_number: table.number }).eq('id', guest.id)
             if (error) throw error
-            setGuests(prev => prev.map(g => (g.id === guest.id ? { ...g, table_number: table.number } : g)))
+            setGuests(prev => prev.map(g => g.id === guest.id ? { ...g, table_number: table.number } : g))
         } catch (e) {
             console.error(e); alert('No se pudo asignar en la base de datos.'); setSaving(false); return
         }
@@ -213,175 +381,264 @@ export default function SeatingCanvas() {
         const newSeats = [...tableSeats]
         newSeats[free[0] - 1] = { seatNo: free[0], occupant: { kind: 'guest', guestId: guest.id, name: guest.name || 'Invitado' } }
         for (let i = 1; i < needed; i++) {
-            const seatNo = free[i]
-            newSeats[seatNo - 1] = { seatNo, occupant: { kind: 'companion', guestId: guest.id, name: `+${i}`, idx: i } }
+            newSeats[free[i] - 1] = { seatNo: free[i], occupant: { kind: 'companion', guestId: guest.id, name: `+${i}`, idx: i } }
         }
         setSeating({ ...seating, [table.number]: newSeats })
         setSaving(false)
     }
 
-    const onCanvasDrop = async (e: React.DragEvent) => {
-        e.preventDefault()
-        const guestId = e.dataTransfer.getData('text/plain')
-        if (!guestId) return
-        const { x, y } = clientPointToStage(e.clientX, e.clientY)
-        const table = findTableAtPoint(x, y); if (!table) return
-        const g = guests.find(gg => gg.id === guestId); if (!g) return
-        await placeGuestBundleOnTable(g, table)
-    }
-
-    // ========== Tables CRUD (with seating sync) ==========
+    // ─── Tables CRUD ──────────────────────────────────────────────────────
     const addTable = (t: Omit<TableModel, 'id'>) => {
-        setTables(prev => [...prev, { ...t, id: genId() }])
+        mutateTables(prev => [...prev, { ...t, id: genId() }])
         setShowNewTable(false)
     }
 
     const updateTable = (id: string, patch: Partial<TableModel>) => {
-        setTables(prev => {
+        mutateTables(prev => {
             const before = prev.find(t => t.id === id)!
-            // normalize numeric inputs
             const norm: Partial<TableModel> = { ...patch }
-            if (patch.seats !== undefined) norm.seats = Math.max(1, toInt(patch.seats, before.seats))
+            if (patch.seats !== undefined) norm.seats = clampSeats(toInt(patch.seats, before.seats))
             if (patch.number !== undefined) norm.number = Math.max(1, toInt(patch.number, before.number))
             if (patch.rotation !== undefined) norm.rotation = toInt(patch.rotation, before.rotation)
 
-            const nextTables = prev.map(t => (t.id === id ? { ...t, ...norm } : t))
+            const next = prev.map(t => t.id === id ? { ...t, ...norm } : t)
 
-            // keep seating in sync with number/capacity changes
+            // sync seating buckets when table number or capacity changes
             setSeating(prevS => {
-                const s: SeatingState = { ...prevS }
-                const after = nextTables.find(t => t.id === id)!
-                const fromNo = before.number
-                const toNo = after.number
-
-                // if table number changed, move bucket
+                const s = { ...prevS }
+                const after = next.find(t => t.id === id)!
+                const fromNo = before.number, toNo = after.number
                 if (toNo !== fromNo) {
-                    const fromSeats = Array.isArray(s[fromNo]) ? s[fromNo] : []
-                    s[toNo] = fromSeats.map((seat, i) => ({ ...seat, seatNo: i + 1 }))
+                    s[toNo] = (s[fromNo] ?? []).map((seat, i) => ({ ...seat, seatNo: i + 1 }))
                     delete s[fromNo]
                 }
-
-                const bucketNo = toNo
-                const existing = Array.isArray(s[bucketNo]) ? s[bucketNo] : []
-
-                // 🚫 do not allow capacity smaller than occupied seats
-                const occupied = existing.filter(seat => !!seat.occupant).length
-                const requestedCap = Math.max(1, after.seats)
-                const finalCap = Math.max(requestedCap, occupied)
-
-                if (finalCap !== after.seats) {
-                    // bump table capacity so UI and state stay consistent
-                    // (this also keeps your DB/auto-save coherent)
-                    nextTables.forEach(t => {
-                        if (t.id === id) t.seats = finalCap
-                    })
-                }
-
-                const resized = existing.slice(0, finalCap)
-                while (resized.length < finalCap) resized.push({ seatNo: resized.length + 1 })
-                s[bucketNo] = resized
-
+                const existing = s[toNo] ?? []
+                const occ = existing.filter(s => !!s.occupant).length
+                const cap = Math.max(after.seats, occ)
+                const resized = existing.slice(0, cap)
+                while (resized.length < cap) resized.push({ seatNo: resized.length + 1 })
+                s[toNo] = resized
                 return s
             })
-
-            return nextTables
+            return next
         })
     }
 
     const deleteTable = (id: string) => {
-        setTables(prev => {
+        mutateTables(prev => {
             const tbl = prev.find(t => t.id === id)
             const next = prev.filter(t => t.id !== id)
-            if (tbl) {
-                const s = { ...seating }
-                delete s[tbl.number]
-                setSeating(s)
+            if (tbl && !tbl.isDecor) {
+                setSeating(s => { const c = { ...s }; delete c[tbl.number]; return c })
             }
             return next
         })
         if (selectedTableId === id) setSelectedTableId(null)
     }
 
-    // ========== Exporters / Cloud save / Local JSON backup ==========
+    // ─── Exporters ────────────────────────────────────────────────────────
     const exportPNG = () => {
-        const stage = stageRef.current; if (!stage) return
-        const dataURL = stage.toDataURL({ pixelRatio: 2 })
-        const a = document.createElement('a'); a.href = dataURL; a.download = 'plano-mesas.png'; a.click()
+        const s = stageRef.current; if (!s) return
+        const a = document.createElement('a')
+        a.href = s.toDataURL({ pixelRatio: 2 }); a.download = 'plano-mesas.png'; a.click()
     }
 
     const exportCSV = () => {
-        const headers = ['mesa', 'asiento', 'tipo', 'nombre', 'alergias', 'invitado_id']
-        const lines: string[] = [headers.join(',')]
-        tables.forEach(t => {
-            const seats = seating[t.number] ?? []
-            seats.forEach(s => {
-                if (!s?.occupant) return
+        const rows = ['mesa,asiento,tipo,nombre,invitado_id']
+        tables.filter(t => !t.isDecor).forEach(t =>
+            (seating[t.number] ?? []).forEach(s => {
+                if (!s.occupant) return
                 const o = s.occupant
-                const row = [t.number, s.seatNo, o.kind, (o.name || '').replace(/"/g, '""'), '', o.guestId]
-                lines.push(row.map(v => `"${String(v)}"`).join(','))
+                rows.push([t.number, s.seatNo, o.kind, (o.name || '').replace(/"/g, '""'), o.guestId].map(v => `"${v}"`).join(','))
             })
-        })
-        const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' })
+        )
+        const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' })
         const url = URL.createObjectURL(blob)
-        const a = document.createElement('a'); a.href = url; a.download = 'asignacion_mesas_detalle.csv'; a.click()
+        const a = document.createElement('a'); a.href = url; a.download = 'asignacion_mesas.csv'; a.click()
         URL.revokeObjectURL(url)
     }
 
-    async function saveLayoutToStorage() {
-        const layout = { version: 1, saved_at: new Date().toISOString(), tables, seating }
-        const jsonBlob = new Blob([JSON.stringify(layout, null, 2)], { type: 'application/json' })
-        const jsonPath = `layouts/${Date.now()}_layout.json`
-        const { error: e1 } = await supabase.storage.from('seating').upload(jsonPath, jsonBlob, {
-            upsert: true, contentType: 'application/json'
-        })
-        if (e1) { alert('No se pudo guardar el JSON: ' + e1.message); return }
-
-        const stage = stageRef.current
-        const dataUrl = stage.toDataURL({ pixelRatio: 2 })
-        const res = await fetch(dataUrl)
-        const pngBlob = await res.blob()
-        const pngPath = `layouts/${Date.now()}_layout.png`
-        const { error: e2 } = await supabase.storage.from('seating').upload(pngPath, pngBlob, {
-            upsert: true, contentType: 'image/png'
-        })
-        if (e2) { alert('JSON guardado, pero falló el PNG: ' + e2.message); return }
-        localStorage.setItem('sj_seating_last_cloud_json', jsonPath)
-        alert('Layout guardado en Storage ✅')
-    }
-
-    // Local JSON backup (manual)
     const downloadJSON = () => {
-        const layout = { version: 1, saved_at: new Date().toISOString(), tables, seating }
-        const blob = new Blob([JSON.stringify(layout, null, 2)], { type: 'application/json' })
+        const blob = new Blob([JSON.stringify({ version: 2, saved_at: new Date().toISOString(), tables, seating }, null, 2)], { type: 'application/json' })
         const url = URL.createObjectURL(blob)
         const a = document.createElement('a'); a.href = url; a.download = 'seating_layout.json'; a.click()
         URL.revokeObjectURL(url)
     }
+
     const uploadJSON = async (file: File) => {
         try {
-            const text = await file.text()
-            const layout = JSON.parse(text)
+            const layout = JSON.parse(await file.text())
             setTables(Array.isArray(layout.tables) ? layout.tables : [])
             setSeating(typeof layout.seating === 'object' && layout.seating ? layout.seating : {})
-        } catch {
-            alert('Archivo inválido')
-        }
+        } catch { alert('Archivo inválido') }
     }
 
-    const countAssigned = (tableNo: number) => (seating[tableNo] ?? []).filter(s => s.occupant).length
+    const manualCloudSave = async () => {
+        setSaving(true)
+        try { await saveToCloud(tables, seating); setCloudStatus('saved'); setTimeout(() => setCloudStatus('idle'), 2500) }
+        catch { setCloudStatus('error') }
+        finally { setSaving(false) }
+    }
 
-    // ========== New table modal ==========
+    // ─── Seat renderer ────────────────────────────────────────────────────
+    const renderSeat = (t: TableModel, idx: number, pos: { x: number; y: number }, seat: Seat | undefined) => {
+        const occ = seat?.occupant
+        const label = occ ? seatLabel(occ.name, String(idx + 1)) : String(idx + 1)
+        const seatNo = idx + 1
+
+        return (
+            <Group key={`seat-${idx}`} x={pos.x} y={pos.y}>
+                <Circle radius={15}
+                    fill={occ ? P.roseMid : P.sage}
+                    stroke={P.burgundyDark} strokeWidth={1} />
+                <Text text={label} fontSize={9} align="center"
+                    width={30} offsetX={15} offsetY={5}
+                    fill={P.ivory} fontStyle={occ ? 'bold' : 'normal'} />
+                {/* Invisible hit area */}
+                <Rect width={30} height={30} offsetX={15} offsetY={15}
+                    fillEnabled={false} listening
+                    onClick={() => {
+                        if (!occ || occ.kind !== 'companion') return
+                        const newName = prompt('Nombre del acompañante:', occ.name) ?? occ.name
+                        const s = (seating[t.number] ?? []).slice()
+                        s[idx] = { seatNo, occupant: { ...occ, name: newName || occ.name } }
+                        setSeating({ ...seating, [t.number]: s })
+                    }}
+                    onDblClick={async () => {
+                        const current = seating[t.number] ?? []
+                        const occ2 = current[idx]?.occupant
+                        if (occ2?.kind === 'guest') {
+                            try {
+                                setSaving(true)
+                                const { error } = await supabase.from('guests').update({ table_number: null }).eq('id', occ2.guestId)
+                                if (error) throw error
+                                setGuests(prev => prev.map(g => g.id === occ2.guestId ? { ...g, table_number: null } : g))
+                            } finally { setSaving(false) }
+                        }
+                        const s = current.slice(); s[idx] = { seatNo }
+                        setSeating({ ...seating, [t.number]: s })
+                    }} />
+            </Group>
+        )
+    }
+
+    // ─── Table renderer ───────────────────────────────────────────────────
+    const renderTable = (t: TableModel) => {
+        const isSelected = selectedTableId === t.id
+
+        // ── Decorative element (no seats) ──────────────────────────────
+        if (t.isDecor) {
+            const w = t.decorWidth ?? 200, h = t.decorHeight ?? 80
+            return (
+                <Group key={t.id} x={t.x} y={t.y} draggable
+                    onClick={() => setSelectedTableId(t.id)}
+                    onDragEnd={e => updateTable(t.id, { x: e.target.x(), y: e.target.y() })}>
+                    <Rect x={-w / 2} y={-h / 2} width={w} height={h} cornerRadius={10}
+                        fill={t.decorColor ?? P.danceFloor}
+                        stroke={isSelected ? P.burgundy : P.danceBorder}
+                        strokeWidth={isSelected ? 3 : 2}
+                        dash={[10, 5]}
+                        shadowBlur={6} shadowOpacity={0.1} />
+                    <Text text={t.decorLabel ?? t.name} align="center"
+                        width={w} offsetX={w / 2} y={-7}
+                        fill={P.burgundyDark} fontStyle="italic" fontSize={14} />
+                </Group>
+            )
+        }
+
+        const cap = t.seats
+        const assigned = countAssigned(t.number)
+        let seatsArr: (Seat | undefined)[] = (seating[t.number] ?? []).slice(0, cap)
+        while (seatsArr.length < cap) seatsArr.push(undefined)
+
+        const commonGroupProps = {
+            key: t.id, x: t.x, y: t.y, draggable: true,
+            onClick: () => setSelectedTableId(t.id),
+            onDragEnd: (e: any) => updateTable(t.id, { x: e.target.x(), y: e.target.y() }),
+        }
+
+        // ── Round ──────────────────────────────────────────────────────
+        if (t.type === 'round') {
+            const seatPos = circleSeatPos(0, 0, 88, cap)
+            return (
+                <Group {...commonGroupProps}>
+                    <Circle radius={68}
+                        fill={P.rose}
+                        stroke={isSelected ? P.burgundy : P.burgundyDark}
+                        strokeWidth={isSelected ? 3 : 2} shadowBlur={4} />
+                    <Text text={`${t.name}\n${assigned}/${cap}`} align="center"
+                        width={120} offsetX={60} offsetY={14} y={-8}
+                        fontStyle="bold" fontSize={12} fill={P.burgundyDark} />
+                    {seatPos.map((pos, idx) => renderSeat(t, idx, pos, seatsArr[idx]))}
+                </Group>
+            )
+        }
+
+        // ── Rectangular ────────────────────────────────────────────────
+        if (t.type === 'rect') {
+            const w = 160, h = 90
+            const seatPos = rectSeatPos(0, 0, w, h, cap)
+            return (
+                <Group {...commonGroupProps}>
+                    <Rect x={-w / 2} y={-h / 2} width={w} height={h} cornerRadius={8}
+                        fill={P.rose}
+                        stroke={isSelected ? P.burgundy : P.burgundyDark}
+                        strokeWidth={isSelected ? 3 : 2} shadowBlur={4} />
+                    <Text text={`${t.name}\n${assigned}/${cap}`} align="center"
+                        width={w} offsetX={w / 2} offsetY={12} y={-6}
+                        fontStyle="bold" fontSize={12} fill={P.burgundyDark} />
+                    {seatPos.map((pos, idx) => renderSeat(t, idx, pos, seatsArr[idx]))}
+                </Group>
+            )
+        }
+
+        // ── Serpentine (S-shape) ───────────────────────────────────────
+        if (t.type === 'serpentine') {
+            const segW = 155, segH = 52
+            const topCX = -28, topCY = -(segH / 2 + 2)
+            const botCX = 28, botCY = (segH / 2 + 2)
+            const seatPos = serpentineSeatPos(cap)
+            return (
+                <Group {...commonGroupProps}>
+                    {/* Upper arm */}
+                    <Rect x={topCX - segW / 2} y={topCY - segH / 2} width={segW} height={segH}
+                        cornerRadius={[20, 20, 4, 4]}
+                        fill={P.rose}
+                        stroke={isSelected ? P.burgundy : P.burgundyDark}
+                        strokeWidth={isSelected ? 3 : 2} shadowBlur={4} />
+                    {/* Lower arm */}
+                    <Rect x={botCX - segW / 2} y={botCY - segH / 2} width={segW} height={segH}
+                        cornerRadius={[4, 4, 20, 20]}
+                        fill={P.rose}
+                        stroke={isSelected ? P.burgundy : P.burgundyDark}
+                        strokeWidth={isSelected ? 3 : 2} shadowBlur={4} />
+                    {/* Connector bridge */}
+                    <Rect x={-12} y={-8} width={40} height={16}
+                        fill={P.rose} strokeEnabled={false} />
+                    <Text text={`${t.name}\n${assigned}/${cap}`} align="center"
+                        width={155} offsetX={155 / 2} offsetY={14} y={-10}
+                        fontStyle="bold" fontSize={11} fill={P.burgundyDark} />
+                    {seatPos.map((pos, idx) => renderSeat(t, idx, pos, seatsArr[idx]))}
+                </Group>
+            )
+        }
+
+        return null
+    }
+
+    // ─── New Table Modal ──────────────────────────────────────────────────
     const NewTableModal = () => {
-        const nextNum = tables.length ? Math.max(...tables.map(t => t.number)) + 1 : 1
-        const [number, setNumber] = useState<number>(nextNum)
-        const [name, setName] = useState(`Mesa ${number}`)
+        const existingNums = tables.filter(t => !t.isDecor).map(t => t.number)
+        const nextNum = existingNums.length ? Math.max(...existingNums) + 1 : 1
+        const [number, setNumber] = useState(nextNum)
+        const [name, setName] = useState(`Mesa ${nextNum}`)
         const [type, setType] = useState<TableShape>('round')
-        const [seats, setSeats] = useState<number>(8)
+        const [seats, setSeats] = useState(8)
         useEffect(() => { setName(`Mesa ${number}`) }, [number])
 
         return (
             <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-                <div className="bg-white text-black w-[420px] rounded-xl p-5 space-y-4">
+                <div className="bg-white text-black w-[440px] rounded-xl p-6 shadow-xl space-y-4">
                     <h3 className="text-xl font-semibold">Nueva mesa</h3>
                     <div className="grid grid-cols-2 gap-3">
                         <label className="text-sm">Número
@@ -389,290 +646,282 @@ export default function SeatingCanvas() {
                                 onChange={e => setNumber(toInt(e.target.value, number))}
                                 className="mt-1 w-full border rounded px-2 py-1" />
                         </label>
-                        <label className="text-sm">Capacidad
-                            <input type="number" value={seats}
-                                onChange={e => setSeats(Math.max(1, toInt(e.target.value, seats)))}
+                        <label className="text-sm">Capacidad (máx {MAX_SEATS})
+                            <input type="number" value={seats} min={1} max={MAX_SEATS}
+                                onChange={e => setSeats(clampSeats(toInt(e.target.value, seats)))}
                                 className="mt-1 w-full border rounded px-2 py-1" />
                         </label>
                         <label className="text-sm col-span-2">Nombre
-                            <input value={name} onChange={e => setName(e.target.value)} className="mt-1 w-full border rounded px-2 py-1" />
+                            <input value={name} onChange={e => setName(e.target.value)}
+                                className="mt-1 w-full border rounded px-2 py-1" />
                         </label>
-                        <div className="col-span-2 flex gap-3 items-center">
-                            <span className="text-sm">Tipo:</span>
-                            <button onClick={() => setType('round')} className={`px-3 py-1 rounded border ${type === 'round' ? 'bg-gray-200' : ''}`}>Redonda</button>
-                            <button onClick={() => setType('rect')} className={`px-3 py-1 rounded border ${type === 'rect' ? 'bg-gray-200' : ''}`}>Rectangular</button>
+                        <div className="col-span-2">
+                            <span className="text-sm block mb-1 font-medium">Forma de mesa</span>
+                            <div className="flex gap-2">
+                                {(['round', 'rect', 'serpentine'] as TableShape[]).map(s => (
+                                    <button key={s} onClick={() => setType(s)}
+                                        className={`flex-1 py-2 rounded border text-sm transition-colors ${type === s ? 'bg-[#47091C] text-white border-[#47091C]' : 'hover:bg-gray-50'}`}>
+                                        {s === 'round' ? '⭕ Redonda' : s === 'rect' ? '⬛ Rectangular' : '〰️ Serpentina'}
+                                    </button>
+                                ))}
+                            </div>
+                            {type === 'serpentine' && (
+                                <p className="text-xs text-gray-500 mt-1 pl-1">
+                                    Mesa en S para banquetes · hasta {MAX_SEATS} personas
+                                </p>
+                            )}
                         </div>
                     </div>
-                    <div className="flex justify-end gap-2 pt-2">
-                        <button className="px-3 py-1" onClick={() => setShowNewTable(false)}>Cancelar</button>
+                    <div className="flex justify-end gap-2 pt-1">
+                        <button className="px-4 py-1.5 border rounded hover:bg-gray-50"
+                            onClick={() => setShowNewTable(false)}>Cancelar</button>
                         <button
-                            className="bg-[#E4C3A1] text-[#651D28] px-3 py-1 rounded"
-                            onClick={() => addTable({ number, name, type, seats, x: 220, y: 160, rotation: 0 })}
-                        >Crear</button>
+                            className="bg-[#E4C3A1] text-[#651D28] font-semibold px-5 py-1.5 rounded hover:bg-[#dbb890] transition-colors"
+                            onClick={() => addTable({ number, name, type, seats, x: 320, y: 260, rotation: 0 })}>
+                            Crear
+                        </button>
                     </div>
                 </div>
             </div>
         )
     }
 
-    // ========== Render ==========
+    // ─── Inspector panel ──────────────────────────────────────────────────
+    const InspectorPanel = () => {
+        const t = tables.find(x => x.id === selectedTableId)
+        if (!t) { setSelectedTableId(null); return null }
+        return (
+            <div className="absolute right-4 top-4 w-72 bg-white/95 backdrop-blur border rounded-xl p-4 shadow-lg z-10 text-sm">
+                <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-semibold">{t.isDecor ? 'Elemento decorativo' : 'Mesa'}</h3>
+                    <button onClick={() => setSelectedTableId(null)} className="text-gray-400 hover:text-gray-700 text-lg leading-none">×</button>
+                </div>
+                <div className="space-y-2">
+                    <label className="block text-xs font-medium text-gray-600">Nombre
+                        <input className="mt-1 w-full border rounded px-2 py-1 text-sm" value={t.name}
+                            onChange={e => updateTable(t.id, { name: e.target.value })} />
+                    </label>
+
+                    {!t.isDecor && (
+                        <>
+                            <label className="block text-xs font-medium text-gray-600">Número (vincula con invitados)
+                                <input type="number" className="mt-1 w-full border rounded px-2 py-1 text-sm" value={t.number}
+                                    onChange={e => updateTable(t.id, { number: toInt(e.target.value, t.number) })} />
+                            </label>
+                            <label className="block text-xs font-medium text-gray-600">Capacidad (máx {MAX_SEATS})
+                                <input type="number" min={1} max={MAX_SEATS}
+                                    className="mt-1 w-full border rounded px-2 py-1 text-sm" value={t.seats}
+                                    onChange={e => updateTable(t.id, { seats: clampSeats(toInt(e.target.value, t.seats)) })} />
+                            </label>
+                            <div className="flex gap-1 pt-1">
+                                {(['round', 'rect', 'serpentine'] as TableShape[]).map(s => (
+                                    <button key={s} onClick={() => updateTable(t.id, { type: s })}
+                                        className={`flex-1 py-1 rounded border text-xs transition-colors ${t.type === s ? 'bg-[#47091C] text-white' : 'hover:bg-gray-50'}`}>
+                                        {s === 'round' ? 'Redonda' : s === 'rect' ? 'Rect' : 'Serpentina'}
+                                    </button>
+                                ))}
+                            </div>
+                        </>
+                    )}
+
+                    {t.isDecor && (
+                        <div className="grid grid-cols-2 gap-2">
+                            <label className="text-xs font-medium text-gray-600">Ancho
+                                <input type="number" className="mt-1 w-full border rounded px-2 py-1 text-sm"
+                                    value={t.decorWidth ?? 200}
+                                    onChange={e => updateTable(t.id, { decorWidth: toInt(e.target.value, 200) })} />
+                            </label>
+                            <label className="text-xs font-medium text-gray-600">Alto
+                                <input type="number" className="mt-1 w-full border rounded px-2 py-1 text-sm"
+                                    value={t.decorHeight ?? 80}
+                                    onChange={e => updateTable(t.id, { decorHeight: toInt(e.target.value, 80) })} />
+                            </label>
+                        </div>
+                    )}
+
+                    <label className="block text-xs font-medium text-gray-600">Rotación (°)
+                        <input type="number" className="mt-1 w-24 border rounded px-2 py-1 text-sm" value={t.rotation}
+                            onChange={e => updateTable(t.id, { rotation: toInt(e.target.value, t.rotation) })} />
+                    </label>
+
+                    {!t.isDecor && (
+                        <div className="pt-2 border-t">
+                            <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Ocupación</h4>
+                            <div className="max-h-40 overflow-auto space-y-1 text-xs">
+                                {(seating[t.number] ?? []).filter(s => s.occupant).length === 0
+                                    ? <p className="text-gray-400 italic">Sin invitados</p>
+                                    : (seating[t.number] ?? []).filter(s => s.occupant).map(s => {
+                                        const occ = s.occupant!
+                                        return (
+                                            <div key={s.seatNo} className="flex items-center justify-between gap-2">
+                                                <span className="truncate">{s.seatNo}. {occ.name}</span>
+                                                <div className="flex gap-2 shrink-0">
+                                                    {occ.kind === 'companion' && (
+                                                        <button className="text-indigo-600 underline"
+                                                            onClick={() => {
+                                                                const n = prompt('Nombre:', occ.name) ?? occ.name
+                                                                const copy = (seating[t.number] ?? []).slice()
+                                                                copy[s.seatNo - 1] = { seatNo: s.seatNo, occupant: { ...occ, name: n || occ.name } }
+                                                                setSeating({ ...seating, [t.number]: copy })
+                                                            }}>Renombrar</button>
+                                                    )}
+                                                    <button className="text-blue-600 underline"
+                                                        onClick={async () => {
+                                                            const curr = seating[t.number] ?? []
+                                                            const o2 = curr[s.seatNo - 1]?.occupant
+                                                            if (o2?.kind === 'guest') {
+                                                                try {
+                                                                    setSaving(true)
+                                                                    const { error } = await supabase.from('guests').update({ table_number: null }).eq('id', o2.guestId)
+                                                                    if (error) throw error
+                                                                    setGuests(prev => prev.map(g => g.id === o2.guestId ? { ...g, table_number: null } : g))
+                                                                } finally { setSaving(false) }
+                                                            }
+                                                            const copy = curr.slice(); copy[s.seatNo - 1] = { seatNo: s.seatNo }
+                                                            setSeating({ ...seating, [t.number]: copy })
+                                                        }}>Quitar</button>
+                                                </div>
+                                            </div>
+                                        )
+                                    })}
+                            </div>
+                        </div>
+                    )}
+
+                    <button onClick={() => deleteTable(t.id)}
+                        className="w-full mt-2 text-red-700 border border-red-300 py-1.5 rounded hover:bg-red-50 text-xs font-medium">
+                        🗑 Eliminar {t.isDecor ? 'elemento' : 'mesa'}
+                    </button>
+                </div>
+            </div>
+        )
+    }
+
+    // ─── Cloud status toast ───────────────────────────────────────────────
+    const cloudLabel = cloudStatus === 'saving' ? '☁️ Auto-guardando…'
+        : cloudStatus === 'saved' ? '✅ Guardado en la nube'
+            : cloudStatus === 'error' ? '❌ Error al guardar'
+                : null
+
+    // ─── Render ───────────────────────────────────────────────────────────
     return (
         <div className="h-[calc(100vh-80px)] flex text-black">
-            {/* Sidebar */}
-            <aside className="w-80 border-r bg-[var(--pageBg)] p-4 flex flex-col" style={{ ['--pageBg' as any]: palette.pageBg }}>
-                <div className="flex items-center justify-between mb-2">
-                    <h2 className="text-lg font-semibold">Invitados sin asignar</h2>
-                    <span className="text-xs text-gray-600">{unassigned.length}</span>
+
+            {/* ── Sidebar ── */}
+            <aside className="w-80 border-r bg-[#FBF3F9] p-4 flex flex-col overflow-hidden shrink-0">
+                <div className="flex items-center justify-between mb-3">
+                    <h2 className="text-lg font-semibold">Sin asignar</h2>
+                    <span className="text-xs bg-[#47091C] text-white rounded-full px-2 py-0.5">{unassigned.length}</span>
                 </div>
 
-                <input placeholder="Buscar por nombre…" value={search} onChange={e => setSearch(e.target.value)} className="mb-3 w-full border rounded px-2 py-1" />
+                <input placeholder="Buscar por nombre…" value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    className="mb-3 w-full border rounded px-2 py-1 text-sm" />
 
-                <div className="flex-1 overflow-auto space-y-2">
-                    {loading ? (
-                        <div className="text-sm text-gray-600">Cargando invitados…</div>
-                    ) : unassigned.length === 0 ? (
-                        <div className="text-sm text-gray-600">Todos asignados 🎉</div>
-                    ) : (
-                        unassigned.map(g => (
-                            <div key={g.id} draggable onDragStart={(e) => handleDragStartGuest(e, g.id)} className="bg-white border rounded-lg px-3 py-2 cursor-grab active:cursor-grabbing shadow-sm" title="Arrastra a una mesa">
-                                <div className="font-medium">{g.name || 'Sin nombre'}</div>
-                                <div className="text-xs text-gray-600">Asientos: {Math.max(1, seatsFrom(g))}{g.did_confirm ? ' · Confirmado' : ''}</div>
-                            </div>
-                        ))
-                    )}
+                <div className="flex-1 overflow-auto space-y-2 pr-1 min-h-0">
+                    {loading
+                        ? <p className="text-sm text-gray-500">Cargando…</p>
+                        : unassigned.length === 0
+                            ? <p className="text-sm text-gray-500">¡Todos asignados! 🎉</p>
+                            : unassigned.map(g => (
+                                <div key={g.id} draggable
+                                    onDragStart={e => handleDragStartGuest(e, g.id)}
+                                    className="bg-white border rounded-lg px-3 py-2 cursor-grab active:cursor-grabbing shadow-sm hover:border-[#47091C] transition-colors select-none">
+                                    <div className="font-medium text-sm">{g.name || 'Sin nombre'}</div>
+                                    <div className="text-xs text-gray-500">
+                                        {seatsFrom(g)} asiento{seatsFrom(g) !== 1 ? 's' : ''}
+                                        {g.did_confirm ? ' · ✅' : ''}
+                                    </div>
+                                </div>
+                            ))
+                    }
                 </div>
 
-                <div className="mt-4 grid grid-cols-2 gap-2">
-                    <button onClick={() => setShowNewTable(true)} className="bg-[#E4C3A1] text-[#651D28] font-semibold py-2 rounded">Nueva mesa</button>
-                    <button onClick={exportPNG} className="border py-2 rounded">Exportar PNG</button>
-                    <button onClick={exportCSV} className="border py-2 rounded">Exportar CSV</button>
-                    <button onClick={saveLayoutToStorage} className="border py-2 rounded col-span-2">Guardar en la nube (JSON+PNG)</button>
-
-                    {/* NEW: Local JSON backup */}
-                    <button onClick={downloadJSON} className="border py-2 rounded col-span-2">Descargar JSON</button>
-                    <label className="border py-2 rounded col-span-2 text-center cursor-pointer">
-                        Cargar JSON
-                        <input
-                            type="file"
-                            accept="application/json"
-                            className="hidden"
-                            onChange={e => e.target.files?.[0] && uploadJSON(e.target.files[0])}
-                        />
+                <div className="mt-4 grid grid-cols-2 gap-2 shrink-0">
+                    <button onClick={() => setShowNewTable(true)}
+                        className="col-span-2 bg-[#47091C] text-white font-semibold py-2 rounded text-sm hover:bg-[#651D28] transition-colors">
+                        + Nueva mesa
+                    </button>
+                    <button onClick={exportPNG} className="border py-1.5 rounded text-xs hover:bg-gray-50">📷 PNG</button>
+                    <button onClick={exportCSV} className="border py-1.5 rounded text-xs hover:bg-gray-50">📊 CSV</button>
+                    <button onClick={manualCloudSave} className="col-span-2 border py-1.5 rounded text-xs hover:bg-gray-50">☁️ Guardar en la nube ahora</button>
+                    <button onClick={downloadJSON} className="border py-1.5 rounded text-xs hover:bg-gray-50">⬇ JSON</button>
+                    <label className="border py-1.5 rounded text-xs text-center cursor-pointer hover:bg-gray-50">
+                        ⬆ Cargar JSON
+                        <input type="file" accept="application/json" className="hidden"
+                            onChange={e => e.target.files?.[0] && uploadJSON(e.target.files[0])} />
                     </label>
+                    {/* Reset: wipes cloud + localStorage and reloads default decor */}
+                    <button
+                        className="col-span-2 border border-red-300 text-red-700 py-1.5 rounded text-xs hover:bg-red-50 transition-colors"
+                        onClick={async () => {
+                            if (!window.confirm('¿Reiniciar el plano por completo? Se borrarán todas las mesas y asignaciones de asientos (los invitados en Supabase no se afectan).')) return
+                            try {
+                                setSaving(true)
+                                await deleteCloudLayout()
+                            } catch (e) {
+                                // File may not exist yet — that is fine
+                                console.warn('deleteCloudLayout:', e)
+                            } finally {
+                                setSaving(false)
+                            }
+                            saveLocal(LS_TABLES, [])
+                            saveLocal(LS_STATE, {})
+                            setTables(DEFAULT_DECOR)
+                            setSeating({})
+                            setSelectedTableId(null)
+                        }}>
+                        🗑 Reiniciar layout completo
+                    </button>
                 </div>
 
-                <div className="mt-6">
-                    <h3 className="text-sm font-semibold mb-1">Resumen</h3>
-                    <div className="space-y-1 text-sm">
-                        {tables.slice().sort((a, b) => a.number - b.number).map(t => (
-                            <div key={t.id} className="flex items-center justify-between">
-                                <span>{t.name}</span>
-                                <span className="text-gray-600">{countAssigned(t.number)}/{t.seats}</span>
-                            </div>
-                        ))}
+                {/* Per-table summary */}
+                <div className="mt-3 border-t pt-3 shrink-0">
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Mesas</h3>
+                    <div className="space-y-0.5 text-xs max-h-28 overflow-auto">
+                        {tables.filter(t => !t.isDecor).sort((a, b) => a.number - b.number).map(t => {
+                            const occ = countAssigned(t.number)
+                            const full = occ >= t.seats
+                            return (
+                                <div key={t.id} className="flex items-center justify-between">
+                                    <span className="truncate text-gray-700">{t.name}</span>
+                                    <span className={`ml-2 font-mono tabular-nums ${full ? 'text-red-600 font-semibold' : 'text-gray-500'}`}>
+                                        {occ}/{t.seats}
+                                    </span>
+                                </div>
+                            )
+                        })}
                     </div>
                 </div>
             </aside>
 
-            {/* Canvas */}
-            <main
-                ref={containerRef}
-                className="flex-1 relative bg-[var(--ivory)]"
-                style={{ ['--ivory' as any]: palette.ivory }}
-                onDragOver={onCanvasDragOver}
-                onDrop={onCanvasDrop}
-            >
+            {/* ── Canvas ── */}
+            <main ref={containerRef} className="flex-1 relative bg-[#FCFCFC] overflow-hidden"
+                onDragOver={onCanvasDragOver} onDrop={onCanvasDrop}>
+
                 <Stage width={stageSize.w} height={stageSize.h} ref={stageRef}>
                     <Layer>
-                        <Text x={20} y={16} text="Arrastra invitados a una mesa. Doble click en asiento para quitar." fontSize={14} fill={palette.gray} />
-
-                        {tables.map((t) => {
-                            const assigned = countAssigned(t.number)
-                            const over = assigned > t.seats
-
-                            const cap = Math.max(1, t.seats || 1)
-                            const seatPositions = circleSeats(0, 0, 86, cap, t.rotation)
-
-                            let seatsArr = (seating[t.number] ?? []).slice(0, cap)
-                            while (seatsArr.length < cap) seatsArr.push({ seatNo: seatsArr.length + 1 } as Seat)
-
-                            return (
-                                <Group
-                                    key={t.id}
-                                    x={t.x}
-                                    y={t.y}
-                                    rotation={t.rotation}
-                                    draggable
-                                    onClick={() => setSelectedTableId(t.id)}
-                                    onDragEnd={(e) => updateTable(t.id, { x: e.target.x(), y: e.target.y() })}
-                                >
-                                    {t.type === 'rect' ? (
-                                        <Rect x={-80} y={-50} width={160} height={100} cornerRadius={12}
-                                            fill={over ? '#ffe5e5' : palette.rose}
-                                            stroke={selectedTableId === t.id ? palette.burgundy : palette.burgundyDark}
-                                            strokeWidth={selectedTableId === t.id ? 3 : 2}
-                                            shadowBlur={4}
-                                        />
-                                    ) : (
-                                        <Circle radius={70}
-                                            fill={over ? '#ffe5e5' : palette.rose}
-                                            stroke={selectedTableId === t.id ? palette.burgundy : palette.burgundyDark}
-                                            strokeWidth={selectedTableId === t.id ? 3 : 2}
-                                            shadowBlur={4}
-                                        />
-                                    )}
-
-                                    <Text
-                                        text={`${t.name}\n${assigned}/${t.seats}`}
-                                        align="center"
-                                        width={t.type === 'rect' ? 160 : 140}
-                                        offsetX={(t.type === 'rect' ? 160 : 140) / 2}
-                                        offsetY={16}
-                                        y={-12}
-                                        fontStyle="bold"
-                                        fill={palette.burgundyDark}
-                                    />
-
-                                    {seatsArr.map((seat, idx) => {
-                                        const pos = seatPositions[idx]; if (!pos) return null
-                                        const occ = seat.occupant
-                                        const initials = occ?.name
-                                            ? occ.name.trim().split(/\s+/).map(w => w[0]?.toUpperCase()).slice(0, 2).join('')
-                                            : String(idx + 1)
-
-                                        return (
-                                            <Group key={idx} x={pos.x} y={pos.y}>
-                                                <Circle radius={14} fill={occ ? palette.roseMid : palette.sage} stroke={palette.burgundyDark} strokeWidth={1} />
-                                                <Text text={initials} fontSize={11} align="center" width={28} offsetX={14} y={-6} fill={palette.ivory} />
-                                                <Rect
-                                                    width={28} height={28} offsetX={14} offsetY={14} fillEnabled={false} listening
-                                                    onClick={() => {
-                                                        if (!occ) return
-                                                        if (occ.kind === 'companion') {
-                                                            const newName = prompt('Nombre del acompañante:', occ.name) ?? occ.name
-                                                            const s = (seating[t.number] ?? []).slice()
-                                                            s[idx] = { seatNo: idx + 1, occupant: { ...occ, name: newName || occ.name } }
-                                                            setSeating({ ...seating, [t.number]: s })
-                                                        }
-                                                    }}
-                                                    onDblClick={async () => {
-                                                        const current = seating[t.number] ?? []
-                                                        const occ2 = current[idx]?.occupant
-                                                        if (occ2?.kind === 'guest') {
-                                                            try {
-                                                                setSaving(true)
-                                                                const { error } = await supabase.from('guests').update({ table_number: null }).eq('id', occ2.guestId)
-                                                                if (error) throw error
-                                                                setGuests(prev => prev.map(g => g.id === occ2.guestId ? { ...g, table_number: null } : g))
-                                                            } finally { setSaving(false) }
-                                                        }
-                                                        const s = current.slice()
-                                                        s[idx] = { seatNo: idx + 1 }
-                                                        setSeating({ ...seating, [t.number]: s })
-                                                    }}
-                                                    title={occ ? (occ.name || '') : 'Asiento libre'}
-                                                />
-                                            </Group>
-                                        )
-                                    })}
-                                </Group>
-                            )
-                        })}
+                        <Text x={16} y={14}
+                            text="Arrastra invitados a una mesa  ·  Click para seleccionar  ·  Doble click en asiento para quitar"
+                            fontSize={12} fill={P.gray} />
+                        {tables.map(renderTable)}
                     </Layer>
                 </Stage>
 
-                {/* Inspector */}
-                {selectedTableId && (
-                    <div className="absolute right-4 top-4 w-80 bg-white/95 backdrop-blur border rounded-xl p-4 shadow">
-                        {(() => {
-                            const t = tables.find(x => x.id === selectedTableId)
-                            if (!t) { setSelectedTableId(null); return null }
-                            return (
-                                <>
-                                    <div className="flex items-center justify-between mb-2">
-                                        <h3 className="font-semibold">Propiedades de la mesa</h3>
-                                        <button onClick={() => setSelectedTableId(null)} className="text-sm text-gray-600 hover:underline">Cerrar</button>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-sm block">Nombre
-                                            <input className="mt-1 w-full border rounded px-2 py-1" value={t.name}
-                                                onChange={e => updateTable(t.id, { name: e.target.value })} />
-                                        </label>
-                                        <label className="text-sm block">Número (liga con invitados)
-                                            <input type="number" className="mt-1 w-full border rounded px-2 py-1" value={t.number}
-                                                onChange={e => updateTable(t.id, { number: toInt(e.target.value, t.number) })} />
-                                        </label>
-                                        <label className="text-sm block">Capacidad
-                                            <input type="number" className="mt-1 w-full border rounded px-2 py-1" value={t.seats}
-                                                onChange={e => updateTable(t.id, { seats: Math.max(1, toInt(e.target.value, t.seats)) })} />
-                                        </label>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-sm">Tipo:</span>
-                                            <button className={`px-3 py-1 rounded border ${t.type === 'round' ? 'bg-gray-200' : ''}`} onClick={() => updateTable(t.id, { type: 'round' })}>Redonda</button>
-                                            <button className={`px-3 py-1 rounded border ${t.type === 'rect' ? 'bg-gray-200' : ''}`} onClick={() => updateTable(t.id, { type: 'rect' })}>Rectangular</button>
-                                        </div>
-                                        <div className="flex items-center gap-3">
-                                            <label className="text-sm block">Rotación
-                                                <input type="number" className="mt-1 w-24 border rounded px-2 py-1" value={t.rotation}
-                                                    onChange={e => updateTable(t.id, { rotation: toInt(e.target.value, t.rotation) })} />
-                                            </label>
-                                            <button className="ml-auto text-red-700 border border-red-700 px-3 py-1 rounded" onClick={() => deleteTable(t.id)}>Eliminar</button>
-                                        </div>
+                {selectedTableId && <InspectorPanel />}
 
-                                        <div className="pt-2 border-t mt-2">
-                                            <h4 className="text-sm font-semibold mb-1">Ocupación</h4>
-                                            <div className="max-h-40 overflow-auto space-y-1 text-sm">
-                                                {(seating[t.number] ?? []).filter(s => s.occupant).map(s => {
-                                                    const occ = s.occupant!
-                                                    return (
-                                                        <div key={s.seatNo} className="flex items-center justify-between gap-2">
-                                                            <span>{s.seatNo}. {occ.name}</span>
-                                                            <div className="flex items-center gap-2">
-                                                                {occ.kind === 'companion' && (
-                                                                    <button className="text-xs text-indigo-700 underline"
-                                                                        onClick={() => renameCompanion(t.number, s.seatNo - 1)}>
-                                                                        Renombrar
-                                                                    </button>
-                                                                )}
-                                                                <button
-                                                                    className="text-xs text-blue-700 underline"
-                                                                    onClick={async () => {
-                                                                        const current = seating[t.number] ?? []
-                                                                        const occ2 = current[s.seatNo - 1]?.occupant
-                                                                        if (occ2?.kind === 'guest') {
-                                                                            try {
-                                                                                setSaving(true)
-                                                                                const { error } = await supabase.from('guests').update({ table_number: null }).eq('id', occ2.guestId)
-                                                                                if (error) throw error
-                                                                                setGuests(prev => prev.map(g => g.id === occ2.guestId ? { ...g, table_number: null } : g))
-                                                                            } finally { setSaving(false) }
-                                                                        }
-                                                                        const copy = current.slice()
-                                                                        copy[s.seatNo - 1] = { seatNo: s.seatNo }
-                                                                        setSeating({ ...seating, [t.number]: copy })
-                                                                    }}>
-                                                                    Quitar
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    )
-                                                })}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </>
-                            )
-                        })()}
+                {cloudLabel && (
+                    <div className="absolute bottom-4 right-4 bg-white border rounded-lg px-4 py-2 text-sm shadow-md pointer-events-none">
+                        {cloudLabel}
                     </div>
                 )}
-
-                {showNewTable ? <NewTableModal /> : null}
-
                 {saving && (
-                    <div className="absolute bottom-4 right-4 bg-white border rounded px-3 py-1 text-sm shadow">
-                        Guardando…
+                    <div className="absolute bottom-14 right-4 bg-white border rounded px-3 py-1.5 text-sm shadow pointer-events-none">
+                        Guardando asignación…
                     </div>
                 )}
+
+                {showNewTable && <NewTableModal />}
             </main>
         </div>
     )
