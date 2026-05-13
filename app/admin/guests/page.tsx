@@ -10,6 +10,12 @@ import { v4 as uuidv4 } from 'uuid'
 type ConfirmFilter = 'all' | 'yes' | 'no' | 'pending'
 type PhoneFilter = 'all' | 'with' | 'without'
 type WhoInvitesFilter = 'all' | 'Susana' | 'Javier'
+// ── NEW ──────────────────────────────────────────────────────────────────────
+type CommentsFilter = 'all' | 'with'
+type AllergyFilter = 'all' | 'with'
+type SortField = 'name' | 'guest_count' | 'did_confirm' | 'none'
+type SortDir = 'asc' | 'desc'
+// ─────────────────────────────────────────────────────────────────────────────
 
 export default function GuestUploadPage() {
     const router = useRouter()
@@ -33,6 +39,13 @@ export default function GuestUploadPage() {
     const [tableFilter, setTableFilter] = useState<string>('')
     const [phoneFilter, setPhoneFilter] = useState<PhoneFilter>('all')
     const [whoInvitesFilter, setWhoInvitesFilter] = useState<WhoInvitesFilter>('all')
+    // ── NEW filter state ──────────────────────────────────────────────────────
+    const [commentsFilter, setCommentsFilter] = useState<CommentsFilter>('all')
+    const [allergyFilter, setAllergyFilter] = useState<AllergyFilter>('all')
+    // ── NEW sort state (default: A→Z by name) ─────────────────────────────────
+    const [sortField, setSortField] = useState<SortField>('name')
+    const [sortDir, setSortDir] = useState<SortDir>('asc')
+    // ─────────────────────────────────────────────────────────────────────────────
 
     useEffect(() => {
         const getSession = async () => {
@@ -180,8 +193,6 @@ export default function GuestUploadPage() {
         }
 
         // 🔧 FIX #2: Always include all fields in update, don't skip if undefined
-        // The problem was that if whoInvites was "Susana" and we're setting it to "Susana",
-        // it might not be in editForm properly
         const updateData: any = {
             name: editForm.name,
             guest_count: parseInt(editForm.guest_count) || 0,
@@ -337,10 +348,23 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
         XLSX.writeFile(wb, `invitados_${date}.xlsx`)
     }
 
-    // ---- Computed filtered list + totals ----
+    // ── NEW: sort toggle helper ────────────────────────────────────────────────
+    // Clicking the same column flips direction; clicking a new column resets to asc.
+    const handleSortClick = (field: SortField) => {
+        if (sortField === field) {
+            setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+        } else {
+            setSortField(field)
+            setSortDir('asc')
+        }
+    }
+    // ─────────────────────────────────────────────────────────────────────────────
+
+    // ---- Computed filtered + sorted list + totals ----
     const filteredGuests = useMemo(() => {
         const ql = q.trim().toLowerCase()
-        return guests.filter((g) => {
+
+        const filtered = guests.filter((g) => {
             const textOk =
                 ql === '' ||
                 [g.name, g.phone_number, g.email]
@@ -366,9 +390,45 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
                 whoInvitesFilter === 'all' ? true
                     : g.whoInvites === whoInvitesFilter
 
-            return textOk && confOk && tableOk && phoneOk && whoInvitesOk
+            // ── NEW filters ──────────────────────────────────────────────────
+            const commentsOk =
+                commentsFilter === 'all' ? true
+                    : !!(g.comments && g.comments.trim() !== '')
+
+            const allergyOk =
+                allergyFilter === 'all' ? true
+                    : !!(g.dietary_restrictions && g.dietary_restrictions.trim() !== '')
+            // ─────────────────────────────────────────────────────────────────
+
+            return textOk && confOk && tableOk && phoneOk && whoInvitesOk && commentsOk && allergyOk
         })
-    }, [guests, q, confirmFilter, tableFilter, phoneFilter, whoInvitesFilter])
+
+        // ── NEW sort ──────────────────────────────────────────────────────────
+        if (sortField === 'none') return filtered
+
+        return [...filtered].sort((a, b) => {
+            let valA: any, valB: any
+
+            if (sortField === 'name') {
+                valA = (a.name || '').toLowerCase()
+                valB = (b.name || '').toLowerCase()
+            } else if (sortField === 'guest_count') {
+                valA = parseInt(a.guest_count) || 0
+                valB = parseInt(b.guest_count) || 0
+            } else if (sortField === 'did_confirm') {
+                // Ascending: Confirmados(1) → Pendientes(0) → No(-1)
+                const rank = (v: boolean | null) => v === true ? 1 : v === null ? 0 : -1
+                valA = rank(a.did_confirm)
+                valB = rank(b.did_confirm)
+            }
+
+            if (valA < valB) return sortDir === 'asc' ? -1 : 1
+            if (valA > valB) return sortDir === 'asc' ? 1 : -1
+            return 0
+        })
+        // ─────────────────────────────────────────────────────────────────────
+    }, [guests, q, confirmFilter, tableFilter, phoneFilter, whoInvitesFilter,
+        commentsFilter, allergyFilter, sortField, sortDir])
 
     const totals = useMemo(() => {
         return {
@@ -448,6 +508,11 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
     const rateColor = rate >= 70 ? '#16a34a' : rate >= 40 ? '#ca8a04' : '#dc2626'
     const rateBg = rate >= 70 ? '#f0fdf4' : rate >= 40 ? '#fefce8' : '#fff1f2'
     const rateText = rate >= 70 ? '#14532d' : rate >= 40 ? '#713f12' : '#7f1d1d'
+
+    // ── NEW: badge counts for special-needs guests ────────────────────────────
+    const withCommentsCount = guests.filter(g => g.comments && g.comments.trim() !== '').length
+    const withAllergyCount = guests.filter(g => g.dietary_restrictions && g.dietary_restrictions.trim() !== '').length
+    // ─────────────────────────────────────────────────────────────────────────────
 
     return (
         <main className="min-h-screen bg-paper text-wine p-8">
@@ -562,6 +627,8 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
                     </p>
                 </div>
             </div>
+
+            {/* ── Manual Add ── */}
             <div className="mb-8 space-y-2 bg-[#C6B89E] p-4 rounded shadow max-w-xl">
                 <h2 className="text-xl font-semibold mb-2">Agregar invitado manualmente</h2>
                 <input
@@ -642,9 +709,10 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
                 </div>
             </div>
 
-            {/* Filters */}
+            {/* ── Filters ── */}
             <div className="mb-4 bg-white/90 border rounded-md p-4 shadow">
-                <div className="flex flex-col lg:flex-row gap-3 lg:items-end">
+                <div className="flex flex-col lg:flex-row gap-3 lg:items-end flex-wrap">
+
                     <div className="flex-1">
                         <label className="block text-sm font-medium mb-1">Buscar</label>
                         <input
@@ -707,33 +775,147 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
                         </select>
                     </div>
 
+                    {/* ── NEW: Allergy filter ────────────────────────────────────────── */}
+                    <div>
+                        <label className="block text-sm font-medium mb-1">
+                            🥜 Alergias / Dieta
+                            {allergyFilter === 'with' && (
+                                <span className="ml-1 bg-amber-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+                                    {withAllergyCount}
+                                </span>
+                            )}
+                        </label>
+                        <select
+                            value={allergyFilter}
+                            onChange={(e) => setAllergyFilter(e.target.value as AllergyFilter)}
+                            className={`border px-3 py-2 rounded w-full ${allergyFilter === 'with' ? 'border-amber-500 bg-amber-50 font-semibold' : ''}`}
+                        >
+                            <option value="all">Todos</option>
+                            <option value="with">Con restricciones ({withAllergyCount})</option>
+                        </select>
+                    </div>
+
+                    {/* ── NEW: Comments filter ───────────────────────────────────────── */}
+                    <div>
+                        <label className="block text-sm font-medium mb-1">
+                            💬 Comentarios
+                            {commentsFilter === 'with' && (
+                                <span className="ml-1 bg-blue-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+                                    {withCommentsCount}
+                                </span>
+                            )}
+                        </label>
+                        <select
+                            value={commentsFilter}
+                            onChange={(e) => setCommentsFilter(e.target.value as CommentsFilter)}
+                            className={`border px-3 py-2 rounded w-full ${commentsFilter === 'with' ? 'border-blue-500 bg-blue-50 font-semibold' : ''}`}
+                        >
+                            <option value="all">Todos</option>
+                            <option value="with">Con comentarios ({withCommentsCount})</option>
+                        </select>
+                    </div>
+
                     <button
-                        onClick={() => { setQ(''); setConfirmFilter('all'); setTableFilter(''); setPhoneFilter('all'); setWhoInvitesFilter('all') }}
+                        onClick={() => {
+                            setQ('')
+                            setConfirmFilter('all')
+                            setTableFilter('')
+                            setPhoneFilter('all')
+                            setWhoInvitesFilter('all')
+                            // ── NEW: also reset new filters ──
+                            setAllergyFilter('all')
+                            setCommentsFilter('all')
+                        }}
                         className="mt-2 lg:mt-0 bg-[#C6B89E] hover:bg-[#B9AB93] text-[#173039] font-medium px-4 py-2 rounded"
                     >
                         Limpiar filtros
                     </button>
                 </div>
 
+                {/* ── NEW: Sort controls ─────────────────────────────────────────────── */}
+                <div className="mt-4 pt-3 border-t border-gray-200 flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-medium text-gray-600 mr-1">Ordenar por:</span>
+                    {([
+                        { field: 'name' as SortField, label: 'Nombre' },
+                        { field: 'guest_count' as SortField, label: '# Boletos' },
+                        { field: 'did_confirm' as SortField, label: 'Estado RSVP' },
+                    ]).map(({ field, label }) => (
+                        <button
+                            key={field}
+                            onClick={() => handleSortClick(field)}
+                            className={`
+                                flex items-center px-3 py-1.5 rounded border text-sm transition-colors
+                                ${sortField === field
+                                    ? 'bg-[#47091C] text-white border-[#47091C] font-semibold'
+                                    : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'}
+                            `}
+                        >
+                            {label}
+                            {sortField === field
+                                ? <span className="ml-1">{sortDir === 'asc' ? '↑' : '↓'}</span>
+                                : <span className="ml-1 opacity-30">↕</span>
+                            }
+                        </button>
+                    ))}
+                    <span className="text-xs text-gray-400 ml-2">
+                        (haz click de nuevo en el mismo botón para invertir el orden)
+                    </span>
+                </div>
+                {/* ─────────────────────────────────────────────────────────────────────── */}
+
                 <div className="mt-3 text-sm text-[#173039]">
                     Mostrando <b>{filteredGuests.length}</b> de <b>{guests.length}</b> invitados
+                    {allergyFilter === 'with' && (
+                        <span className="ml-2 text-amber-700 font-medium">· 🥜 {withAllergyCount} con restricciones dietéticas</span>
+                    )}
+                    {commentsFilter === 'with' && (
+                        <span className="ml-2 text-blue-700 font-medium">· 💬 {withCommentsCount} con comentarios</span>
+                    )}
                 </div>
             </div>
 
-            {/* Guest Table */}
+            {/* ── Guest Table ── */}
             <div className="overflow-x-auto border rounded-md bg-white/90 shadow">
                 <table className="min-w-full table-auto text-sm">
                     <thead className="bg-rosewood text-black">
                         <tr>
-                            <th className="px-4 py-2">Invitado</th>
+                            {/* ── Sortable column headers ── */}
+                            <th
+                                className="px-4 py-2 cursor-pointer hover:bg-rosewood/80 select-none whitespace-nowrap"
+                                onClick={() => handleSortClick('name')}
+                            >
+                                Invitado {sortField === 'name'
+                                    ? (sortDir === 'asc' ? '↑' : '↓')
+                                    : <span className="opacity-30 text-xs">↕</span>}
+                            </th>
                             <th className="px-4 py-2">Invita</th>
-                            <th className="px-4 py-2">Invitados</th>
+                            <th
+                                className="px-4 py-2 cursor-pointer hover:bg-rosewood/80 select-none whitespace-nowrap"
+                                onClick={() => handleSortClick('guest_count')}
+                            >
+                                Invitados {sortField === 'guest_count'
+                                    ? (sortDir === 'asc' ? '↑' : '↓')
+                                    : <span className="opacity-30 text-xs">↕</span>}
+                            </th>
                             <th className="px-4 py-2">Teléfono</th>
                             <th className="px-4 py-2">Email</th>
-                            <th className="px-4 py-2">Restricciones Dietéticas</th>
-                            <th className="px-4 py-2">Comentarios</th>
+                            {/* Allergy col header — turns amber when filter active */}
+                            <th className={`px-4 py-2 ${allergyFilter === 'with' ? 'bg-amber-200 text-amber-900' : ''}`}>
+                                🥜 Restricciones Dietéticas
+                            </th>
+                            {/* Comments col header — turns blue when filter active */}
+                            <th className={`px-4 py-2 ${commentsFilter === 'with' ? 'bg-blue-200 text-blue-900' : ''}`}>
+                                💬 Comentarios
+                            </th>
                             <th className="px-4 py-2">Confirmados</th>
-                            <th className="px-4 py-2">¿Confirmó?</th>
+                            <th
+                                className="px-4 py-2 cursor-pointer hover:bg-rosewood/80 select-none whitespace-nowrap"
+                                onClick={() => handleSortClick('did_confirm')}
+                            >
+                                ¿Confirmó? {sortField === 'did_confirm'
+                                    ? (sortDir === 'asc' ? '↑' : '↓')
+                                    : <span className="opacity-30 text-xs">↕</span>}
+                            </th>
                             <th className="px-4 py-2">Mesa</th>
                             <th className="px-4 py-2">Token</th>
                             <th className="px-4 py-2">WhatsApp</th>
@@ -746,8 +928,20 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
                             const globalIdx = guests.findIndex(g => g.id === guest.id)
                             const isEditing = editingIndex === globalIdx
 
+                            // ── Row highlight flags ──────────────────────────────────────
+                            const hasAllergy = !!(guest.dietary_restrictions && guest.dietary_restrictions.trim() !== '')
+                            const hasComments = !!(guest.comments && guest.comments.trim() !== '')
+                            // ─────────────────────────────────────────────────────────────
+
                             return (
-                                <tr key={guest.id} className="border-b hover:bg-stone-50">
+                                <tr
+                                    key={guest.id}
+                                    className={`border-b hover:bg-stone-50 ${hasAllergy && hasComments ? 'bg-orange-50'
+                                            : hasAllergy ? 'bg-amber-50'
+                                                : hasComments ? 'bg-blue-50'
+                                                    : ''
+                                        }`}
+                                >
                                     {isEditing ? (
                                         <>
                                             <td className="px-4 py-2">
@@ -874,28 +1068,33 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
                                             <td className="px-4 py-2">{guest.guest_count}</td>
                                             <td className="px-4 py-2">{guest.phone_number}</td>
                                             <td className="px-4 py-2">{guest.email}</td>
+
+                                            {/* ── Allergy cell: highlighted when non-empty ── */}
                                             <td className="px-4 py-2">
                                                 <div className="max-w-xs">
-                                                    {guest.dietary_restrictions ? (
-                                                        <span className="text-xs bg-amber-50 border border-amber-200 px-2 py-1 rounded inline-block">
-                                                            {guest.dietary_restrictions}
+                                                    {hasAllergy ? (
+                                                        <span className="text-xs bg-amber-100 border border-amber-400 text-amber-900 font-semibold px-2 py-1 rounded inline-flex items-center gap-1">
+                                                            ⚠️ {guest.dietary_restrictions}
                                                         </span>
                                                     ) : (
                                                         <span className="text-gray-400 text-xs">Sin restricciones</span>
                                                     )}
                                                 </div>
                                             </td>
+
+                                            {/* ── Comments cell: highlighted when non-empty ── */}
                                             <td className="px-4 py-2">
                                                 <div className="max-w-xs">
-                                                    {guest.comments ? (
-                                                        <span className="text-xs bg-blue-50 border border-blue-200 px-2 py-1 rounded inline-block">
-                                                            {guest.comments}
+                                                    {hasComments ? (
+                                                        <span className="text-xs bg-blue-100 border border-blue-400 text-blue-900 font-semibold px-2 py-1 rounded inline-flex items-center gap-1">
+                                                            💬 {guest.comments}
                                                         </span>
                                                     ) : (
                                                         <span className="text-gray-400 text-xs">—</span>
                                                     )}
                                                 </div>
                                             </td>
+
                                             <td className="px-4 py-2">{guest.number_confirmations}</td>
                                             <td className="px-4 py-2">
                                                 {rsvpBadge(guest.did_confirm)}
