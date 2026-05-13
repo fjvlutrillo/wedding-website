@@ -1170,9 +1170,14 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
                     <tfoot>
                         <tr className="font-bold bg-[#F7E7D6]">
                             <td className="px-4 py-2 text-right" colSpan={2}>Totales (filtrados)</td>
-                            <td className="px-4 py-2">{totals.invited} boletos</td>
+                            {/* Uses rsvpSummary (guest_count gated by did_confirm) — matches KPI cards exactly */}
+                            <td className="px-4 py-2">{rsvpSummary.totalTickets} boletos</td>
                             <td colSpan={4}></td>
-                            <td className="px-4 py-2">{totals.confirmed} confirmados</td>
+                            <td className="px-4 py-2">
+                                <span className="text-green-700">✅ {rsvpSummary.yesTickets}</span>
+                                <span className="text-yellow-600 ml-2">⏳ {rsvpSummary.pendingTickets}</span>
+                                <span className="text-red-600 ml-2">❌ {rsvpSummary.noTickets}</span>
+                            </td>
                             <td colSpan={5}></td>
                         </tr>
                     </tfoot>
