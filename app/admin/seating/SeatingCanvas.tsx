@@ -232,6 +232,7 @@ export default function SeatingCanvas() {
     const [showNewTable, setShowNewTable] = useState(false)
     const [search, setSearch] = useState('')
     const [whoInvitesFilter, setWhoInvitesFilter] = useState<'all' | 'Susana' | 'Javier'>('all') // ── NEW
+    const [hideDeclined, setHideDeclined] = useState(true)  // ── hide did_confirm===false by default
 
     // ── Seating setter: also mirrors to localStorage and cloud ref ────────
     const setSeating = (update: SeatingState | ((p: SeatingState) => SeatingState)) => {
@@ -320,8 +321,9 @@ export default function SeatingCanvas() {
         () => guests
             .filter(g => !g.table_number || g.table_number === 0)
             .filter(g => !search || (g.name ?? '').toLowerCase().includes(search.toLowerCase()))
-            .filter(g => whoInvitesFilter === 'all' || g.whoInvites === whoInvitesFilter), // ── NEW
-        [guests, search, whoInvitesFilter]
+            .filter(g => whoInvitesFilter === 'all' || g.whoInvites === whoInvitesFilter) // ── NEW
+            .filter(g => !hideDeclined || g.did_confirm !== false),  // ── hide cancellations, keep confirmed + pending
+        [guests, search, whoInvitesFilter, hideDeclined]
     )
 
     const countAssigned = (tableNo: number) =>
@@ -820,6 +822,16 @@ export default function SeatingCanvas() {
                 <input placeholder="Buscar por nombre…" value={search}
                     onChange={e => setSearch(e.target.value)}
                     className="mb-2 w-full border rounded px-2 py-1 text-sm" />
+
+                {/* ── RSVP filter: hide cancellations toggle ── */}
+                <button
+                    onClick={() => setHideDeclined(h => !h)}
+                    className={`w-full mb-2 py-1 rounded border text-xs font-medium transition-colors ${hideDeclined
+                            ? 'bg-green-600 text-white border-green-600'
+                            : 'bg-white text-gray-500 border-gray-300 hover:bg-gray-50'
+                        }`}>
+                    {hideDeclined ? '✅ Ocultando cancelaciones' : '👁 Mostrando todos (incl. cancelaciones)'}
+                </button>
 
                 {/* ── NEW: who-invites filter ── */}
                 <div className="flex gap-1 mb-3">
