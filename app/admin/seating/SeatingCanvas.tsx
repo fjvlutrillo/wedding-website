@@ -70,6 +70,7 @@ type Guest = {
     email?: string | null
     phone_number?: string | null
     did_confirm?: boolean | null
+    whoInvites?: string | null   // ── NEW: 'Susana' | 'Javier'
 }
 
 type Occupant =
@@ -230,6 +231,7 @@ export default function SeatingCanvas() {
     const [selectedTableId, setSelectedTableId] = useState<string | null>(null)
     const [showNewTable, setShowNewTable] = useState(false)
     const [search, setSearch] = useState('')
+    const [whoInvitesFilter, setWhoInvitesFilter] = useState<'all' | 'Susana' | 'Javier'>('all') // ── NEW
 
     // ── Seating setter: also mirrors to localStorage and cloud ref ────────
     const setSeating = (update: SeatingState | ((p: SeatingState) => SeatingState)) => {
@@ -275,7 +277,7 @@ export default function SeatingCanvas() {
     useEffect(() => {
         supabase
             .from('guests')
-            .select('id, name, guest_count, number_confirmations, table_number, email, phone_number, did_confirm')
+            .select('id, name, guest_count, number_confirmations, table_number, email, phone_number, did_confirm, whoInvites')
             .order('name', { ascending: true })
             .then(({ data, error }) => { if (!error) setGuests((data ?? []) as Guest[]) })
     }, [])
@@ -317,8 +319,9 @@ export default function SeatingCanvas() {
     const unassigned = useMemo(
         () => guests
             .filter(g => !g.table_number || g.table_number === 0)
-            .filter(g => !search || (g.name ?? '').toLowerCase().includes(search.toLowerCase())),
-        [guests, search]
+            .filter(g => !search || (g.name ?? '').toLowerCase().includes(search.toLowerCase()))
+            .filter(g => whoInvitesFilter === 'all' || g.whoInvites === whoInvitesFilter), // ── NEW
+        [guests, search, whoInvitesFilter]
     )
 
     const countAssigned = (tableNo: number) =>
@@ -816,24 +819,55 @@ export default function SeatingCanvas() {
 
                 <input placeholder="Buscar por nombre…" value={search}
                     onChange={e => setSearch(e.target.value)}
-                    className="mb-3 w-full border rounded px-2 py-1 text-sm" />
+                    className="mb-2 w-full border rounded px-2 py-1 text-sm" />
+
+                {/* ── NEW: who-invites filter ── */}
+                <div className="flex gap-1 mb-3">
+                    {(['all', 'Susana', 'Javier'] as const).map(v => (
+                        <button key={v} onClick={() => setWhoInvitesFilter(v)}
+                            className={`flex-1 py-1 rounded border text-xs font-medium transition-colors ${whoInvitesFilter === v
+                                    ? v === 'Susana' ? 'bg-pink-500 text-white border-pink-500'
+                                        : v === 'Javier' ? 'bg-blue-500 text-white border-blue-500'
+                                            : 'bg-[#47091C] text-white border-[#47091C]'
+                                    : 'bg-white text-gray-600 hover:bg-gray-50'
+                                }`}>
+                            {v === 'all' ? 'Todos' : v === 'Susana' ? '💗 Susana' : '💙 Javier'}
+                        </button>
+                    ))}
+                </div>
 
                 <div className="flex-1 overflow-auto space-y-2 pr-1 min-h-0">
                     {loading
                         ? <p className="text-sm text-gray-500">Cargando…</p>
                         : unassigned.length === 0
                             ? <p className="text-sm text-gray-500">¡Todos asignados! 🎉</p>
-                            : unassigned.map(g => (
-                                <div key={g.id} draggable
-                                    onDragStart={e => handleDragStartGuest(e, g.id)}
-                                    className="bg-white border rounded-lg px-3 py-2 cursor-grab active:cursor-grabbing shadow-sm hover:border-[#47091C] transition-colors select-none">
-                                    <div className="font-medium text-sm">{g.name || 'Sin nombre'}</div>
-                                    <div className="text-xs text-gray-500">
-                                        {seatsFrom(g)} asiento{seatsFrom(g) !== 1 ? 's' : ''}
-                                        {g.did_confirm ? ' · ✅' : ''}
+                            : unassigned.map(g => {
+                                // ── NEW: color-code by who invites ──
+                                const isSusana = g.whoInvites === 'Susana'
+                                const isJavier = g.whoInvites === 'Javier'
+                                const nameCls = isSusana
+                                    ? 'text-pink-700 font-semibold'
+                                    : isJavier
+                                        ? 'text-blue-700 font-semibold'
+                                        : 'text-gray-900 font-medium'
+                                const borderCls = isSusana
+                                    ? 'border-pink-200 hover:border-pink-400'
+                                    : isJavier
+                                        ? 'border-blue-200 hover:border-blue-400'
+                                        : 'hover:border-[#47091C]'
+                                return (
+                                    <div key={g.id} draggable
+                                        onDragStart={e => handleDragStartGuest(e, g.id)}
+                                        className={`bg-white border rounded-lg px-3 py-2 cursor-grab active:cursor-grabbing shadow-sm transition-colors select-none ${borderCls}`}>
+                                        <div className={`text-sm ${nameCls}`}>{g.name || 'Sin nombre'}</div>
+                                        <div className="text-xs text-gray-500">
+                                            {seatsFrom(g)} asiento{seatsFrom(g) !== 1 ? 's' : ''}
+                                            {g.did_confirm ? ' · ✅' : ''}
+                                            {g.whoInvites ? ` · ${g.whoInvites}` : ''}
+                                        </div>
                                     </div>
-                                </div>
-                            ))
+                                )
+                            })
                     }
                 </div>
 
