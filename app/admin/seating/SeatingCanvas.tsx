@@ -59,6 +59,8 @@ type TableModel = {
     decorColor?: string
     decorWidth?: number
     decorHeight?: number
+    /** Optional tint for seat tables: 'pink' | 'blue' | undefined (default rose) */
+    tableColor?: 'pink' | 'blue'
 }
 
 type Guest = {
@@ -111,7 +113,7 @@ const DEFAULT_DECOR: TableModel[] = [
     {
         id: 'decor-bride', number: 0, name: 'Mesa de Novios', type: 'rect',
         seats: 0, x: 510, y: 90, rotation: 0,
-        isDecor: true, decorLabel: 'Mesa de Novios 💑', decorColor: '#EDD5D8',
+        isDecor: true, decorLabel: 'Susana 💑 Javier', decorColor: '#EDD5D8',
         decorWidth: 220, decorHeight: 60,
     },
 ]
@@ -220,6 +222,8 @@ export default function SeatingCanvas() {
     const cloudTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
     const [stageSize, setStageSize] = useState({ w: 1000, h: 700 })
+    const [stageScale, setStageScale] = useState(1)
+    const [stagePos, setStagePos] = useState({ x: 0, y: 0 })
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [cloudStatus, setCloudStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
@@ -598,7 +602,7 @@ export default function SeatingCanvas() {
             return (
                 <Group {...commonGroupProps}>
                     <Circle radius={68}
-                        fill={P.rose}
+                        fill={t.tableColor === 'pink' ? '#F9A8D4' : t.tableColor === 'blue' ? '#93C5FD' : P.rose}
                         stroke={isSelected ? P.burgundy : P.burgundyDark}
                         strokeWidth={isSelected ? 3 : 2} shadowBlur={4} />
                     <Text text={`${t.name}\n${assigned}/${cap}`} align="center"
@@ -616,7 +620,7 @@ export default function SeatingCanvas() {
             return (
                 <Group {...commonGroupProps}>
                     <Rect x={-w / 2} y={-h / 2} width={w} height={h} cornerRadius={8}
-                        fill={P.rose}
+                        fill={t.tableColor === 'pink' ? '#F9A8D4' : t.tableColor === 'blue' ? '#93C5FD' : P.rose}
                         stroke={isSelected ? P.burgundy : P.burgundyDark}
                         strokeWidth={isSelected ? 3 : 2} shadowBlur={4} />
                     <Text text={`${t.name}\n${assigned}/${cap}`} align="center"
@@ -638,18 +642,18 @@ export default function SeatingCanvas() {
                     {/* Upper arm */}
                     <Rect x={topCX - segW / 2} y={topCY - segH / 2} width={segW} height={segH}
                         cornerRadius={[20, 20, 4, 4]}
-                        fill={P.rose}
+                        fill={t.tableColor === 'pink' ? '#F9A8D4' : t.tableColor === 'blue' ? '#93C5FD' : P.rose}
                         stroke={isSelected ? P.burgundy : P.burgundyDark}
                         strokeWidth={isSelected ? 3 : 2} shadowBlur={4} />
                     {/* Lower arm */}
                     <Rect x={botCX - segW / 2} y={botCY - segH / 2} width={segW} height={segH}
                         cornerRadius={[4, 4, 20, 20]}
-                        fill={P.rose}
+                        fill={t.tableColor === 'pink' ? '#F9A8D4' : t.tableColor === 'blue' ? '#93C5FD' : P.rose}
                         stroke={isSelected ? P.burgundy : P.burgundyDark}
                         strokeWidth={isSelected ? 3 : 2} shadowBlur={4} />
                     {/* Connector bridge */}
                     <Rect x={-12} y={-8} width={40} height={16}
-                        fill={P.rose} strokeEnabled={false} />
+                        fill={t.tableColor === 'pink' ? '#F9A8D4' : t.tableColor === 'blue' ? '#93C5FD' : P.rose} strokeEnabled={false} />
                     <Text text={`${t.name}\n${assigned}/${cap}`} align="center"
                         width={155} offsetX={155 / 2} offsetY={14} y={-10}
                         fontStyle="bold" fontSize={11} fill={P.burgundyDark} />
@@ -756,22 +760,64 @@ export default function SeatingCanvas() {
                                     </button>
                                 ))}
                             </div>
+                            {/* ── Color picker ── */}
+                            <div className="pt-1">
+                                <p className="text-xs font-medium text-gray-600 mb-1">Color de mesa</p>
+                                <div className="flex gap-2">
+                                    {([
+                                        { val: undefined, label: 'Rosa', bg: '#E5AAAE' },
+                                        { val: 'pink', label: 'Rosa fuerte', bg: '#F9A8D4' },
+                                        { val: 'blue', label: 'Azul', bg: '#93C5FD' },
+                                    ] as const).map(opt => (
+                                        <button key={String(opt.val)} onClick={() => updateTable(t.id, { tableColor: opt.val })}
+                                            title={opt.label}
+                                            style={{ background: opt.bg }}
+                                            className={`w-7 h-7 rounded-full border-2 transition-all ${t.tableColor === opt.val
+                                                    ? 'border-[#47091C] scale-110 shadow'
+                                                    : 'border-transparent hover:border-gray-400'
+                                                }`} />
+                                    ))}
+                                </div>
+                            </div>
                         </>
                     )}
 
                     {t.isDecor && (
-                        <div className="grid grid-cols-2 gap-2">
-                            <label className="text-xs font-medium text-gray-600">Ancho
-                                <input type="number" className="mt-1 w-full border rounded px-2 py-1 text-sm"
-                                    value={t.decorWidth ?? 200}
-                                    onChange={e => updateTable(t.id, { decorWidth: toInt(e.target.value, 200) })} />
-                            </label>
-                            <label className="text-xs font-medium text-gray-600">Alto
-                                <input type="number" className="mt-1 w-full border rounded px-2 py-1 text-sm"
-                                    value={t.decorHeight ?? 80}
-                                    onChange={e => updateTable(t.id, { decorHeight: toInt(e.target.value, 80) })} />
-                            </label>
-                        </div>
+                        <>
+                            <div className="grid grid-cols-2 gap-2">
+                                <label className="text-xs font-medium text-gray-600">Ancho
+                                    <input type="number" className="mt-1 w-full border rounded px-2 py-1 text-sm"
+                                        value={t.decorWidth ?? 200}
+                                        onChange={e => updateTable(t.id, { decorWidth: toInt(e.target.value, 200) })} />
+                                </label>
+                                <label className="text-xs font-medium text-gray-600">Alto
+                                    <input type="number" className="mt-1 w-full border rounded px-2 py-1 text-sm"
+                                        value={t.decorHeight ?? 80}
+                                        onChange={e => updateTable(t.id, { decorHeight: toInt(e.target.value, 80) })} />
+                                </label>
+                            </div>
+                            {/* ── Color picker for decor ── */}
+                            <div className="pt-1">
+                                <p className="text-xs font-medium text-gray-600 mb-1">Color</p>
+                                <div className="flex gap-2">
+                                    {([
+                                        { color: '#EDD5D8', label: 'Rosa suave' },
+                                        { color: '#F9A8D4', label: 'Rosa fuerte' },
+                                        { color: '#93C5FD', label: 'Azul' },
+                                        { color: '#F0E8D6', label: 'Arena' },
+                                        { color: '#E8D5B7', label: 'Crema' },
+                                    ] as const).map(opt => (
+                                        <button key={opt.color} onClick={() => updateTable(t.id, { decorColor: opt.color })}
+                                            title={opt.label}
+                                            style={{ background: opt.color }}
+                                            className={`w-7 h-7 rounded-full border-2 transition-all ${t.decorColor === opt.color
+                                                    ? 'border-[#47091C] scale-110 shadow'
+                                                    : 'border-transparent hover:border-gray-400'
+                                                }`} />
+                                    ))}
+                                </div>
+                            </div>
+                        </>
                     )}
 
                     <label className="block text-xs font-medium text-gray-600">Rotación (°)
@@ -1017,14 +1063,74 @@ export default function SeatingCanvas() {
             <main ref={containerRef} className="flex-1 relative bg-[#FCFCFC] overflow-hidden"
                 onDragOver={onCanvasDragOver} onDrop={onCanvasDrop}>
 
-                <Stage width={stageSize.w} height={stageSize.h} ref={stageRef}>
+                <Stage
+                    width={stageSize.w}
+                    height={stageSize.h}
+                    ref={stageRef}
+                    scaleX={stageScale}
+                    scaleY={stageScale}
+                    x={stagePos.x}
+                    y={stagePos.y}
+                    draggable
+                    onDragEnd={e => setStagePos({ x: e.target.x(), y: e.target.y() })}
+                    onWheel={e => {
+                        e.evt.preventDefault()
+                        const stage = stageRef.current as any
+                        if (!stage) return
+                        const oldScale = stageScale
+                        const pointer = stage.getPointerPosition()
+                        const scaleBy = 1.08
+                        const newScale = e.evt.deltaY < 0
+                            ? Math.min(oldScale * scaleBy, 3)
+                            : Math.max(oldScale / scaleBy, 0.3)
+                        const mousePointTo = {
+                            x: (pointer.x - stagePos.x) / oldScale,
+                            y: (pointer.y - stagePos.y) / oldScale,
+                        }
+                        setStageScale(newScale)
+                        setStagePos({
+                            x: pointer.x - mousePointTo.x * newScale,
+                            y: pointer.y - mousePointTo.y * newScale,
+                        })
+                    }}
+                >
                     <Layer>
                         <Text x={16} y={14}
-                            text="Arrastra invitados a una mesa  ·  Click para seleccionar  ·  Doble click en asiento para quitar"
+                            text="Scroll para zoom  ·  Arrastra fondo para navegar  ·  Click en mesa para seleccionar  ·  Doble click en asiento para quitar"
                             fontSize={12} fill={P.gray} />
                         {tables.map(renderTable)}
                     </Layer>
                 </Stage>
+
+                {/* ── Zoom controls ── */}
+                <div className="absolute top-4 left-4 flex flex-col gap-1 z-10">
+                    <button
+                        onClick={() => {
+                            const ns = Math.min(stageScale * 1.2, 3)
+                            const cx = stageSize.w / 2, cy = stageSize.h / 2
+                            setStageScale(ns)
+                            setStagePos(p => ({
+                                x: cx - (cx - p.x) * (ns / stageScale),
+                                y: cy - (cy - p.y) * (ns / stageScale),
+                            }))
+                        }}
+                        className="w-8 h-8 bg-white border rounded shadow text-lg hover:bg-gray-50 flex items-center justify-center font-bold text-gray-700">+</button>
+                    <button
+                        onClick={() => {
+                            const ns = Math.max(stageScale / 1.2, 0.3)
+                            const cx = stageSize.w / 2, cy = stageSize.h / 2
+                            setStageScale(ns)
+                            setStagePos(p => ({
+                                x: cx - (cx - p.x) * (ns / stageScale),
+                                y: cy - (cy - p.y) * (ns / stageScale),
+                            }))
+                        }}
+                        className="w-8 h-8 bg-white border rounded shadow text-lg hover:bg-gray-50 flex items-center justify-center font-bold text-gray-700">−</button>
+                    <button
+                        onClick={() => { setStageScale(1); setStagePos({ x: 0, y: 0 }) }}
+                        className="w-8 h-8 bg-white border rounded shadow text-[10px] hover:bg-gray-50 flex items-center justify-center text-gray-600 font-medium">1:1</button>
+                    <span className="text-[9px] text-center text-gray-400 font-mono">{Math.round(stageScale * 100)}%</span>
+                </div>
 
                 {selectedTableId && <InspectorPanel />}
 
