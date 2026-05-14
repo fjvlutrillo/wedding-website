@@ -224,6 +224,8 @@ export default function SeatingCanvas() {
     const [stageSize, setStageSize] = useState({ w: 1000, h: 700 })
     const [stageScale, setStageScale] = useState(1)
     const [stagePos, setStagePos] = useState({ x: 0, y: 0 })
+    // Ref mirrors stageScale so zoom-button closures always read the latest value
+    const scaleRef = useRef(1)
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [cloudStatus, setCloudStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
@@ -343,7 +345,12 @@ export default function SeatingCanvas() {
         const stage = stageRef.current as any
         if (!stage) return { x: 0, y: 0 }
         const r = stage.container().getBoundingClientRect()
-        return { x: cx - r.left, y: cy - r.top }
+        // Convert from screen coords → canvas/stage coords, accounting for
+        // pan (stagePos) and zoom (stageScale) applied to the Stage.
+        return {
+            x: (cx - r.left - stagePos.x) / stageScale,
+            y: (cy - r.top - stagePos.y) / stageScale,
+        }
     }
 
     const findTableAt = (x: number, y: number): TableModel | null => {
@@ -1087,6 +1094,7 @@ export default function SeatingCanvas() {
                             x: (pointer.x - stagePos.x) / oldScale,
                             y: (pointer.y - stagePos.y) / oldScale,
                         }
+                        scaleRef.current = newScale
                         setStageScale(newScale)
                         setStagePos({
                             x: pointer.x - mousePointTo.x * newScale,
@@ -1106,28 +1114,32 @@ export default function SeatingCanvas() {
                 <div className="absolute top-4 left-4 flex flex-col gap-1 z-10">
                     <button
                         onClick={() => {
-                            const ns = Math.min(stageScale * 1.2, 3)
+                            const cur = scaleRef.current
+                            const ns = Math.min(cur * 1.2, 3)
                             const cx = stageSize.w / 2, cy = stageSize.h / 2
+                            scaleRef.current = ns
                             setStageScale(ns)
                             setStagePos(p => ({
-                                x: cx - (cx - p.x) * (ns / stageScale),
-                                y: cy - (cy - p.y) * (ns / stageScale),
+                                x: cx - (cx - p.x) * (ns / cur),
+                                y: cy - (cy - p.y) * (ns / cur),
                             }))
                         }}
                         className="w-8 h-8 bg-white border rounded shadow text-lg hover:bg-gray-50 flex items-center justify-center font-bold text-gray-700">+</button>
                     <button
                         onClick={() => {
-                            const ns = Math.max(stageScale / 1.2, 0.3)
+                            const cur = scaleRef.current
+                            const ns = Math.max(cur / 1.2, 0.3)
                             const cx = stageSize.w / 2, cy = stageSize.h / 2
+                            scaleRef.current = ns
                             setStageScale(ns)
                             setStagePos(p => ({
-                                x: cx - (cx - p.x) * (ns / stageScale),
-                                y: cy - (cy - p.y) * (ns / stageScale),
+                                x: cx - (cx - p.x) * (ns / cur),
+                                y: cy - (cy - p.y) * (ns / cur),
                             }))
                         }}
                         className="w-8 h-8 bg-white border rounded shadow text-lg hover:bg-gray-50 flex items-center justify-center font-bold text-gray-700">−</button>
                     <button
-                        onClick={() => { setStageScale(1); setStagePos({ x: 0, y: 0 }) }}
+                        onClick={() => { scaleRef.current = 1; setStageScale(1); setStagePos({ x: 0, y: 0 }) }}
                         className="w-8 h-8 bg-white border rounded shadow text-[10px] hover:bg-gray-50 flex items-center justify-center text-gray-600 font-medium">1:1</button>
                     <span className="text-[9px] text-center text-gray-400 font-mono">{Math.round(stageScale * 100)}%</span>
                 </div>
