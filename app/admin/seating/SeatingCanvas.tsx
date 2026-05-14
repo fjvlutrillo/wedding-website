@@ -429,15 +429,45 @@ export default function SeatingCanvas() {
         })
     }
 
-    const deleteTable = (id: string) => {
-        mutateTables(prev => {
-            const tbl = prev.find(t => t.id === id)
-            const next = prev.filter(t => t.id !== id)
-            if (tbl && !tbl.isDecor) {
-                setSeating(s => { const c = { ...s }; delete c[tbl.number]; return c })
+    const deleteTable = async (id: string) => {
+        // Find the table before removing it so we know its number
+        const tbl = tables.find(t => t.id === id)
+
+        // ── Reset table_number to null for every guest seated here ──────────
+        if (tbl && !tbl.isDecor) {
+            const seats = seating[tbl.number] ?? []
+            // Collect unique guest IDs that are the "main" guest (kind === 'guest')
+            // Companions share the same guestId, so deduplicate with a Set
+            const guestIds = [...new Set(
+                seats
+                    .filter(s => s.occupant?.kind === 'guest')
+                    .map(s => s.occupant!.guestId)
+            )]
+
+            if (guestIds.length > 0) {
+                // Fire-and-forget is fine here — if Supabase fails the user sees
+                // a console error but the UI still recovers gracefully.
+                supabase
+                    .from('guests')
+                    .update({ table_number: null })
+                    .in('id', guestIds)
+                    .then(({ error }) => {
+                        if (error) {
+                            console.error('[deleteTable] failed to reset guest table_numbers:', error)
+                        }
+                    })
+
+                // Mirror immediately in local state so the sidebar updates now
+                setGuests(prev =>
+                    prev.map(g => guestIds.includes(g.id) ? { ...g, table_number: null } : g)
+                )
             }
-            return next
-        })
+
+            // Clear seating bucket for this table
+            setSeating(s => { const c = { ...s }; delete c[tbl.number]; return c })
+        }
+
+        mutateTables(prev => prev.filter(t => t.id !== id))
         if (selectedTableId === id) setSelectedTableId(null)
     }
 
@@ -921,8 +951,50 @@ export default function SeatingCanvas() {
                     </button>
                 </div>
 
+                {/* ── Totals banner ── */}
+                {(() => {
+                    const seatTables = tables.filter(t => !t.isDecor)
+                    const totalCap = seatTables.reduce((s, t) => s + t.seats, 0)
+                    const totalAssigned = seatTables.reduce((s, t) => s + countAssigned(t.number), 0)
+                    const remaining = totalCap - totalAssigned
+                    const tablesWithSpace = seatTables.filter(t => countAssigned(t.number) < t.seats).length
+                    const pct = totalCap > 0 ? Math.round((totalAssigned / totalCap) * 100) : 0
+                    return (
+                        <div className="mt-3 border-t pt-3 shrink-0">
+                            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Totales</h3>
+                            {/* Progress bar */}
+                            <div className="h-2 rounded-full bg-gray-200 overflow-hidden mb-2">
+                                <div
+                                    className="h-full rounded-full transition-all duration-500"
+                                    style={{
+                                        width: `${pct}%`,
+                                        background: pct >= 90 ? '#dc2626' : pct >= 70 ? '#ca8a04' : '#16a34a',
+                                    }}
+                                />
+                            </div>
+                            <div className="grid grid-cols-3 gap-1 text-center mb-2">
+                                <div className="bg-white rounded border py-1.5">
+                                    <p className="text-lg font-bold text-[#47091C] leading-none">{totalAssigned}</p>
+                                    <p className="text-[10px] text-gray-500 mt-0.5">asignados</p>
+                                </div>
+                                <div className="bg-white rounded border py-1.5">
+                                    <p className={`text-lg font-bold leading-none ${remaining === 0 ? 'text-red-600' : 'text-green-700'}`}>{remaining}</p>
+                                    <p className="text-[10px] text-gray-500 mt-0.5">disponibles</p>
+                                </div>
+                                <div className="bg-white rounded border py-1.5">
+                                    <p className="text-lg font-bold text-gray-600 leading-none">{totalCap}</p>
+                                    <p className="text-[10px] text-gray-500 mt-0.5">capacidad</p>
+                                </div>
+                            </div>
+                            <p className="text-[10px] text-gray-400 text-center mb-3">
+                                {tablesWithSpace} mesa{tablesWithSpace !== 1 ? 's' : ''} con espacio · {pct}% ocupado
+                            </p>
+                        </div>
+                    )
+                })()}
+
                 {/* Per-table summary */}
-                <div className="mt-3 border-t pt-3 shrink-0">
+                <div className="mt-0 border-t pt-3 shrink-0">
                     <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Mesas</h3>
                     <div className="space-y-0.5 text-xs max-h-28 overflow-auto">
                         {tables.filter(t => !t.isDecor).sort((a, b) => a.number - b.number).map(t => {
