@@ -28,7 +28,7 @@ export default function GuestUploadPage() {
         guest_count: 1,
         phone_number: '',
         email: '',
-        whoInvites: 'Susana', // default value
+        whoInvites: 'Susana',
         dietary_restrictions: '',
         comments: '',
     })
@@ -39,13 +39,11 @@ export default function GuestUploadPage() {
     const [tableFilter, setTableFilter] = useState<string>('')
     const [phoneFilter, setPhoneFilter] = useState<PhoneFilter>('all')
     const [whoInvitesFilter, setWhoInvitesFilter] = useState<WhoInvitesFilter>('all')
-    // ── NEW filter state ──────────────────────────────────────────────────────
     const [commentsFilter, setCommentsFilter] = useState<CommentsFilter>('all')
     const [allergyFilter, setAllergyFilter] = useState<AllergyFilter>('all')
-    // ── NEW sort state (default: A→Z by name) ─────────────────────────────────
+    // ── Sort state (default: A→Z by name) ────────────────────────────────────
     const [sortField, setSortField] = useState<SortField>('name')
     const [sortDir, setSortDir] = useState<SortDir>('asc')
-    // ─────────────────────────────────────────────────────────────────────────────
 
     useEffect(() => {
         const getSession = async () => {
@@ -69,7 +67,6 @@ export default function GuestUploadPage() {
     const handleManualAdd = async () => {
         if (!session) return
 
-        // Basic validation
         if (!manualGuest.name.trim()) {
             alert('❌ Por favor ingresa el nombre del invitado')
             return
@@ -99,8 +96,6 @@ export default function GuestUploadPage() {
         }
     }
 
-    // 🔧 FIX #1: Flexible column name matching for Excel uploads
-    // This handles variations in column names (with/without accents, different cases)
     const findColumnValue = (row: any, possibleNames: string[]): string => {
         for (const name of possibleNames) {
             if (row[name] !== undefined && row[name] !== null) {
@@ -124,11 +119,9 @@ export default function GuestUploadPage() {
             console.log('📊 First row sample:', jsonData[0])
 
             const mapped = jsonData.map((g: any) => {
-                // 🔧 FIX: Try multiple column name variations
                 const guestData = {
                     name: findColumnValue(g, ['Invitado', 'invitado', 'Nombre', 'nombre', 'Name', 'name']),
                     guest_count: parseInt(findColumnValue(g, ['Invitados', 'invitados', 'Numero', 'numero', 'Number', 'number', 'Número', 'número'])) || 1,
-                    // 🔧 FIX: Handle phone with AND without accent
                     phone_number: findColumnValue(g, ['Teléfono', 'Telefono', 'teléfono', 'telefono', 'Phone', 'phone', 'Celular', 'celular', 'WhatsApp', 'whatsapp']),
                     email: findColumnValue(g, ['Email', 'email', 'Correo', 'correo', 'E-mail', 'e-mail']),
                     dietary_restrictions: findColumnValue(g, ['Restricciones', 'restricciones', 'Dietary', 'dietary', 'Dieta', 'dieta']),
@@ -139,7 +132,6 @@ export default function GuestUploadPage() {
                     created_by: session.user.id,
                     did_confirm: null,
                 }
-
                 console.log('✅ Mapped guest:', guestData)
                 return guestData
             })
@@ -181,7 +173,6 @@ export default function GuestUploadPage() {
     }
 
     const saveEdit = async (id: string) => {
-        // Validation
         if (!editForm.name?.trim()) {
             alert('❌ El nombre no puede estar vacío')
             return
@@ -192,7 +183,6 @@ export default function GuestUploadPage() {
             return
         }
 
-        // 🔧 FIX #2: Always include all fields in update, don't skip if undefined
         const updateData: any = {
             name: editForm.name,
             guest_count: parseInt(editForm.guest_count) || 0,
@@ -203,7 +193,7 @@ export default function GuestUploadPage() {
             table_number: editForm.table_number ? parseInt(editForm.table_number) : null,
             number_confirmations: parseInt(editForm.number_confirmations) || 0,
             did_confirm: editForm.did_confirm === null ? null : editForm.did_confirm,
-            whoInvites: editForm.whoInvites || 'Susana', // 🔧 CRITICAL FIX: Always set this field
+            whoInvites: editForm.whoInvites || 'Susana',
         }
 
         console.log('💾 Saving to Supabase:', updateData)
@@ -213,11 +203,11 @@ export default function GuestUploadPage() {
             .from('guests')
             .update(updateData)
             .eq('id', id)
-            .select() // 🔧 FIX: Add .select() to see what was actually saved
+            .select()
 
         if (!error) {
             console.log('✅ Supabase update successful:', data)
-            await fetchGuests() // Refetch to ensure UI matches database
+            await fetchGuests()
             cancelEdit()
             alert('✅ Cambios guardados correctamente')
         } else {
@@ -306,7 +296,6 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
                 g.did_confirm === true ? 'Sí' :
                     g.did_confirm === false ? 'No' : 'Pendiente'
 
-            // Minimal message for Excel hyperlink — keeps URL under 255 chars for HYPERLINK() formula
             const count = g.guest_count || 1
             const minimalMsg = `https://bodasusanayjavier.com/?token=${g.invite_token} Boletos: ${count}`
             const whatsappUrl = phone && g.invite_token
@@ -328,17 +317,16 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
 
         const ws = XLSX.utils.json_to_sheet(rows)
 
-        // Column widths for readability
         ws['!cols'] = [
-            { wch: 30 }, // Nombre
-            { wch: 18 }, // Boletos Asignados
-            { wch: 20 }, // Boletos Confirmados
-            { wch: 18 }, // Teléfono
-            { wch: 12 }, // Invita
-            { wch: 14 }, // ¿Confirmó?
-            { wch: 30 }, // Restricciones
-            { wch: 30 }, // Comentarios
-            { wch: 80 }, // WhatsApp URL
+            { wch: 30 },
+            { wch: 18 },
+            { wch: 20 },
+            { wch: 18 },
+            { wch: 12 },
+            { wch: 14 },
+            { wch: 30 },
+            { wch: 30 },
+            { wch: 80 },
         ]
 
         const wb = XLSX.utils.book_new()
@@ -348,8 +336,7 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
         XLSX.writeFile(wb, `invitados_${date}.xlsx`)
     }
 
-    // ── NEW: sort toggle helper ────────────────────────────────────────────────
-    // Clicking the same column flips direction; clicking a new column resets to asc.
+    // ── Sort toggle helper ────────────────────────────────────────────────────
     const handleSortClick = (field: SortField) => {
         if (sortField === field) {
             setSortDir(d => d === 'asc' ? 'desc' : 'asc')
@@ -358,9 +345,8 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
             setSortDir('asc')
         }
     }
-    // ─────────────────────────────────────────────────────────────────────────────
 
-    // ---- Computed filtered + sorted list + totals ----
+    // ---- Computed filtered + sorted list ----
     const filteredGuests = useMemo(() => {
         const ql = q.trim().toLowerCase()
 
@@ -390,7 +376,6 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
                 whoInvitesFilter === 'all' ? true
                     : g.whoInvites === whoInvitesFilter
 
-            // ── NEW filters ──────────────────────────────────────────────────
             const commentsOk =
                 commentsFilter === 'all' ? true
                     : !!(g.comments && g.comments.trim() !== '')
@@ -398,12 +383,10 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
             const allergyOk =
                 allergyFilter === 'all' ? true
                     : !!(g.dietary_restrictions && g.dietary_restrictions.trim() !== '')
-            // ─────────────────────────────────────────────────────────────────
 
             return textOk && confOk && tableOk && phoneOk && whoInvitesOk && commentsOk && allergyOk
         })
 
-        // ── NEW sort ──────────────────────────────────────────────────────────
         if (sortField === 'none') return filtered
 
         return [...filtered].sort((a, b) => {
@@ -416,7 +399,6 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
                 valA = parseInt(a.guest_count) || 0
                 valB = parseInt(b.guest_count) || 0
             } else if (sortField === 'did_confirm') {
-                // Ascending: Confirmados(1) → Pendientes(0) → No(-1)
                 const rank = (v: boolean | null) => v === true ? 1 : v === null ? 0 : -1
                 valA = rank(a.did_confirm)
                 valB = rank(b.did_confirm)
@@ -426,14 +408,41 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
             if (valA > valB) return sortDir === 'asc' ? 1 : -1
             return 0
         })
-        // ─────────────────────────────────────────────────────────────────────
     }, [guests, q, confirmFilter, tableFilter, phoneFilter, whoInvitesFilter,
         commentsFilter, allergyFilter, sortField, sortDir])
 
-    const totals = useMemo(() => {
+    // ────────────────────────────────────────────────────────────────────────────
+    // ✅ FIX: rsvpSummary — totalTickets is a direct sum of guest_count over ALL
+    //    filtered guests, regardless of did_confirm value. Previously it was
+    //    yesTickets + noTickets + pendingTickets, which silently dropped rows
+    //    where did_confirm held an unexpected value (e.g. a stray string from
+    //    an old import), causing the total to fall short of the real count.
+    // ────────────────────────────────────────────────────────────────────────────
+    const rsvpSummary = useMemo(() => {
+        const yes = filteredGuests.filter(g => g.did_confirm === true)
+        const no = filteredGuests.filter(g => g.did_confirm === false)
+        const pending = filteredGuests.filter(g => g.did_confirm === null)
+
+        const yesTickets = yes.reduce((s, g) => s + (parseInt(g.guest_count) || 0), 0)
+        const noTickets = no.reduce((s, g) => s + (parseInt(g.guest_count) || 0), 0)
+        const pendingTickets = pending.reduce((s, g) => s + (parseInt(g.guest_count) || 0), 0)
+
+        // ✅ Direct sum — catches any row regardless of did_confirm value
+        const totalTickets = filteredGuests.reduce((s, g) => s + (parseInt(g.guest_count) || 0), 0)
+
+        const confirmationRate = totalTickets > 0 ? Math.round((yesTickets / totalTickets) * 100) : 0
+
+        // ✅ Actual confirmed attendees from number_confirmations field
+        const actualConfirmed = filteredGuests.reduce((s, g) => s + (parseInt(g.number_confirmations) || 0), 0)
+
         return {
-            invited: filteredGuests.reduce((sum, g) => sum + (parseInt(g.guest_count) || 0), 0),
-            confirmed: filteredGuests.reduce((sum, g) => sum + (parseInt(g.number_confirmations) || 0), 0),
+            yesCount: yes.length, yesTickets,
+            noCount: no.length, noTickets,
+            pendingCount: pending.length, pendingTickets,
+            totalGroups: filteredGuests.length,
+            totalTickets,       // ✅ grand total boletos (all rows)
+            confirmationRate,
+            actualConfirmed,    // ✅ sum of number_confirmations
         }
     }, [filteredGuests])
 
@@ -447,26 +456,6 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
             return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-red-200 text-red-800">❌ No</span>
         return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-yellow-200 text-yellow-800">⏳ Pendiente</span>
     }
-
-    // ---- Stats summary ----
-    const rsvpSummary = (() => {
-        const yes = filteredGuests.filter(g => g.did_confirm === true)
-        const no = filteredGuests.filter(g => g.did_confirm === false)
-        const pending = filteredGuests.filter(g => g.did_confirm === null)
-        const yesTickets = yes.reduce((s, g) => s + (parseInt(g.guest_count) || 0), 0)
-        const noTickets = no.reduce((s, g) => s + (parseInt(g.guest_count) || 0), 0)
-        const pendingTickets = pending.reduce((s, g) => s + (parseInt(g.guest_count) || 0), 0)
-        const totalTickets = yesTickets + noTickets + pendingTickets
-        const confirmationRate = totalTickets > 0 ? Math.round((yesTickets / totalTickets) * 100) : 0
-        return {
-            yesCount: yes.length, yesTickets,
-            noCount: no.length, noTickets,
-            pendingCount: pending.length, pendingTickets,
-            totalGroups: filteredGuests.length,
-            totalTickets,
-            confirmationRate,
-        }
-    })()
 
     // ---- KPI card definitions ----
     const pct = (n: number, d: number) => Math.round((n / (d || 1)) * 100)
@@ -509,10 +498,8 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
     const rateBg = rate >= 70 ? '#f0fdf4' : rate >= 40 ? '#fefce8' : '#fff1f2'
     const rateText = rate >= 70 ? '#14532d' : rate >= 40 ? '#713f12' : '#7f1d1d'
 
-    // ── NEW: badge counts for special-needs guests ────────────────────────────
     const withCommentsCount = guests.filter(g => g.comments && g.comments.trim() !== '').length
     const withAllergyCount = guests.filter(g => g.dietary_restrictions && g.dietary_restrictions.trim() !== '').length
-    // ─────────────────────────────────────────────────────────────────────────────
 
     return (
         <main className="min-h-screen bg-paper text-wine p-8">
@@ -775,7 +762,7 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
                         </select>
                     </div>
 
-                    {/* ── NEW: Allergy filter ────────────────────────────────────────── */}
+                    {/* Allergy filter */}
                     <div>
                         <label className="block text-sm font-medium mb-1">
                             🥜 Alergias / Dieta
@@ -795,7 +782,7 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
                         </select>
                     </div>
 
-                    {/* ── NEW: Comments filter ───────────────────────────────────────── */}
+                    {/* Comments filter */}
                     <div>
                         <label className="block text-sm font-medium mb-1">
                             💬 Comentarios
@@ -822,7 +809,6 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
                             setTableFilter('')
                             setPhoneFilter('all')
                             setWhoInvitesFilter('all')
-                            // ── NEW: also reset new filters ──
                             setAllergyFilter('all')
                             setCommentsFilter('all')
                         }}
@@ -832,7 +818,7 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
                     </button>
                 </div>
 
-                {/* ── NEW: Sort controls ─────────────────────────────────────────────── */}
+                {/* Sort controls */}
                 <div className="mt-4 pt-3 border-t border-gray-200 flex flex-wrap items-center gap-2">
                     <span className="text-sm font-medium text-gray-600 mr-1">Ordenar por:</span>
                     {([
@@ -861,7 +847,6 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
                         (haz click de nuevo en el mismo botón para invertir el orden)
                     </span>
                 </div>
-                {/* ─────────────────────────────────────────────────────────────────────── */}
 
                 <div className="mt-3 text-sm text-[#173039]">
                     Mostrando <b>{filteredGuests.length}</b> de <b>{guests.length}</b> invitados
@@ -879,7 +864,6 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
                 <table className="min-w-full table-auto text-sm">
                     <thead className="bg-rosewood text-black">
                         <tr>
-                            {/* ── Sortable column headers ── */}
                             <th
                                 className="px-4 py-2 cursor-pointer hover:bg-rosewood/80 select-none whitespace-nowrap"
                                 onClick={() => handleSortClick('name')}
@@ -893,17 +877,15 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
                                 className="px-4 py-2 cursor-pointer hover:bg-rosewood/80 select-none whitespace-nowrap"
                                 onClick={() => handleSortClick('guest_count')}
                             >
-                                Invitados {sortField === 'guest_count'
+                                Boletos {sortField === 'guest_count'
                                     ? (sortDir === 'asc' ? '↑' : '↓')
                                     : <span className="opacity-30 text-xs">↕</span>}
                             </th>
                             <th className="px-4 py-2">Teléfono</th>
                             <th className="px-4 py-2">Email</th>
-                            {/* Allergy col header — turns amber when filter active */}
                             <th className={`px-4 py-2 ${allergyFilter === 'with' ? 'bg-amber-200 text-amber-900' : ''}`}>
                                 🥜 Restricciones Dietéticas
                             </th>
-                            {/* Comments col header — turns blue when filter active */}
                             <th className={`px-4 py-2 ${commentsFilter === 'with' ? 'bg-blue-200 text-blue-900' : ''}`}>
                                 💬 Comentarios
                             </th>
@@ -928,18 +910,16 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
                             const globalIdx = guests.findIndex(g => g.id === guest.id)
                             const isEditing = editingIndex === globalIdx
 
-                            // ── Row highlight flags ──────────────────────────────────────
                             const hasAllergy = !!(guest.dietary_restrictions && guest.dietary_restrictions.trim() !== '')
                             const hasComments = !!(guest.comments && guest.comments.trim() !== '')
-                            // ─────────────────────────────────────────────────────────────
 
                             return (
                                 <tr
                                     key={guest.id}
                                     className={`border-b hover:bg-stone-50 ${hasAllergy && hasComments ? 'bg-orange-50'
-                                            : hasAllergy ? 'bg-amber-50'
-                                                : hasComments ? 'bg-blue-50'
-                                                    : ''
+                                        : hasAllergy ? 'bg-amber-50'
+                                            : hasComments ? 'bg-blue-50'
+                                                : ''
                                         }`}
                                 >
                                     {isEditing ? (
@@ -1017,7 +997,7 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
                                             </td>
                                             <td className="px-4 py-2">
                                                 <select
-                                                    value={editForm.did_confirm ?? ''}
+                                                    value={editForm.did_confirm === null ? '' : String(editForm.did_confirm)}
                                                     onChange={(e) =>
                                                         updateEditField(
                                                             'did_confirm',
@@ -1069,7 +1049,7 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
                                             <td className="px-4 py-2">{guest.phone_number}</td>
                                             <td className="px-4 py-2">{guest.email}</td>
 
-                                            {/* ── Allergy cell: highlighted when non-empty ── */}
+                                            {/* Allergy cell */}
                                             <td className="px-4 py-2">
                                                 <div className="max-w-xs">
                                                     {hasAllergy ? (
@@ -1082,7 +1062,7 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
                                                 </div>
                                             </td>
 
-                                            {/* ── Comments cell: highlighted when non-empty ── */}
+                                            {/* Comments cell */}
                                             <td className="px-4 py-2">
                                                 <div className="max-w-xs">
                                                     {hasComments ? (
@@ -1137,7 +1117,7 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
 
                                                         {guest.did_confirm !== true && (
                                                             <a
-                                                                href={`https://wa.me/${guest.phone_number.replace(/[^\d]/g, '')}?text=${encodeURIComponent(getReminderMessage(guest.name, guest.invite_token))}`}
+                                                                href={`https://wa.me/${guest.phone_number.replace(/[^\d]/g, '')}?text=${encodeURIComponent(getReminderMessage(guest.name, guest.invite_token, guest.guest_count))}`}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
                                                                 className="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded text-xs transition text-center"
@@ -1167,12 +1147,28 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
                         })}
                     </tbody>
 
+                    {/* ────────────────────────────────────────────────────────────────
+                        ✅ FIX: Footer totals now use rsvpSummary, which computes
+                        totalTickets as a direct reduce over ALL filteredGuests
+                        (not yesTickets + noTickets + pendingTickets), so rows with
+                        unexpected did_confirm values are never silently dropped.
+                        The "Confirmados" cell now shows actualConfirmed (sum of
+                        number_confirmations) with a clear label to distinguish it
+                        from the KPI card "Confirmados" (boletos of groups that said yes).
+                    ──────────────────────────────────────────────────────────────── */}
                     <tfoot>
                         <tr className="font-bold bg-[#F7E7D6]">
                             <td className="px-4 py-2 text-right" colSpan={2}>Totales (filtrados)</td>
-                            {/* Uses rsvpSummary (guest_count gated by did_confirm) — matches KPI cards exactly */}
-                            <td className="px-4 py-2">{rsvpSummary.totalTickets} boletos</td>
+                            {/* ✅ Grand total boletos — direct sum of guest_count */}
+                            <td className="px-4 py-2 font-bold text-[#47091C]">
+                                {rsvpSummary.totalTickets} boletos
+                            </td>
                             <td colSpan={4}></td>
+                            {/* ✅ Actual confirmed attendees from number_confirmations */}
+                            <td className="px-4 py-2 text-green-700">
+                                {rsvpSummary.actualConfirmed} confirmados
+                            </td>
+                            {/* RSVP breakdown by status */}
                             <td className="px-4 py-2">
                                 <span className="text-green-700">✅ {rsvpSummary.yesTickets}</span>
                                 <span className="text-yellow-600 ml-2">⏳ {rsvpSummary.pendingTickets}</span>

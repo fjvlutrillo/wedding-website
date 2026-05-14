@@ -1079,7 +1079,14 @@ export default function SeatingCanvas() {
                     x={stagePos.x}
                     y={stagePos.y}
                     draggable
-                    onDragEnd={e => setStagePos({ x: e.target.x(), y: e.target.y() })}
+                    onDragEnd={e => {
+                        // Only update stagePos when the Stage itself was panned.
+                        // Table Group drags bubble up here too — ignore those.
+                        const stage = stageRef.current as any
+                        if (stage && e.target === stage) {
+                            setStagePos({ x: e.target.x(), y: e.target.y() })
+                        }
+                    }}
                     onWheel={e => {
                         e.evt.preventDefault()
                         const stage = stageRef.current as any
