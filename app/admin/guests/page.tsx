@@ -423,10 +423,10 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
         // ✅ Direct sum — catches any row regardless of did_confirm value
         const totalTickets = filteredGuests.reduce((s, g) => s + (parseInt(g.guest_count) || 0), 0)
 
-        const confirmationRate = totalTickets > 0 ? Math.round((actualConfirmed / totalTickets) * 100) : 0
-
         // ✅ Actual confirmed attendees from number_confirmations field
         const actualConfirmed = filteredGuests.reduce((s, g) => s + (parseInt(g.number_confirmations) || 0), 0)
+
+        const confirmationRate = totalTickets > 0 ? Math.round((actualConfirmed / totalTickets) * 100) : 0
 
         return {
             yesCount: yes.length, yesTickets,
