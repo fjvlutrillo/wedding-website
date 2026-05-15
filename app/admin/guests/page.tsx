@@ -423,7 +423,7 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
         // ✅ Direct sum — catches any row regardless of did_confirm value
         const totalTickets = filteredGuests.reduce((s, g) => s + (parseInt(g.guest_count) || 0), 0)
 
-        const confirmationRate = totalTickets > 0 ? Math.round((yesTickets / totalTickets) * 100) : 0
+        const confirmationRate = totalTickets > 0 ? Math.round((actualConfirmed / totalTickets) * 100) : 0
 
         // ✅ Actual confirmed attendees from number_confirmations field
         const actualConfirmed = filteredGuests.reduce((s, g) => s + (parseInt(g.number_confirmations) || 0), 0)
@@ -458,8 +458,8 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
     const kpiCards = [
         {
             label: 'Confirmados', sublabel: 'Asistirán',
-            tickets: rsvpSummary.yesTickets, groups: rsvpSummary.yesCount,
-            pctTickets: pct(rsvpSummary.yesTickets, totalTickets),
+            tickets: rsvpSummary.actualConfirmed, groups: rsvpSummary.yesCount,
+            pctTickets: pct(rsvpSummary.actualConfirmed, totalTickets),
             pctGroups: pct(rsvpSummary.yesCount, totalGroups),
             filter: 'yes' as ConfirmFilter,
             accent: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0',
@@ -584,7 +584,7 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
                         🎟️ Tasa de confirmación de boletos
                     </p>
                     <p style={{ color: rateText }} className="text-xs opacity-70">
-                        {rsvpSummary.yesTickets} confirmados
+                        {rsvpSummary.actualConfirmed} confirmados
                         {' · '}
                         {rsvpSummary.pendingTickets} pendientes
                         {' · '}
