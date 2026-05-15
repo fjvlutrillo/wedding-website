@@ -237,6 +237,7 @@ export default function SeatingCanvas() {
     const [selectedTableId, setSelectedTableId] = useState<string | null>(null)
     const [showNewTable, setShowNewTable] = useState(false)
     const [search, setSearch] = useState('')
+    const [sidebarOpen, setSidebarOpen] = useState(false) // mobile drawer
     const [whoInvitesFilter, setWhoInvitesFilter] = useState<'all' | 'Susana' | 'Javier'>('all') // ── NEW
     const [hideDeclined, setHideDeclined] = useState(true)  // ── hide did_confirm===false by default
 
@@ -893,13 +894,35 @@ export default function SeatingCanvas() {
 
     // ─── Render ───────────────────────────────────────────────────────────
     return (
-        <div className="h-[calc(100vh-80px)] flex text-black">
+        <div className="h-[calc(100vh-80px)] flex text-black relative">
 
-            {/* ── Sidebar ── */}
-            <aside className="w-80 border-r bg-[#FBF3F9] p-4 flex flex-col overflow-hidden shrink-0">
+            {/* ── Mobile backdrop ── */}
+            {sidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-black/40 z-30 md:hidden"
+                    onClick={() => setSidebarOpen(false)}
+                />
+            )}
+
+            {/* ── Sidebar — always visible on desktop, drawer on mobile ── */}
+            <aside className={`
+                bg-[#FBF3F9] p-4 flex flex-col overflow-hidden shrink-0
+                md:relative md:w-80 md:border-r md:translate-x-0 md:shadow-none
+                fixed inset-y-0 left-0 z-40 w-80 shadow-xl transition-transform duration-300
+                ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+            `}>
                 <div className="flex items-center justify-between mb-3">
                     <h2 className="text-lg font-semibold">Sin asignar</h2>
-                    <span className="text-xs bg-[#47091C] text-white rounded-full px-2 py-0.5">{unassigned.length}</span>
+                    <div className="flex items-center gap-2">
+                        <span className="text-xs bg-[#47091C] text-white rounded-full px-2 py-0.5">{unassigned.length}</span>
+                        {/* Close button — mobile only */}
+                        <button
+                            onClick={() => setSidebarOpen(false)}
+                            className="md:hidden text-gray-400 hover:text-gray-700 text-xl leading-none"
+                            aria-label="Cerrar panel">
+                            ×
+                        </button>
+                    </div>
                 </div>
 
                 <input placeholder="Buscar por nombre…" value={search}
@@ -1116,6 +1139,15 @@ export default function SeatingCanvas() {
                         {tables.map(renderTable)}
                     </Layer>
                 </Stage>
+
+                {/* ── Mobile sidebar toggle button ── */}
+                <button
+                    onClick={() => setSidebarOpen(o => !o)}
+                    className="md:hidden absolute bottom-6 right-4 z-20 bg-[#47091C] text-white rounded-full w-14 h-14 flex flex-col items-center justify-center shadow-lg active:scale-95 transition-transform"
+                    aria-label="Abrir panel de invitados">
+                    <span className="text-xl leading-none">👥</span>
+                    <span className="text-[9px] mt-0.5 font-medium">{unassigned.length}</span>
+                </button>
 
                 {/* ── Zoom controls ── */}
                 <div className="absolute top-4 left-4 flex flex-col gap-1 z-10">
