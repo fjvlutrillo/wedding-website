@@ -291,16 +291,9 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
     // ---- Export to Excel ----
     const exportToExcel = () => {
         const rows = filteredGuests.map((g) => {
-            const phone = (g.phone_number || '').replace(/[^\d]/g, '')
             const confirmLabel =
                 g.did_confirm === true ? 'Sí' :
                     g.did_confirm === false ? 'No' : 'Pendiente'
-
-            const count = g.guest_count || 1
-            const minimalMsg = `https://bodasusanayjavier.com/?token=${g.invite_token} Boletos: ${count}`
-            const whatsappUrl = phone && g.invite_token
-                ? `https://wa.me/${phone}?text=${encodeURIComponent(minimalMsg)}`
-                : ''
 
             return {
                 'Nombre del Invitado': g.name || '',
@@ -309,24 +302,24 @@ Confirma aquí: https://bodasusanayjavier.com/?token=${token}${boletosLine}
                 'Teléfono': g.phone_number || '',
                 'Invita': g.whoInvites || '',
                 '¿Confirmó?': confirmLabel,
+                'Mesa': g.table_number ?? '',
                 'Restricciones Dietéticas': g.dietary_restrictions || '',
                 'Comentarios': g.comments || '',
-                'WhatsApp Recordatorio': whatsappUrl,
             }
         })
 
         const ws = XLSX.utils.json_to_sheet(rows)
 
         ws['!cols'] = [
-            { wch: 30 },
-            { wch: 18 },
-            { wch: 20 },
-            { wch: 18 },
-            { wch: 12 },
-            { wch: 14 },
-            { wch: 30 },
-            { wch: 30 },
-            { wch: 80 },
+            { wch: 30 }, // Nombre del Invitado
+            { wch: 18 }, // Boletos Asignados
+            { wch: 20 }, // Boletos Confirmados
+            { wch: 18 }, // Teléfono
+            { wch: 12 }, // Invita
+            { wch: 14 }, // ¿Confirmó?
+            { wch: 10 }, // Mesa
+            { wch: 30 }, // Restricciones Dietéticas
+            { wch: 30 }, // Comentarios
         ]
 
         const wb = XLSX.utils.book_new()
