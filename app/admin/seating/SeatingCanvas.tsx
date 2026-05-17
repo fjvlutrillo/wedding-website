@@ -59,8 +59,8 @@ type TableModel = {
     decorColor?: string
     decorWidth?: number
     decorHeight?: number
-    /** Optional tint for seat tables: 'pink' | 'blue' | undefined (default rose) */
-    tableColor?: 'pink' | 'blue'
+    /** Optional tint for seat tables – undefined = default rose */
+    tableColor?: 'pinkLight' | 'pinkDark' | 'blueLight' | 'blueDark'
 }
 
 type Guest = {
@@ -610,7 +610,7 @@ export default function SeatingCanvas() {
             return (
                 <Group {...commonGroupProps}>
                     <Circle radius={68}
-                        fill={t.tableColor === 'pink' ? '#F9A8D4' : t.tableColor === 'blue' ? '#93C5FD' : P.rose}
+                        fill={t.tableColor === 'pinkLight' ? '#FBCFE8' : t.tableColor === 'pinkDark' ? '#EC4899' : t.tableColor === 'blueLight' ? '#BAE6FD' : t.tableColor === 'blueDark' ? '#3B82F6' : P.rose}
                         stroke={isSelected ? P.burgundy : P.burgundyDark}
                         strokeWidth={isSelected ? 3 : 2} shadowBlur={4} />
                     <Text text={`${t.name}\n${assigned}/${cap}`} align="center"
@@ -628,7 +628,7 @@ export default function SeatingCanvas() {
             return (
                 <Group {...commonGroupProps}>
                     <Rect x={-w / 2} y={-h / 2} width={w} height={h} cornerRadius={8}
-                        fill={t.tableColor === 'pink' ? '#F9A8D4' : t.tableColor === 'blue' ? '#93C5FD' : P.rose}
+                        fill={t.tableColor === 'pinkLight' ? '#FBCFE8' : t.tableColor === 'pinkDark' ? '#EC4899' : t.tableColor === 'blueLight' ? '#BAE6FD' : t.tableColor === 'blueDark' ? '#3B82F6' : P.rose}
                         stroke={isSelected ? P.burgundy : P.burgundyDark}
                         strokeWidth={isSelected ? 3 : 2} shadowBlur={4} />
                     <Text text={`${t.name}\n${assigned}/${cap}`} align="center"
@@ -650,18 +650,18 @@ export default function SeatingCanvas() {
                     {/* Upper arm */}
                     <Rect x={topCX - segW / 2} y={topCY - segH / 2} width={segW} height={segH}
                         cornerRadius={[20, 20, 4, 4]}
-                        fill={t.tableColor === 'pink' ? '#F9A8D4' : t.tableColor === 'blue' ? '#93C5FD' : P.rose}
+                        fill={t.tableColor === 'pinkLight' ? '#FBCFE8' : t.tableColor === 'pinkDark' ? '#EC4899' : t.tableColor === 'blueLight' ? '#BAE6FD' : t.tableColor === 'blueDark' ? '#3B82F6' : P.rose}
                         stroke={isSelected ? P.burgundy : P.burgundyDark}
                         strokeWidth={isSelected ? 3 : 2} shadowBlur={4} />
                     {/* Lower arm */}
                     <Rect x={botCX - segW / 2} y={botCY - segH / 2} width={segW} height={segH}
                         cornerRadius={[4, 4, 20, 20]}
-                        fill={t.tableColor === 'pink' ? '#F9A8D4' : t.tableColor === 'blue' ? '#93C5FD' : P.rose}
+                        fill={t.tableColor === 'pinkLight' ? '#FBCFE8' : t.tableColor === 'pinkDark' ? '#EC4899' : t.tableColor === 'blueLight' ? '#BAE6FD' : t.tableColor === 'blueDark' ? '#3B82F6' : P.rose}
                         stroke={isSelected ? P.burgundy : P.burgundyDark}
                         strokeWidth={isSelected ? 3 : 2} shadowBlur={4} />
                     {/* Connector bridge */}
                     <Rect x={-12} y={-8} width={40} height={16}
-                        fill={t.tableColor === 'pink' ? '#F9A8D4' : t.tableColor === 'blue' ? '#93C5FD' : P.rose} strokeEnabled={false} />
+                        fill={t.tableColor === 'pinkLight' ? '#FBCFE8' : t.tableColor === 'pinkDark' ? '#EC4899' : t.tableColor === 'blueLight' ? '#BAE6FD' : t.tableColor === 'blueDark' ? '#3B82F6' : P.rose} strokeEnabled={false} />
                     <Text text={`${t.name}\n${assigned}/${cap}`} align="center"
                         width={155} offsetX={155 / 2} offsetY={14} y={-10}
                         fontStyle="bold" fontSize={11} fill={P.burgundyDark} />
@@ -773,9 +773,11 @@ export default function SeatingCanvas() {
                                 <p className="text-xs font-medium text-gray-600 mb-1">Color de mesa</p>
                                 <div className="flex gap-2">
                                     {([
-                                        { val: undefined, label: 'Rosa', bg: '#E5AAAE' },
-                                        { val: 'pink', label: 'Rosa fuerte', bg: '#F9A8D4' },
-                                        { val: 'blue', label: 'Azul', bg: '#93C5FD' },
+                                        { val: undefined, label: 'Rosa (default)', bg: '#E5AAAE' },
+                                        { val: 'pinkLight', label: 'Rosa claro', bg: '#FBCFE8' },
+                                        { val: 'pinkDark', label: 'Rosa fuerte', bg: '#EC4899' },
+                                        { val: 'blueLight', label: 'Azul claro', bg: '#BAE6FD' },
+                                        { val: 'blueDark', label: 'Azul fuerte', bg: '#3B82F6' },
                                     ] as const).map(opt => (
                                         <button key={String(opt.val)} onClick={() => updateTable(t.id, { tableColor: opt.val })}
                                             title={opt.label}
