@@ -577,7 +577,7 @@ export default function SeatingCanvas() {
         if (t.isDecor) {
             const w = t.decorWidth ?? 200, h = t.decorHeight ?? 80
             return (
-                <Group key={t.id} x={t.x} y={t.y} draggable
+                <Group key={t.id} x={t.x} y={t.y} rotation={t.rotation} draggable
                     onClick={() => setSelectedTableId(t.id)}
                     onDragEnd={e => updateTable(t.id, { x: e.target.x(), y: e.target.y() })}>
                     <Rect x={-w / 2} y={-h / 2} width={w} height={h} cornerRadius={10}
@@ -599,7 +599,7 @@ export default function SeatingCanvas() {
         while (seatsArr.length < cap) seatsArr.push(undefined)
 
         const commonGroupProps = {
-            key: t.id, x: t.x, y: t.y, draggable: true,
+            key: t.id, x: t.x, y: t.y, rotation: t.rotation, draggable: true,
             onClick: () => setSelectedTableId(t.id),
             onDragEnd: (e: any) => updateTable(t.id, { x: e.target.x(), y: e.target.y() }),
         }
@@ -830,10 +830,26 @@ export default function SeatingCanvas() {
                         </>
                     )}
 
-                    <label className="block text-xs font-medium text-gray-600">Rotación (°)
-                        <input type="number" className="mt-1 w-24 border rounded px-2 py-1 text-sm" value={t.rotation}
-                            onChange={e => updateTable(t.id, { rotation: toInt(e.target.value, t.rotation) })} />
-                    </label>
+                    <div>
+                        <p className="text-xs font-medium text-gray-600 mb-1">Rotación (°)</p>
+                        <div className="flex items-center gap-1 flex-wrap">
+                            <input type="number" className="w-20 border rounded px-2 py-1 text-sm" value={t.rotation}
+                                onChange={e => updateTable(t.id, { rotation: toInt(e.target.value, t.rotation) })} />
+                            {/* Quick rotate buttons */}
+                            {([-90, -15, 15, 90] as const).map(deg => (
+                                <button key={deg}
+                                    onClick={() => updateTable(t.id, { rotation: t.rotation + deg })}
+                                    className="px-2 py-1 border rounded text-xs hover:bg-gray-100 transition-colors font-mono">
+                                    {deg > 0 ? `+${deg}°` : `${deg}°`}
+                                </button>
+                            ))}
+                            <button
+                                onClick={() => updateTable(t.id, { rotation: 0 })}
+                                className="px-2 py-1 border rounded text-xs hover:bg-gray-100 transition-colors text-gray-500">
+                                reset
+                            </button>
+                        </div>
+                    </div>
 
                     {!t.isDecor && (
                         <div className="pt-2 border-t">
