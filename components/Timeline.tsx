@@ -33,21 +33,21 @@ export default function Timeline() {
       location: 'Capilla'
     },
     {
-      time: '3:30 PM',
+      time: '3:00 PM',
       title: 'Cóctel de Bienvenida',
-      description: 'Disfruta de canapés, bebidas y música mientras nos preparamos para la gran recepción',
+      description: 'Disfruta de bebidas y música mientras nos preparamos para la gran recepción',
       icon: 'M8 22h8M12 11v11M19 3l-7 8-7-8Z',
       location: 'Terraza'
     },
     {
-      time: '5:30 PM',
+      time: '4:30 PM',
       title: 'Cena de Gala',
-      description: 'Disfruta de un exquisito menú de tres tiempos preparado especialmente para esta noche',
+      description: 'Disfruta de un exquisito menú preparado especialmente para esta noche',
       icon: 'M12 3V2M15.4 17.4l3.2-2.8a2 2 0 1 1 2.8 2.9l-3.6 3.3c-.7.8-1.7 1.2-2.8 1.2h-4c-1.1 0-2.1-.4-2.8-1.2l-1.302-1.464A1 1 0 0 0 6.151 19H5M2 14h12a2 2 0 0 1 0 4h-2M4 10h16M5 10a7 7 0 0 1 14 0M5 14v6a1 1 0 0 1-1 1H2',
       location: 'Jardin'
     },
     {
-      time: '8:00 PM',
+      time: '6:00 PM',
       title: 'Party time',
       description: '¡Es hora de bailar! La pista estará abierta toda la noche con música en vivo y DJ',
       icon: 'M5.8 11.3 2 22l10.7-3.79M4 3h.01M22 8h.01M15 2h.01M22 20h.01M22 2l-2.24.75a2.9 2.9 0 0 0-1.96 3.12c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10M22 13l-.82-.33c-.86-.34-1.82.2-1.98 1.11c-.11.7-.72 1.22-1.43 1.22H17M11 2l.33.82c.34.86-.2 1.82-1.11 1.98C9.52 4.9 9 5.52 9 6.23V7M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2Z',
