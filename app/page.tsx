@@ -8,10 +8,13 @@
  * 2. Historia Section
  * 3. Events Section (ceremony + reception)
  * 4. Dress Code Section
- * 5. Countdown
- * 6. Gallery
- * 7. Registry
- * 8. RSVP (when token is present)
+ * 5. Timeline Section          <-- NEW: rendered inside the token-gated block
+ * 6. Countdown
+ * 7. Gallery
+ * 8. Registry
+ * 9. RSVP (when token is present)
+ *
+ * Also added: BusScheduleBanner (floating, dismissible transport schedule).
  */
 
 import { useEffect, useState } from 'react'
@@ -28,6 +31,8 @@ import HeroSectionBohoChic from '@/components/HeroSectionBohoChic'
 import EventsSection from '@/components/EventDetails'
 import DressCodeSection from '@/components/DressCode'
 import RegistrySection from '@/components/RegistrySectionHybrid'
+import TimelineSection from '@/components/Timeline'          // <-- NEW
+import BusScheduleBanner from '@/components/BusScheduleBanner' // <-- NEW
 
 export default function Home() {
   const [showRSVP, setShowRSVP] = useState(false)
@@ -119,6 +124,10 @@ export default function Home() {
 
   return (
     <main className="min-h-screen text-[#2C2C2C] bg-warm-cream">
+
+      {/* Floating transport schedule — fixed position, so it overlays the
+          whole site regardless of where it sits in the tree. */}
+      <BusScheduleBanner />
 
       <HeroSectionBohoChic />
 
@@ -272,6 +281,7 @@ export default function Home() {
         <>
           <EventsSection />
           <DressCodeSection />
+          <TimelineSection />
           <TravelGuide />
         </>
       )}
